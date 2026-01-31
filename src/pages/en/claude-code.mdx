@@ -1,0 +1,205 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Claude Code CLI Setup
+lang: en
+activeId: claude-code
+---
+
+# Claude Code CLI Setup
+
+Learn how to configure Claude Code CLI to use Aiberm's API. This guide covers installation and configuration for Windows, macOS, and Linux.
+
+## What is Claude Code?
+
+Claude Code is Anthropic's official command-line interface (CLI) that brings AI assistance directly to your terminal and code editor. By configuring it to use Aiberm, you can access multiple AI models through a single, familiar interface.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- An Aiberm account ([Sign up here](https://aiberm.com/register))
+- An Aiberm API key ([Get your key](https://aiberm.com/console/token))
+- Terminal/Command Prompt access on your computer
+
+## Installation
+
+Choose your operating system below for installation instructions.
+
+### macOS & Linux
+
+Open your terminal and run:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | sh
+```
+
+This installation script handles all dependencies automatically—no need to pre-install Node.js or npm.
+
+**Verify installation:**
+```bash
+claude --version
+```
+
+### Windows
+
+1. Open **PowerShell as Administrator** (Right-click PowerShell → "Run as administrator")
+
+2. Run the installation command:
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+3. After installation, add Claude Code to your PATH:
+   - Press `Win + X` and select "System"
+   - Click "Advanced system settings"
+   - Click "Environment Variables"
+   - Under "System variables", select "Path" and click "Edit"
+   - Click "New" and add: `C:\Users\YourUsername\.claude\bin`
+   - Click "OK" to save
+
+4. **Restart your terminal** and verify installation:
+```powershell
+claude --version
+```
+
+## Configuration
+
+To use Aiberm with Claude Code, you need to set two environment variables:
+
+- `ANTHROPIC_AUTH_TOKEN` — Your Aiberm API key
+- `ANTHROPIC_BASE_URL` — Aiberm's API endpoint (`https://aiberm.com`)
+
+Choose one of the following configuration methods:
+
+### Method 1: Permanent Configuration (Recommended)
+
+This method saves your API key securely and persists across sessions.
+
+#### macOS & Linux
+
+Add these lines to your shell configuration file:
+
+**For Bash** (`~/.bashrc` or `~/.bash_profile`):
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+**For Zsh** (`~/.zshrc`):
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+Apply the changes:
+```bash
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+#### Windows
+
+**Using PowerShell (Persistent):**
+
+1. Open PowerShell as Administrator
+2. Run these commands:
+```powershell
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_AUTH_TOKEN', 'sk-your-aiberm-api-key', 'User')
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_BASE_URL', 'https://aiberm.com', 'User')
+```
+
+3. Restart your terminal to apply changes
+
+**Using Command Prompt (Persistent):**
+```cmd
+setx ANTHROPIC_AUTH_TOKEN "sk-your-aiberm-api-key"
+setx ANTHROPIC_BASE_URL "https://aiberm.com"
+```
+
+### Method 2: Temporary Configuration (Current Session Only)
+
+#### macOS & Linux
+
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows PowerShell
+
+```powershell
+$env:ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+$env:ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows Command Prompt
+
+```cmd
+set ANTHROPIC_AUTH_TOKEN=sk-your-aiberm-api-key
+set ANTHROPIC_BASE_URL=https://aiberm.com
+```
+
+### Method 3: Using Claude Code Settings
+
+Create or edit `~/.claude/settings.json`:
+
+```json
+{
+  "api": {
+    "baseUrl": "https://aiberm.com",
+    "token": "sk-your-aiberm-api-key"
+  }
+}
+```
+
+## Verify Configuration
+
+Test your setup by running:
+
+```bash
+claude "Hello! Can you confirm you're connected to Aiberm?"
+```
+
+If configured correctly, Claude Code should respond using Aiberm's API.
+
+**Check environment variables:**
+
+**macOS/Linux:**
+```bash
+echo $ANTHROPIC_BASE_URL
+echo $ANTHROPIC_AUTH_TOKEN
+```
+
+**Windows PowerShell:**
+```powershell
+echo $env:ANTHROPIC_BASE_URL
+echo $env:ANTHROPIC_AUTH_TOKEN
+```
+
+## Troubleshooting
+
+### "Invalid API key" Error
+
+- Verify your API key is correct: [Console → API Keys](https://aiberm.com/console/token)
+- Ensure there are no extra spaces in the environment variable
+- Check that `ANTHROPIC_BASE_URL` is set to `https://aiberm.com` (without `/v1`)
+
+### "Connection refused" Error
+
+- Verify your internet connection
+- Check if you can access https://aiberm.com in your browser
+- Ensure your firewall allows outbound HTTPS connections
+
+### Claude Code Not Found
+
+**macOS/Linux:**
+```bash
+# Check if Claude Code is in your PATH
+which claude
+
+# If not found, add to PATH in ~/.zshrc or ~/.bashrc:
+export PATH="$HOME/.claude/bin:$PATH"
+```
+
+**Windows:**
+- Verify the PATH environment variable includes `C:\Users\YourUsername\.claude\bin`
+- Restart your terminal after adding to PATH

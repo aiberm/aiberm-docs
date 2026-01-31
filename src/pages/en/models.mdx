@@ -1,0 +1,151 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Models List
+lang: en
+activeId: models
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Models List
+
+Get a list of all AI models accessible to the current user, including model IDs, names, providers, and detailed information.
+
+<Callout client:load type="info" title="About Models List and Token Groups">
+The models returned in the list depend on the token group that your API KEY belongs to. You can select the token group when creating or editing tokens in Console → API Tokens.
+</Callout>
+
+## Endpoint
+
+`GET https://aiberm.com/v1/models`
+
+## Request Example
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X GET "https://aiberm.com/v1/models" \\
+  -H "Authorization: Bearer sk-your-api-token-here" \\
+  -H "Content-Type: application/json"`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+url = "https://aiberm.com/v1/models"
+headers = {
+    "Authorization": "Bearer sk-your-api-token-here",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/models', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer sk-your-api-token-here',
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## Response Format
+
+### Success Response (200 OK)
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'json',
+      label: 'JSON',
+      code: `{
+  "success": true,
+  "data": [
+    {
+      "id": "gpt-4",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "gpt-3.5-turbo",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "claude-3-sonnet-20240229",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "anthropic",
+      "supported_endpoint_types": [
+        "chat"
+      ]
+    }
+  ]
+}`
+    }
+  ]}
+/>
+
+## Response Fields
+
+**Top-level Fields:**
+- `success` - Boolean, indicates whether the request was successful
+- `data` - Array of model objects (returned only on success)
+- `message` - Error message (returned only on failure)
+
+**Model Object Fields:**
+- `id` - Unique identifier for the model
+- `object` - Object type, fixed as "model"
+- `created` - Model creation timestamp
+- `owned_by` - Model provider (e.g., openai, anthropic)
+- `supported_endpoint_types` - Array of supported API endpoint types
+
+## Supported Endpoint Types
+
+- `chat` - Chat Completion
+- `completion` - Text Completion
+- `embedding` - Text Embedding
+- `image` - Image Generation
+- `audio` - Audio Processing
+- `rerank` - Rerank
+
+## Important Notes
+
+<Callout client:load type="info" title="Authentication Required">
+A valid API token must be provided. The token determines which models the user can access.
+</Callout>
+
+<Callout client:load type="info" title="Permission Control">
+The returned model list is filtered based on user groups and token groups, showing only models the user has permission to access.
+</Callout>
+
+## Common Errors
+
+- `401 Unauthorized` - API token is invalid or expired
+- `403 Forbidden` - User does not have access permission
+- `500 Internal Server Error` - Internal server error

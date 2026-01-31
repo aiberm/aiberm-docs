@@ -1,0 +1,59 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Image Generation
+lang: zh
+activeId: images
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 图像生成
+
+使用AI模型（如DALL-E）从文本描述创建图像。
+
+## 生成图像
+
+`POST https://aiberm.com/v1/images/generations`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.images.generate(
+    model="dall-e-3",
+    prompt="A cute cat playing piano",
+    size="1024x1024",
+    n=1
+)
+
+image_url = response.data[0].url
+print(image_url)`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/images/generations \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "dall-e-3",
+    "prompt": "A cute cat playing piano",
+    "size": "1024x1024"
+  }'`
+    }
+  ]}
+/>
+
+<Callout client:load type="info" title="可用尺寸">
+可用尺寸：1024x1024、1024x1792、1792x1024
+</Callout>

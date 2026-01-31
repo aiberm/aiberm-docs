@@ -1,0 +1,46 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Error Handling
+lang: en
+activeId: error-handling
+---
+
+# Error Handling
+
+Understand API error codes and handling methods.
+
+## Common Error Codes
+
+<div class="space-y-4 mt-8">
+  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-lg font-mono font-bold text-red-600">401</span>
+      <h3 class="text-lg font-semibold text-gray-900">Unauthorized</h3>
+    </div>
+    <p class="text-sm text-gray-700">Invalid or expired API key</p>
+  </div>
+
+  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-lg font-mono font-bold text-red-600">403</span>
+      <h3 class="text-lg font-semibold text-gray-900">Forbidden</h3>
+    </div>
+    <p class="text-sm text-gray-700">Insufficient permissions or restricted account</p>
+  </div>
+
+  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-lg font-mono font-bold text-red-600">429</span>
+      <h3 class="text-lg font-semibold text-gray-900">Too Many Requests</h3>
+    </div>
+    <p class="text-sm text-gray-700">Rate limit exceeded</p>
+  </div>
+
+  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-lg font-mono font-bold text-red-600">500</span>
+      <h3 class="text-lg font-semibold text-gray-900">Internal Server Error</h3>
+    </div>
+    <p class="text-sm text-gray-700">An error occurred on the server</p>
+  </div>
+</div>

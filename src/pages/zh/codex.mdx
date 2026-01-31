@@ -1,0 +1,246 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Codex CLI Setup
+lang: zh
+activeId: codex
+---
+
+# Codex CLI 设置
+
+学习如何配置 Codex CLI 使用 Aiberm 的 API。本指南涵盖 Windows、macOS 和 Linux 的安装和配置。
+
+## 什么是 Codex CLI？
+
+Codex CLI 是 OpenAI 的命令行界面，专为代码相关的终端任务而设计。与通用聊天工具相比，它强调工程就绪的输出，提供更清晰、可操作的代码更改。通过配置它使用 Aiberm，您可以通过经济高效的端点访问多个 AI 模型。
+
+## 前置条件
+
+开始之前，请确保您拥有：
+
+- 一个 Aiberm 账户（[在此注册](https://aiberm.com/register)）
+- 一个 Aiberm API 密钥（[获取密钥](https://aiberm.com/console/token)）
+- Node.js v20 或更高版本及 npm
+
+## 安装
+
+使用 npm 全局安装 Codex CLI：
+
+```bash
+npm install -g @openai/codex
+```
+
+**验证安装：**
+```bash
+codex --version
+```
+
+这应该显示版本号。
+
+## 配置
+
+Codex CLI 使用 `config.toml` 文件进行配置。配置目录位置因操作系统而异：
+
+- **Windows**：`%userprofile%\.codex`
+- **macOS/Linux**：`~/.codex`
+
+### 方法 1：手动配置
+
+导航到配置目录并创建或编辑 `config.toml`：
+
+**macOS/Linux：**
+```bash
+mkdir -p ~/.codex
+nano ~/.codex/config.toml
+```
+
+**Windows：**
+```powershell
+mkdir $env:USERPROFILE\.codex -Force
+notepad $env:USERPROFILE\.codex\config.toml
+```
+
+添加以下配置：
+
+```toml
+model = "gpt-4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # 这是指环境变量的名称
+wire_api = "responses"
+```
+
+**注意：** `env_key` 设置告诉 Codex CLI 读取哪个环境变量。您将在下一步中在此变量中设置您的 Aiberm API 密钥。
+
+### 方法 2：一键配置
+
+**macOS/Linux：**
+```bash
+mkdir -p ~/.codex && cat > ~/.codex/config.toml << 'EOF'
+model = "gpt-4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # 这是指环境变量的名称
+wire_api = "responses"
+EOF
+```
+
+**Windows PowerShell：**
+```powershell
+$configPath = "$env:USERPROFILE\.codex"
+New-Item -ItemType Directory -Force -Path $configPath | Out-Null
+@"
+model = "gpt-4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"
+wire_api = "responses"
+"@ | Out-File -FilePath "$configPath\config.toml" -Encoding utf8
+```
+
+**注意：** 上述配置将 Codex CLI 设置为从 `OPENAI_API_KEY` 环境变量读取您的 API 密钥，您将在下一步中使用 Aiberm API 密钥配置该变量。
+
+## 设置 API 密钥
+
+配置 TOML 文件后，将您的 Aiberm API 密钥设置为环境变量。
+
+**重要提示：** 尽管变量名为 `OPENAI_API_KEY`，但您应该使用您的 **Aiberm API 密钥**（而不是 OpenAI 密钥）。Codex CLI 使用此标准变量名以保持兼容性。
+
+### 临时（仅当前会话）
+
+**macOS/Linux：**
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Windows PowerShell：**
+```powershell
+$env:OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Windows 命令提示符：**
+```cmd
+set OPENAI_API_KEY=sk-your-aiberm-api-key
+```
+
+### 永久配置
+
+**macOS/Linux (Bash)：**
+
+添加到 `~/.bashrc` 或 `~/.bash_profile`：
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+应用更改：
+```bash
+source ~/.bashrc  # 或 source ~/.bash_profile
+```
+
+**macOS/Linux (Zsh)：**
+
+添加到 `~/.zshrc`：
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+应用更改：
+```bash
+source ~/.zshrc
+```
+
+**Windows PowerShell：**
+```powershell
+[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-your-aiberm-api-key', 'User')
+```
+
+**Windows 命令提示符：**
+```cmd
+setx OPENAI_API_KEY "sk-your-aiberm-api-key"
+```
+
+## 验证配置
+
+**检查 Node.js 安装：**
+```bash
+node -v
+npm -v
+```
+
+**验证 Codex CLI 安装：**
+```bash
+codex --version
+```
+
+**测试 API 连接：**
+```bash
+codex "你好！你能确认你已连接到 Aiberm 吗？"
+```
+
+**检查环境变量：**
+
+**macOS/Linux：**
+```bash
+echo $OPENAI_API_KEY
+```
+
+**Windows PowerShell：**
+```powershell
+echo $env:OPENAI_API_KEY
+```
+
+如果配置正确，Codex CLI 应该使用 Aiberm 的 API 进行响应。
+
+## 故障排除
+
+### 401 未授权错误
+
+- 验证您的 API 密钥是否正确：[控制台 → API 密钥](https://aiberm.com/console/token)
+- 确保 `OPENAI_API_KEY` 环境变量设置正确
+- 设置环境变量后重启终端
+
+### 403 禁止访问错误
+
+- 检查您的 API 密钥的有效性
+- 在 [https://aiberm.com/console](https://aiberm.com/console) 验证您的账户余额
+- 确保您的 API 密钥可以访问所请求的模型
+
+### 网络错误
+
+- 验证您的互联网连接
+- 检查您是否可以在浏览器中访问 https://aiberm.com
+- 确保您的防火墙允许出站 HTTPS 连接
+- 确认 `config.toml` 中的 `base_url` 正确：`https://aiberm.com/v1`
+
+### 配置未生效
+
+- 编辑 `config.toml` 后重启终端
+- 验证 TOML 语法格式（无额外空格，引号正确）
+- 检查配置文件位置对您的操作系统是否正确
+- 确保文件保存为 `config.toml`（而不是 `config.toml.txt`）
+
+### 找不到 Codex 命令
+
+**macOS/Linux：**
+```bash
+# 检查 npm 全局 bin 是否在 PATH 中
+npm config get prefix
+
+# 如果需要，在 ~/.zshrc 或 ~/.bashrc 中添加到 PATH：
+export PATH="$(npm config get prefix)/bin:$PATH"
+```
+
+**Windows：**
+- 验证 npm 全局路径是否在系统 PATH 中
+- npm 安装后重启终端

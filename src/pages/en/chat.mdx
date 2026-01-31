@@ -1,0 +1,155 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Chat Completions
+lang: en
+activeId: chat
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Chat Completions
+
+Create conversational responses using various AI models through a unified API.
+
+## Create Chat Completion
+
+`POST https://aiberm.com/v1/chat/completions`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "gpt-4",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is the capital of France?"}
+    ],
+    "temperature": 0.7
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "What is the capital of France?"}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: 'https://aiberm.com/v1'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user', content: 'What is the capital of France?' }
+  ],
+  temperature: 0.7
+});
+
+console.log(response.choices[0].message.content);`
+    }
+  ]}
+/>
+
+## Request Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `model` | string | Yes | ID of the model to use |
+| `messages` | array | Yes | Array of message objects |
+| `temperature` | number | No | Sampling temperature (0-2). Default: 1 |
+| `max_tokens` | integer | No | Maximum tokens to generate |
+| `top_p` | number | No | Nucleus sampling parameter |
+| `stream` | boolean | No | Whether to stream responses |
+
+## Message Roles
+
+Messages must include a `role` and `content`:
+
+- **system** - Sets the behavior/personality of the assistant
+- **user** - Messages from the end user
+- **assistant** - Previous responses from the AI
+
+## Streaming Responses
+
+Enable streaming to receive responses incrementally:
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+stream = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const stream = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Tell me a story' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || '');
+}`
+    }
+  ]}
+/>
+
+## Best Practices
+
+<Callout client:load type="tip" title="Optimize Your Requests">
+- Set `max_tokens` to limit costs
+- Use appropriate `temperature` values (lower for factual, higher for creative)
+- Include system messages to guide behavior
+- Stream responses for better UX
+</Callout>
+
+<Callout client:load type="warning">
+Be mindful of token limits for each model. Longer conversations may need conversation history management.
+</Callout>

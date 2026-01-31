@@ -1,0 +1,151 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Models List
+lang: zh
+activeId: models
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 获取模型列表
+
+获取当前用户可访问的所有AI模型列表，包括模型ID、名称、提供商和详细信息。
+
+<Callout client:load type="info" title="关于模型列表与令牌分组">
+模型列表返回什么模型取决于 API KEY（API令牌）所在的令牌分组。您可以在控制台 → API令牌页面，添加令牌时选择对应的令牌分组。
+</Callout>
+
+## API 端点
+
+`GET https://aiberm.com/v1/models`
+
+## 请求示例
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X GET "https://aiberm.com/v1/models" \\
+  -H "Authorization: Bearer sk-your-api-token-here" \\
+  -H "Content-Type: application/json"`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+url = "https://aiberm.com/v1/models"
+headers = {
+    "Authorization": "Bearer sk-your-api-token-here",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/models', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer sk-your-api-token-here',
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## 响应格式
+
+### 成功响应 (200 OK)
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'json',
+      label: 'JSON',
+      code: `{
+  "success": true,
+  "data": [
+    {
+      "id": "gpt-4",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "gpt-3.5-turbo",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "claude-3-sonnet-20240229",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "anthropic",
+      "supported_endpoint_types": [
+        "chat"
+      ]
+    }
+  ]
+}`
+    }
+  ]}
+/>
+
+## 响应字段说明
+
+**顶层字段：**
+- `success` - 布尔值，表示请求是否成功
+- `data` - 模型列表数组（仅在成功时返回）
+- `message` - 错误信息（仅在失败时返回）
+
+**模型对象字段：**
+- `id` - 模型唯一标识符
+- `object` - 对象类型，固定为 "model"
+- `created` - 模型创建时间戳
+- `owned_by` - 模型所属的服务商
+- `supported_endpoint_types` - 支持的API端点类型数组
+
+## 支持的端点类型
+
+- `chat` - 聊天完成
+- `completion` - 文本完成
+- `embedding` - 文本嵌入
+- `image` - 图像生成
+- `audio` - 音频处理
+- `rerank` - 重排序
+
+## 注意事项
+
+<Callout client:load type="info" title="认证要求">
+必须提供有效的API令牌，令牌决定了用户可以访问哪些模型。
+</Callout>
+
+<Callout client:load type="info" title="权限控制">
+返回的模型列表基于用户组和令牌组进行过滤，只显示用户有权限访问的模型。
+</Callout>
+
+## 常见错误
+
+- `401 Unauthorized` - API令牌无效或已过期
+- `403 Forbidden` - 用户没有访问权限
+- `500 Internal Server Error` - 服务器内部错误

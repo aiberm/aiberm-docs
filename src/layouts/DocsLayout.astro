@@ -1,0 +1,735 @@
+---
+import { navigation } from '../config/navigation';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+
+interface Props {
+  title: string;
+  lang: 'en' | 'zh';
+  activeId: string;
+}
+
+// Access frontmatter from MDX
+const { frontmatter } = Astro.props as any;
+const title = frontmatter?.title || Astro.props.title;
+const lang = frontmatter?.lang || Astro.props.lang || 'en';
+const activeId = frontmatter?.activeId || Astro.props.activeId;
+
+// Create refs for use in template expressions
+const navItems = navigation.map(group => ({
+  title: group.title[lang],
+  items: group.items.map(item => ({
+    id: item.id,
+    title: item.title[lang],
+    icon: item.icon || '',
+    isActive: item.id === activeId,
+    href: `/docs/${lang}/${item.id}/`
+  }))
+}));
+
+const backHomeText = lang === 'en' ? 'Back to Home' : '返回首页';
+const tocTitle = lang === 'en' ? 'ON THIS PAGE' : '本页内容';
+const langSwitchUrl = `/docs/${lang === 'en' ? 'zh' : 'en'}/${activeId}/`;
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title} | Aiberm API Documentation</title>
+  <link rel="icon" type="image/svg+xml" href="/docs/favicon.ico">
+</head>
+<body class="bg-white text-gray-900 overflow-x-hidden">
+  <div class="min-h-screen w-full">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 w-full bg-white/75 backdrop-blur-lg shadow-sm">
+      <div class="w-full px-4 md:px-6">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-2">
+            <!-- Mobile Menu Button -->
+            <button
+              id="mobile-menu-button"
+              class="lg:hidden p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+              aria-label="Toggle menu"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+
+            <!-- Logo -->
+            <a href="https://aiberm.com/" class="flex items-center gap-2 group">
+              <img
+                src="https://aiberm.com/aiberm-black.svg"
+                alt="Aiberm logo"
+                class="h-8 w-auto transition-transform duration-300 ease-in-out group-hover:scale-105"
+                style="max-height: 32px;"
+              />
+            </a>
+          </div>
+
+          <div class="flex items-center gap-2 md:gap-3">
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+              <a href="https://aiberm.com/" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
+                {lang === 'en' ? 'Home' : '首页'}
+              </a>
+              <a href="https://aiberm.com/console" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
+                {lang === 'en' ? 'Console' : '控制台'}
+              </a>
+              <a href="https://aiberm.com/pricing" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
+                {lang === 'en' ? 'Models' : '模型'}
+              </a>
+              <a href={`/docs/${lang}/getting-started/`} class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
+                {lang === 'en' ? 'Docs' : '文档'}
+              </a>
+              <a href="https://discord.gg/9WCaPdhkhx" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
+                Discord
+              </a>
+              <div class="relative" id="wechat-dropdown">
+                <button id="wechat-btn" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
+                  {lang === 'en' ? 'WeChat' : '微信群'}
+                </button>
+                <div id="wechat-qrcode" class="hidden absolute top-full left-1/2 -translate-x-1/2 mt-2 p-2 bg-white rounded-lg shadow-lg border border-gray-200 w-64 h-64 z-50">
+                  <img src="/aiberm-qrcode.jpg" alt="WeChat QR Code" class="w-64 h-64 object-contain" />
+                </div>
+              </div>
+            </nav>
+
+            <!-- Language Switcher -->
+            <LanguageSwitcher client:load currentLang={lang} switchUrl={langSwitchUrl} />
+
+            <!-- Login/Register Buttons -->
+            <div class="flex items-center">
+              <a href="https://aiberm.com/login" class="flex items-center justify-center py-2.5 px-3 rounded-l-full bg-gray-50 hover:bg-gray-100 transition-colors">
+                <span class="text-xs text-gray-700">{lang === 'en' ? 'Login' : '登录'}</span>
+              </a>
+              <a href="https://aiberm.com/register" class="hidden md:flex items-center justify-center py-2.5 px-3 rounded-r-full -ml-px bg-black hover:bg-gray-800 transition-colors">
+                <span class="text-xs text-white">{lang === 'en' ? 'Register' : '注册'}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+
+    <!-- Mobile Navigation Drawer -->
+    <aside id="mobile-nav" class="fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-gray-900">{lang === 'en' ? 'Navigation' : '导航'}</h2>
+          <button
+            id="mobile-menu-close"
+            class="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            aria-label="Close menu"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <nav class="space-y-6">
+          {navItems.map((group) => (
+            <div>
+              <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                {group.title}
+              </h3>
+              <ul class="space-y-1">
+                {group.items.map((item) => (
+                  <li>
+                    <a
+                      href={item.href}
+                      class:list={[
+                        'flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors',
+                        item.isActive
+                          ? 'bg-blue-50 text-blue-600 font-medium'
+                          : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                      ]}
+                    >
+                      {item.icon === 'rocket' && (
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                      )}
+                      {item.icon === 'key' && (
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
+                      )}
+                      {item.icon === 'file-text' && (
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                      )}
+                      {item.icon === 'message-square' && (
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                      )}
+                      {item.icon === 'file-code' && (
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                      )}
+                      {item.icon === 'image' && (
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                      )}
+                      {item.icon === 'terminal' && (
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                      )}
+                      {item.icon === 'alert-triangle' && (
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                      )}
+                      {item.icon === 'code' && (
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                      )}
+                      {item.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+      </div>
+    </aside>
+
+    <div class="flex min-h-screen">
+      <!-- Left Sidebar - Navigation (Hidden on mobile) -->
+      <aside class="hidden lg:block w-64 flex-shrink-0 bg-gray-50 border-r border-gray-200">
+        <div class="sticky top-24 px-6 py-8">
+            <!-- Back to Home -->
+            <a href="https://aiberm.com/" class="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-8">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              {backHomeText}
+            </a>
+
+            <nav class="space-y-8">
+              {navItems.map((group) => (
+                <div>
+                  <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    {group.title}
+                  </h3>
+                  <ul class="space-y-1">
+                    {group.items.map((item) => (
+                      <li>
+                        <a
+                          href={item.href}
+                          class:list={[
+                            'flex items-center gap-2 px-2 py-1.5 rounded text-sm transition-colors',
+                            item.isActive
+                              ? 'bg-gray-200 text-gray-900 font-medium'
+                              : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                          ]}
+                        >
+                          {item.icon === 'rocket' && (
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                          )}
+                          {item.icon === 'key' && (
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                            </svg>
+                          )}
+                          {item.icon === 'file-text' && (
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                          )}
+                          {item.icon === 'message-square' && (
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                          )}
+                          {item.icon === 'file-code' && (
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                          )}
+                          {item.icon === 'image' && (
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                          )}
+                          {item.icon === 'terminal' && (
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                          )}
+                          {item.icon === 'alert-triangle' && (
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                          )}
+                          {item.icon === 'code' && (
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                          )}
+                          {item.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </nav>
+          </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <div class="flex-1 flex">
+        <!-- Spacer for centering (hidden on mobile) -->
+        <div class="hidden xl:block flex-1"></div>
+
+        <!-- Main Content -->
+        <main class="w-full max-w-4xl px-4 md:px-6 lg:px-8 py-6 md:py-8">
+          <article class="docs-content">
+            <slot />
+          </article>
+        </main>
+
+        <!-- Spacer for centering (hidden on mobile) -->
+        <div class="hidden xl:block flex-1"></div>
+      </div>
+
+      <!-- Right Sidebar - Table of Contents (Hidden on mobile and tablet) -->
+      <aside class="hidden xl:block w-64 flex-shrink-0 bg-gray-50 border-l border-gray-200">
+        <div class="sticky top-24 px-6 py-8">
+          <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+            {tocTitle}
+          </h3>
+          <div id="toc" class="text-sm space-y-2"></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 bg-white">
+      <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <!-- Copyright -->
+          <div class="text-sm text-gray-600">
+            © 2026 Aiberm. All rights reserved.
+          </div>
+
+          <!-- Friend Links -->
+          <div class="flex items-center gap-6">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              {lang === 'en' ? 'Friends' : '友情链接'}
+            </span>
+            <div class="flex items-center gap-4">
+              <a
+                href="https://geddle.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+              >
+                Geddle.com
+              </a>
+              <a
+                href="https://meiguo.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+              >
+                Meiguo.app
+              </a>
+              <a
+                href="https://arrfounder.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+              >
+                Arrfounder.com
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <style is:global>
+    /* Smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    /* Docs content styling - mobile-first approach */
+    .docs-content {
+      color: #374151;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    @media (min-width: 768px) {
+      .docs-content {
+        font-size: 16px;
+        line-height: 1.7;
+      }
+    }
+
+    .docs-content h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 1.5rem;
+      margin-top: 0;
+      letter-spacing: -0.025em;
+    }
+
+    @media (min-width: 768px) {
+      .docs-content h1 {
+        font-size: 2.25rem;
+      }
+    }
+
+    .docs-content h2 {
+      font-size: 1.375rem;
+      font-weight: 600;
+      color: #111827;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      letter-spacing: -0.025em;
+    }
+
+    @media (min-width: 768px) {
+      .docs-content h2 {
+        font-size: 1.5rem;
+        margin-top: 2.5rem;
+      }
+    }
+
+    .docs-content h3 {
+      font-size: 1.0625rem;
+      font-weight: 600;
+      color: #111827;
+      margin-top: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    @media (min-width: 768px) {
+      .docs-content h3 {
+        font-size: 1.125rem;
+        margin-top: 1.5rem;
+      }
+    }
+
+    .docs-content p {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      color: #4b5563;
+      line-height: 1.75;
+    }
+
+    .docs-content a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .docs-content a:hover {
+      color: #1d4ed8;
+    }
+
+    .docs-content ul,
+    .docs-content ol {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    .docs-content ul {
+      list-style-type: disc;
+    }
+
+    .docs-content ol {
+      list-style-type: decimal;
+    }
+
+    .docs-content li {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      color: #4b5563;
+      line-height: 1.75;
+    }
+
+    .docs-content strong {
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .docs-content :not(pre) > code {
+      font-size: 0.875rem;
+      background-color: #f3f4f6;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    }
+
+    /* Style for markdown code blocks - mobile-first */
+    .docs-content pre {
+      background-color: #1e1e1e;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 1rem 0;
+      font-size: 0.8125rem;
+      line-height: 1.7;
+      max-width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .docs-content pre {
+        border-radius: 0.5rem;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        font-size: 0.875rem;
+      }
+    }
+
+    /* Don't style code blocks from CodeExample component */
+    .docs-content .not-content pre {
+      padding: 0;
+      margin: 0;
+      border-radius: 0;
+    }
+
+    .docs-content pre code {
+      all: unset;
+      display: block;
+      color: #d4d4d4;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    }
+
+    /* Tables - mobile-first */
+    .docs-content table {
+      width: 100%;
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-collapse: collapse;
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+      font-size: 0.8125rem;
+    }
+
+    @media (min-width: 768px) {
+      .docs-content table {
+        display: table;
+        white-space: normal;
+        font-size: 0.875rem;
+      }
+    }
+
+    .docs-content th {
+      background-color: #f9fafb;
+      padding: 0.5rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    @media (min-width: 768px) {
+      .docs-content th {
+        padding: 0.75rem;
+      }
+    }
+
+    .docs-content td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    @media (min-width: 768px) {
+      .docs-content td {
+        padding: 0.75rem;
+      }
+    }
+
+    .docs-content blockquote {
+      border-left: 4px solid #e5e7eb;
+      padding-left: 1rem;
+      margin: 1.5rem 0;
+      font-style: italic;
+      color: #6b7280;
+    }
+
+    /* Prevent docs-content styles from affecting CodeExample components */
+    .docs-content .not-content {
+      font-size: initial;
+      color: initial;
+      line-height: initial;
+    }
+
+    /* Ensure CodeExample components are responsive on mobile */
+    .docs-content .not-content {
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .docs-content .not-content > div {
+      max-width: 100%;
+    }
+
+    /* Code blocks inside CodeExample should allow horizontal scroll */
+    .docs-content .not-content pre,
+    .docs-content .not-content code {
+      max-width: 100%;
+      white-space: pre;
+      word-wrap: normal;
+      overflow-wrap: normal;
+    }
+
+    /* Touch target improvements for mobile devices */
+    @media (pointer: coarse) and (max-width: 768px) {
+      /* Ensure minimum touch target size of 44x44px for touch devices */
+      button, a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      /* Improve link spacing on mobile */
+      .docs-content a {
+        padding: 2px 0;
+      }
+    }
+  </style>
+
+  <script>
+    // WeChat QR code dropdown functionality
+    function initWechatDropdown() {
+      const wechatBtn = document.getElementById('wechat-btn');
+      const wechatQrcode = document.getElementById('wechat-qrcode');
+
+      if (!wechatBtn || !wechatQrcode) return;
+
+      wechatBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        wechatQrcode.classList.toggle('hidden');
+      });
+
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!wechatQrcode.classList.contains('hidden')) {
+          const target = e.target as Node;
+          if (!wechatQrcode.contains(target) && !wechatBtn.contains(target)) {
+            wechatQrcode.classList.add('hidden');
+          }
+        }
+      });
+    }
+
+    // Mobile menu functionality
+    function initMobileMenu() {
+      const menuButton = document.getElementById('mobile-menu-button');
+      const closeButton = document.getElementById('mobile-menu-close');
+      const mobileNav = document.getElementById('mobile-nav');
+      const overlay = document.getElementById('mobile-menu-overlay');
+
+      if (!menuButton || !closeButton || !mobileNav || !overlay) return;
+
+      function openMenu() {
+        mobileNav.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMenu() {
+        mobileNav.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+
+      menuButton.addEventListener('click', openMenu);
+      closeButton.addEventListener('click', closeMenu);
+      overlay.addEventListener('click', closeMenu);
+
+      // Close menu when clicking on a link
+      const mobileNavLinks = mobileNav.querySelectorAll('a');
+      mobileNavLinks.forEach((link) => {
+        link.addEventListener('click', closeMenu);
+      });
+
+      // Close menu on escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !mobileNav.classList.contains('-translate-x-full')) {
+          closeMenu();
+        }
+      });
+    }
+
+    // Generate table of contents
+    function generateTOC() {
+      const article = document.querySelector('article');
+      const toc = document.getElementById('toc');
+
+      if (!article || !toc) return;
+
+      const headings = article.querySelectorAll('h2, h3');
+      const tocItems: string[] = [];
+
+      headings.forEach((heading) => {
+        const level = heading.tagName === 'H2' ? 0 : 1;
+        const text = heading.textContent || '';
+        const id = heading.id || text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+        if (!heading.id) heading.id = id;
+
+        tocItems.push(`
+          <a href="#${id}" class="block py-1 text-gray-600 hover:text-gray-900 transition-colors ${level === 1 ? 'pl-4 text-sm' : 'font-medium'}">
+            ${text}
+          </a>
+        `);
+      });
+
+      toc.innerHTML = tocItems.join('');
+    }
+
+    // Run on load
+    document.addEventListener('DOMContentLoaded', () => {
+      initWechatDropdown();
+      initMobileMenu();
+      generateTOC();
+    });
+  </script>
+</body>
+</html>

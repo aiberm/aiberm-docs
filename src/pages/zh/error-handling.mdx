@@ -1,0 +1,46 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Error Handling
+lang: zh
+activeId: error-handling
+---
+
+# 错误处理
+
+了解API错误代码和处理方法，确保您的应用程序能够正确处理各种异常情况。
+
+## 常见错误代码
+
+<div class="space-y-4 mt-8">
+  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-lg font-mono font-bold text-red-600">401</span>
+      <h3 class="text-lg font-semibold text-gray-900">未授权</h3>
+    </div>
+    <p class="text-sm text-gray-700">API密钥无效或已过期</p>
+  </div>
+
+  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-lg font-mono font-bold text-red-600">403</span>
+      <h3 class="text-lg font-semibold text-gray-900">禁止访问</h3>
+    </div>
+    <p class="text-sm text-gray-700">权限不足或账户被限制</p>
+  </div>
+
+  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-lg font-mono font-bold text-red-600">429</span>
+      <h3 class="text-lg font-semibold text-gray-900">请求过多</h3>
+    </div>
+    <p class="text-sm text-gray-700">请求频率超过限制</p>
+  </div>
+
+  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-lg font-mono font-bold text-red-600">500</span>
+      <h3 class="text-lg font-semibold text-gray-900">服务器错误</h3>
+    </div>
+    <p class="text-sm text-gray-700">服务器内部错误</p>
+  </div>
+</div>
