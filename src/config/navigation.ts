@@ -80,6 +80,11 @@ export const navigation: NavGroup[] = [
         icon: 'terminal',
       },
       {
+        id: 'openclaw',
+        title: { en: 'OpenClaw Setup', zh: 'OpenClaw 设置' },
+        icon: 'terminal',
+      },
+      {
         id: 'error-handling',
         title: { en: 'Error Handling', zh: '错误处理' },
         icon: 'alert-triangle',

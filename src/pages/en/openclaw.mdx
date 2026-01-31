@@ -1,0 +1,188 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: OpenClaw Setup
+lang: en
+activeId: openclaw
+---
+
+# OpenClaw Setup
+
+Learn how to configure OpenClaw to use Aiberm's API. This guide covers installation and configuration for Windows, macOS, and Linux.
+
+## What is OpenClaw?
+
+OpenClaw is an open-source AI agent platform that brings AI assistance directly to your terminal and messaging apps. It supports multiple LLM providers and can be extended with plugins.
+
+By installing the **openclaw-aiberm** plugin, you can access all models available on Aiberm (including GPT, Claude, Gemini, DeepSeek, Grok, and more) through a unified interface with one API key.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- An Aiberm account ([Sign up here](https://aiberm.com/register))
+- An Aiberm API key ([Get your key](https://aiberm.com/console/token))
+- Terminal/Command Prompt access on your computer
+- Node.js 18+ installed
+
+## Installation
+
+### Step 1: Install OpenClaw
+
+**macOS & Linux:**
+
+```bash
+curl -fsSL https://openclaw.ai/install | bash
+```
+
+Or using npm:
+
+```bash
+npm i -g openclaw
+```
+
+**Windows:**
+
+```bash
+npm i -g openclaw
+```
+
+**Verify installation:**
+
+```bash
+openclaw --version
+```
+
+### Step 2: Install Aiberm Plugin
+
+Install the Aiberm provider plugin:
+
+```bash
+openclaw plugins install openclaw-aiberm
+```
+
+Enable the plugin:
+
+```bash
+openclaw plugins enable openclaw-aiberm
+```
+
+**Important:** After enabling, restart the gateway for changes to take effect:
+
+```bash
+openclaw gateway restart
+```
+
+## Authentication
+
+After installing and enabling the plugin, authenticate with your Aiberm API key:
+
+```bash
+openclaw models auth login --provider aiberm --set-default
+```
+
+You will be prompted to enter your Aiberm API key. Get your API key at [https://aiberm.com/console/token](https://aiberm.com/console/token).
+
+## Available Models
+
+The plugin dynamically loads models from Aiberm API. Here are some examples:
+
+### OpenAI GPT
+- `aiberm/openai/gpt-5.2-codex`
+- `aiberm/openai/gpt-5.2`
+- `aiberm/openai/gpt-4.1`
+- `aiberm/openai/gpt-4o`
+- `aiberm/openai/gpt-4o-mini`
+
+### Anthropic Claude
+- `aiberm/anthropic/claude-opus-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5`
+- `aiberm/anthropic/claude-haiku-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5:thinking`
+
+### Google Gemini
+- `aiberm/google/gemini-3-pro`
+- `aiberm/google/gemini-3-flash`
+- `aiberm/google/gemini-2.5-pro`
+
+### DeepSeek
+- `aiberm/deepseek/deepseek-r1`
+- `aiberm/deepseek/deepseek-v3.2`
+
+### X.AI Grok
+- `aiberm/x-ai/grok-4.1-fast`
+- `aiberm/x-ai/grok-code-fast-1`
+
+Visit [Aiberm Pricing](https://aiberm.com/pricing) for the complete and up-to-date list of available models.
+
+## Usage
+
+```bash
+# Use Claude Sonnet 4.5 (default after auth)
+openclaw agent --message "Hello"
+
+# Use a specific model
+openclaw agent --model aiberm/openai/gpt-5.2-codex --message "Hello"
+
+# Use DeepSeek R1
+openclaw agent --model aiberm/deepseek/deepseek-r1 --message "Hello"
+
+# List available models
+openclaw models list | grep aiberm
+```
+
+## Environment Variable
+
+You can also set the API key via environment variable:
+
+```bash
+export AIBERM_API_KEY=sk-your-api-key
+```
+
+## Dynamic Model Loading
+
+The openclaw-aiberm plugin features dynamic model loading:
+
+1. When the plugin loads, it fetches the latest model list from Aiberm API
+2. If the API is unavailable, the plugin falls back to a built-in model list
+3. During authentication, the latest models are fetched again
+
+This means:
+- New models are available immediately without plugin updates
+- Deprecated models are automatically removed
+- Model capabilities are always current
+
+## Troubleshooting
+
+### "No provider plugins found" Error
+
+Make sure you have:
+1. Installed the plugin: `openclaw plugins install openclaw-aiberm`
+2. Enabled the plugin: `openclaw plugins enable openclaw-aiberm`
+3. Restarted the gateway: `openclaw gateway restart`
+
+### 401/403 Errors
+
+- **401 error**: API Key not set or invalid
+- **403 error**: Insufficient permissions or expired key
+- Verify your API key at [Aiberm Console](https://aiberm.com/console/token)
+
+### Plugin Not Loading
+
+Check if the plugin is enabled:
+
+```bash
+openclaw plugins list
+```
+
+If not enabled, run:
+
+```bash
+openclaw plugins enable openclaw-aiberm
+openclaw gateway restart
+```
+
+## Links
+
+- [openclaw-aiberm on npm](https://www.npmjs.com/package/openclaw-aiberm)
+- [openclaw-aiberm on GitHub](https://github.com/aiberm/openclaw-aiberm)
+- [OpenClaw Documentation](https://docs.openclaw.ai)
