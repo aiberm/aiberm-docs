@@ -116,17 +116,11 @@ Visit [Aiberm Pricing](https://aiberm.com/pricing) for the complete and up-to-da
 
 ## Usage
 
+After authentication, you can start using OpenClaw. For detailed usage, please refer to the [OpenClaw Documentation](https://docs.openclaw.ai).
+
+List installed models:
+
 ```bash
-# Use Claude Sonnet 4.5 (default after auth)
-openclaw agent --message "Hello"
-
-# Use a specific model
-openclaw agent --model aiberm/openai/gpt-5.2-codex --message "Hello"
-
-# Use DeepSeek R1
-openclaw agent --model aiberm/deepseek/deepseek-r1 --message "Hello"
-
-# List available models
 openclaw models list | grep aiberm
 ```
 

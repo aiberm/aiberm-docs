@@ -116,17 +116,11 @@ openclaw models auth login --provider aiberm --set-default
 
 ## 使用方法
 
+认证成功后，即可开始使用 OpenClaw。具体使用方法请参考 [OpenClaw 官方文档](https://docs.openclaw.ai)。
+
+查看已安装的模型：
+
 ```bash
-# 使用 Claude Sonnet 4.5（认证后的默认模型）
-openclaw agent --message "你好"
-
-# 使用指定模型
-openclaw agent --model aiberm/openai/gpt-5.2-codex --message "你好"
-
-# 使用 DeepSeek R1
-openclaw agent --model aiberm/deepseek/deepseek-r1 --message "你好"
-
-# 列出可用模型
 openclaw models list | grep aiberm
 ```
 
