@@ -151,12 +151,40 @@ Create or edit `~/.claude/settings.json`:
 }
 ```
 
+### Method 4: Using CC Switch (GUI)
+
+[CC Switch](https://github.com/farion1231/cc-switch) is a Claude Code provider switching tool with a graphical interface for managing multiple API provider configurations. See the repository for installation instructions.
+
+**Configure Aiberm Provider:**
+
+1. Run CC Switch to open the configuration interface
+2. **Turn off the Live proxy toggle at the top** (this toggle routes requests through CC Switch's own proxy, which is unnecessary)
+3. Add a new provider with the following settings:
+   - **Provider Name**: `Aiberm`
+   - **Note**: `Aiberm`
+   - **Website URL**: `https://aiberm.com`
+   - **API Key**: Your Aiberm API key
+   - **Request URL**: `https://aiberm.com` (do not end with a slash)
+   - **API Format**: `Anthropic Messages (Native)`
+   - **Main Model**: `claude-opus-4-5-20251101`
+   - **Thinking Model**: `claude-opus-4-5-20251101-thinking`
+   - **Haiku Default Model**: `claude-haiku-4-5-20251001`
+   - **Sonnet Default Model**: `claude-sonnet-4-5-20250929`
+   - **Opus Default Model**: `claude-opus-4-5-20251101`
+4. Click "Save"
+
 ## Verify Configuration
 
-Test your setup by running:
+After launching Claude Code, type `/status` to check your configuration. If you see the following, your setup is successful:
+
+```
+Anthropic base URL: https://aiberm.com
+```
+
+You can also test by sending a message:
 
 ```bash
-claude "Hello! Can you confirm you're connected to Aiberm?"
+claude "Hi"
 ```
 
 If configured correctly, Claude Code should respond using Aiberm's API.
