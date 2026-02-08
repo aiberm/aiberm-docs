@@ -24,6 +24,11 @@ export const navigation: NavGroup[] = [
         title: { en: 'Getting Started', zh: '快速开始' },
         icon: 'rocket',
       },
+      {
+        id: 'faq',
+        title: { en: 'FAQ', zh: '常见问题' },
+        icon: 'help-circle',
+      },
     ],
   },
   {
