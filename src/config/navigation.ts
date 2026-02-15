@@ -67,12 +67,12 @@ export const navigation: NavGroup[] = [
       {
         id: 'nano-banana-pro',
         title: { en: 'NanoBanana Pro', zh: 'NanoBanana Pro' },
-        icon: 'file-text',
+        icon: 'image',
       },
       {
         id: 'nano-banana-pro-edit',
         title: { en: 'NanoBananaPro Edit', zh: 'NanoBananaPro Edit' },
-        icon: 'file-text',
+        icon: 'image',
       },
     ],
   },
