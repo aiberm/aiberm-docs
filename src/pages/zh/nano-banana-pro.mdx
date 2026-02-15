@@ -1,0 +1,208 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: NanoBanana Pro
+lang: zh
+activeId: nano-banana-pro
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+
+# NanoBanana Pro
+
+NanoBanana Pro 是 Gemini 的图像生成服务，支持多种宽高比（1:1、16:9、9:16 等）和分辨率（1K、2K、4K）。不同分辨率价格相同，但 4K 图生成速度慢，不推荐使用。查看价格请点击 [价格页](/pricing?tab=gemini)。
+
+**端点**：`POST https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent`
+
+**要点**：请求体 `contents` 中传入文本（生图描述），`generationConfig` 中设置 `responseModalities`、`imageConfig`（宽高比、分辨率）等；响应里从 `candidates[0].content.parts` 取 `inline_data` 得到生成图片。
+
+## 示例代码
+
+Python 用下划线命名（如 `response_modalities`），REST/cURL 用驼峰命名（如 `responseModalities`），含义相同。
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from google import genai
+from google.genai import types
+
+base_url = "https://aiberm.com"
+api_key = "YOUR_API_KEY"
+prompt = "生成一只可爱的小海獭图片"
+model = "gemini-3-pro-image-preview"
+output_file = "gemini_sdk_generated.png"
+
+# 图片生成配置
+response_modalities = ["IMAGE"]  # 或 ["TEXT", "IMAGE"]
+aspect_ratio = "16:9"  # "1:1","2:3","3:2","3:4","4:3","4:5","5:4","9:16","16:9","21:9"
+image_size = "2K"  # "1K", "2K", "4K"（仅 gemini-3-pro-image-preview 支持）
+
+# 生成参数
+temperature = 1.0
+top_p = 0.95
+max_output_tokens = 8192
+enable_google_search = False  # 是否启用谷歌搜索（会增加延迟与计费，生图建议关闭）
+
+client = genai.Client(
+    api_key=api_key,
+    http_options=types.HttpOptions(api_version="v1beta", base_url=base_url)
+)
+
+config = types.GenerateContentConfig(
+    response_modalities=response_modalities,
+    temperature=temperature,
+    top_p=top_p,
+    max_output_tokens=max_output_tokens,
+    system_instruction="You are a helpful assistant.",
+    image_config=types.ImageConfig(
+        aspect_ratio=aspect_ratio,
+        image_size=image_size if "pro-image" in model else None
+    )
+)
+if enable_google_search:
+    config.tools = [{"google_search": {}}]
+
+response = client.models.generate_content(
+    model=model,
+    contents=[prompt],
+    config=config
+)
+
+for part in response.parts:
+    if part.text is not None:
+        print(part.text)
+    elif part.inline_data is not None:
+        part.as_image().save(output_file)
+        print(f"图片已保存: {output_file}")`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `// ============ 可配置参数（集中管理） ============
+const baseUrl = "https://aiberm.com";
+const apiKey = "YOUR_API_KEY";
+const prompt = "生成一只可爱的小海獭图片";
+const model = "gemini-3-pro-image-preview";
+const outputFile = "gemini_sdk_generated.png";
+const systemInstruction = "You are a helpful assistant.";
+
+// 生成配置
+const responseModalities = ["IMAGE"]; // 或 ["TEXT", "IMAGE"]
+const temperature = 1.0; // 随机度，0～2，越高越随机
+const topP = 0.95; // 核采样，0～1，控制输出多样性
+const maxOutputTokens = 8192; // 单次回复最大 token 数
+const aspectRatio = "16:9"; // "1:1" | "2:3" | "3:2" | "3:4" | "4:3" | "4:5" | "5:4" | "9:16" | "16:9" | "21:9"
+const imageSize = "2K"; // "1K" | "2K" | "4K"（仅 gemini-3-pro-image-preview 支持）
+const enableGoogleSearch = false; // 是否启用谷歌搜索（会增加延迟与计费，生图建议关闭）
+
+async function main() {
+  const res = await fetch(\`\${baseUrl}/v1beta/models/\${model}:generateContent\`, {
+    method: "POST",
+    headers: {
+      Authorization: \`Bearer \${apiKey}\`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+      generationConfig: {
+        responseModalities: [...responseModalities],
+        temperature,
+        topP,
+        maxOutputTokens,
+        imageConfig: { aspectRatio, imageSize },
+      },
+      ...(enableGoogleSearch ? { tools: [{ google_search: {} }] } : {}),
+    }),
+  });
+  const data = await res.json();
+  for (const part of data.candidates?.[0]?.content?.parts ?? []) {
+    if (part.text) console.log(part.text);
+    if (part.inlineData) {
+      const buf = Buffer.from(part.inlineData.data, "base64");
+      require("fs").writeFileSync(outputFile, buf);
+      console.log("图片已保存:", outputFile);
+    }
+  }
+}
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "contents": [{"parts": [{"text": "生成一只可爱的小海獭图片"}]}],
+    "systemInstruction": {"parts": [{"text": "You are a helpful assistant."}]},
+    "generationConfig": {
+      "responseModalities": ["IMAGE"],
+      "temperature": 1.0,
+      "topP": 0.95,
+      "maxOutputTokens": 8192,
+      "imageConfig": {"aspectRatio": "16:9", "imageSize": "2K"}
+    }
+  }'`
+    }
+  ]}
+/>
+
+### cURL 图像参数
+
+下面列出的是 cURL 请求里的参数名（驼峰）；用 Python SDK 时请改成下划线写法，如 `aspectRatio` → `aspect_ratio`。
+
+**imageConfig**（`generationConfig.imageConfig` 或 SDK `ImageConfig`）：
+
+- **aspectRatio** `string` — 宽高比：`1:1`、`2:3`、`3:2`、`3:4`、`4:3`、`4:5`、`5:4`、`9:16`、`16:9`、`21:9`
+- **imageSize** `string` — 分辨率：`1K`、`2K`、`4K`（仅 gemini-3-pro-image-preview）
+
+**generationConfig 其他常用参数：**
+
+- **responseModalities** `string[]` — 输出类型：`["IMAGE"]` 或 `["TEXT", "IMAGE"]`
+- **temperature** `number` — 随机度，0～2，越高越随机
+- **topP** `number` — 核采样，0～1
+- **maxOutputTokens** `number` — 最大输出 token 数（如 8192）
+- **systemInstruction** `object` — 系统指令，约束模型行为（如 `{"parts": [{"text": "..."}]}`）
+- **tools** `array` — 工具（如 `[{"google_search": {}}]`）
+
+## 如何开启谷歌搜索？
+
+仅 **Gemini 格式**支持启用谷歌搜索。在配置中传入 `tools` 即可，模型会按需调用实时网络信息并返回带引用的回答。
+
+**不建议默认开启**：开启后会增加延迟与计费、对纯生图场景无帮助。若无实时检索需求，建议关闭搜索。
+
+**Python（SDK）：**
+
+```python
+config = types.GenerateContentConfig(
+    # ... 其他参数如 response_modalities、image_config 等
+    tools=[{"google_search": {}}]
+)
+response = client.models.generate_content(model=model, contents=[prompt], config=config)
+```
+
+**cURL（REST）：**
+
+在请求体顶层增加 `tools` 字段：
+
+```bash
+curl -X POST "https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [{"parts": [{"text": "你的问题"}]}],
+    "generationConfig": { ... },
+    "tools": [{"google_search": {}}]
+  }'
+```
+
+## 常见问题
+
+- **响应里没有图片：** 确认模型为 `gemini-3-pro-image-preview`，且 prompt 是清晰的图像描述。
+- **解码失败：** 只截取 `data:image/...;base64,` 后面的 base64 字符串，且去掉换行再解码。

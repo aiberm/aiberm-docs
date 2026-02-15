@@ -1,59 +1,18 @@
 ---
 layout: ../../layouts/DocsLayout.astro
-title: Image Generation
+title: 图像生成与编辑
 lang: zh
 activeId: images
 ---
 
-import CodeExample from '../../components/CodeExample.tsx';
-import Callout from '../../components/Callout.tsx';
+# 图像
 
-# 图像生成
+aiberm 目前支持以下图像相关能力，请点击对应页面查看使用说明与接入方式。
 
-使用AI模型（如DALL-E）从文本描述创建图像。
+## 图像生成
 
-## 生成图像
+**[NanoBanana Pro](/docs/zh/nano-banana-pro/)** — 根据文本描述生成图像。
 
-`POST https://aiberm.com/v1/images/generations`
+## 图像编辑
 
-<CodeExample
-  client:load
-  examples={[
-    {
-      key: 'python',
-      label: 'Python',
-      code: `from openai import OpenAI
-
-client = OpenAI(
-    api_key="YOUR_API_KEY",
-    base_url="https://aiberm.com/v1"
-)
-
-response = client.images.generate(
-    model="dall-e-3",
-    prompt="A cute cat playing piano",
-    size="1024x1024",
-    n=1
-)
-
-image_url = response.data[0].url
-print(image_url)`
-    },
-    {
-      key: 'curl',
-      label: 'cURL',
-      code: `curl https://aiberm.com/v1/images/generations \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "dall-e-3",
-    "prompt": "A cute cat playing piano",
-    "size": "1024x1024"
-  }'`
-    }
-  ]}
-/>
-
-<Callout client:load type="info" title="可用尺寸">
-可用尺寸：1024x1024、1024x1792、1792x1024
-</Callout>
+**[NanoBananaPro Edit](/docs/zh/nano-banana-pro-edit/)** — 在已有图像基础上进行编辑与修改。

@@ -1,6 +1,7 @@
 ---
 import { navigation } from '../config/navigation';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import CopyPageButton from '../components/CopyPageButton';
 
 interface Props {
   title: string;
@@ -315,6 +316,9 @@ const githubEditUrl = `https://github.com/aiberm/aiberm-docs/edit/main/src/pages
 
         <!-- Main Content -->
         <main class="w-full max-w-4xl px-4 md:px-6 lg:px-8 py-6 md:py-8">
+          <div class="flex justify-end mb-4">
+            <CopyPageButton client:load lang={lang} />
+          </div>
           <article class="docs-content">
             <slot />
           </article>

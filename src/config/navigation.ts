@@ -64,6 +64,16 @@ export const navigation: NavGroup[] = [
         title: { en: 'Image Generation', zh: '图像生成' },
         icon: 'image',
       },
+      {
+        id: 'nano-banana-pro',
+        title: { en: 'NanoBanana Pro', zh: 'NanoBanana Pro' },
+        icon: 'file-text',
+      },
+      {
+        id: 'nano-banana-pro-edit',
+        title: { en: 'NanoBananaPro Edit', zh: 'NanoBananaPro Edit' },
+        icon: 'file-text',
+      },
     ],
   },
   {

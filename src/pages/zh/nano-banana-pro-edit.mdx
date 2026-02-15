@@ -1,0 +1,197 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: NanoBanana Pro Edit
+lang: zh
+activeId: nano-banana-pro-edit
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+
+# NanoBanana Pro Edit
+
+图片编辑与 [NanoBanana Pro 生图](/docs/zh/nano-banana-pro/) 使用**同一套 Gemini API**（`generateContent`），只是**请求里要带上原图 + 编辑指令**，响应中返回编辑后的图片。参见 [Gemini 官方：图片编辑](https://ai.google.dev/gemini-api/docs/image-generation#gemini-image-editing)。
+
+**端点**：与生图相同，`POST https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent`。
+
+**要点**：`contents` 中传入**图片 part**（`inlineData`）+ **文本 part**（编辑说明）；`generationConfig.responseModalities` 设为 `["TEXT", "IMAGE"]` 以同时拿到文字与编辑后的图；从响应 `candidates[0].content.parts` 里取 `inline_data` 即编辑结果图。
+
+## 示例代码
+
+Python 用下划线命名，REST/cURL 用驼峰命名，含义相同。
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from google import genai
+from google.genai import types
+from PIL import Image
+from io import BytesIO
+
+base_url = "https://aiberm.com"
+api_key = "YOUR_API_KEY"
+model = "gemini-3-pro-image-preview"
+output_file = "edited.png"
+
+# 原图路径与编辑指令
+image_path = "original.png"
+edit_prompt = "给这张图加上一顶时尚的礼帽，保持其余部分不变。"
+
+client = genai.Client(
+    api_key=api_key,
+    http_options=types.HttpOptions(api_version="v1beta", base_url=base_url),
+)
+image = Image.open(image_path)
+
+response = client.models.generate_content(
+    model=model,
+    contents=[edit_prompt, image],
+    config=types.GenerateContentConfig(
+        response_modalities=["TEXT", "IMAGE"],
+    ),
+)
+
+for part in response.parts:
+    if part.text is not None:
+        print(part.text)
+    elif part.inline_data is not None:
+        Image.open(BytesIO(part.inline_data.data)).save(output_file)
+        print(f"编辑后图片已保存: {output_file}")`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `// ============ 可配置参数（集中管理） ============
+const baseUrl = "https://aiberm.com";
+const apiKey = "YOUR_API_KEY";
+const model = "gemini-3-pro-image-preview";
+const outputFile = "edited.png";
+const imagePath = "gemini_sdk_generated.png"; // 原图路径，可用生图脚本生成的图
+const editPrompt = "给这张图加上一顶时尚的礼帽，保持其余部分不变。";
+const aspectRatio = "16:9"; // "1:1" | "2:3" | "3:2" | "3:4" | "4:3" | "4:5" | "5:4" | "9:16" | "16:9" | "21:9"
+const imageSize = "2K"; // "1K" | "2K" | "4K"（仅 gemini-3-pro-image-preview 支持）
+
+async function main() {
+  const fs = require("fs");
+  const imageBuf = fs.readFileSync(imagePath);
+  const imageBase64 = imageBuf.toString("base64");
+
+  const res = await fetch(\`\${baseUrl}/v1beta/models/\${model}:generateContent\`, {
+    method: "POST",
+    headers: {
+      Authorization: \`Bearer \${apiKey}\`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [
+          { inlineData: { mimeType: "image/png", data: imageBase64 } },
+          { text: editPrompt },
+        ],
+      }],
+      generationConfig: {
+        responseModalities: ["TEXT", "IMAGE"],
+        imageConfig: { aspectRatio, imageSize },
+      },
+    }),
+  });
+  const data = await res.json();
+  for (const part of data.candidates?.[0]?.content?.parts ?? []) {
+    if (part.text) console.log(part.text);
+    if (part.inlineData) {
+      const buf = Buffer.from(part.inlineData.data, "base64");
+      fs.writeFileSync(outputFile, buf);
+      console.log("编辑后图片已保存:", outputFile);
+    }
+  }
+}
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `# 先将原图转为 base64，再放入 contents.parts
+# 例：IMAGE_B64=\$(base64 -w0 original.png)
+curl -X POST "https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "contents": [{
+      "parts": [
+        { "inlineData": { "mimeType": "image/png", "data": "<BASE64_原图>" }},
+        { "text": "给这张图加上一顶时尚的礼帽，保持其余部分不变。" }
+      ]
+    }],
+    "generationConfig": {
+      "responseModalities": ["TEXT", "IMAGE"]
+    }
+  }'`
+    }
+  ]}
+/>
+
+## 与生图的区别
+
+| 能力 | 生图（NanoBanana Pro） | 编辑（本页） |
+|------|------------------------|--------------|
+| 请求 `contents` | 仅文本（描述要生成的图） | **原图 + 文本**（描述如何改图） |
+| `generationConfig.imageConfig` | 需要（宽高比、分辨率 1K/2K/4K） | 编辑可不传 |
+| `responseModalities` | `["IMAGE"]` 或 `["TEXT","IMAGE"]` | 建议 `["TEXT","IMAGE"]` 以拿到编辑后图 |
+
+同一端点、同一认证方式，仅 `contents` 与是否传 `imageConfig` 不同。更多参数说明见 [NanoBanana Pro](/docs/zh/nano-banana-pro/) 的 cURL 图像参数与常见问题。
+
+## 多张图
+
+在 `contents` 的 `parts` 里按顺序放入多张图（每张一个 `inlineData` part），再放一条文本编辑指令即可，模型会基于所有图片和指令返回结果（例如「把第一张图的主体合成到第二张图的背景上」）。
+
+**Python**：在 `contents` 中传入多个图片对象 + 一条文本。
+
+```python
+image1 = Image.open("photo.png")
+image2 = Image.open("background.png")
+response = client.models.generate_content(
+    model=model,
+    contents=["将第一张图的人物抠出来，放到第二张图的背景里。", image1, image2],
+    config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
+)
+```
+
+**cURL**：在 `contents[0].parts` 里依次写多个 `inlineData`，最后写一个 `text`。
+
+```json
+"contents": [{
+  "parts": [
+    { "inlineData": { "mimeType": "image/png", "data": "<BASE64_图1>" }},
+    { "inlineData": { "mimeType": "image/png", "data": "<BASE64_图2>" }},
+    { "text": "将第一张图的人物合成到第二张图的背景里。" }
+  ]
+}]
+```
+
+## 使用图片 URL
+
+接口只接受 **inlineData（base64）** 或通过 File API 的 **fileData**，不能直接传图片 URL。若图在网络上，需要先下载再放入请求。
+
+**Python 示例**：从 URL 下载后交给 SDK（SDK 会按需转为 inlineData）。
+
+```python
+import requests
+from io import BytesIO
+
+image_url = "https://example.com/photo.jpg"
+resp = requests.get(image_url)
+image = Image.open(BytesIO(resp.content))
+
+response = client.models.generate_content(
+    model=model,
+    contents=["给这张图加上一顶礼帽。", image],
+    config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
+)
+```
+
+**cURL**：需在本地先把 URL 的图下载并转成 base64，再把得到的字符串填入 `inlineData.data`。

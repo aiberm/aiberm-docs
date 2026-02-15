@@ -1,59 +1,18 @@
 ---
 layout: ../../layouts/DocsLayout.astro
-title: Image Generation
+title: Image Generation & Editing
 lang: en
 activeId: images
 ---
 
-import CodeExample from '../../components/CodeExample.tsx';
-import Callout from '../../components/Callout.tsx';
+# Images
 
-# Image Generation
+aiberm currently supports the following image capabilities. Click through to each page for usage and integration details.
 
-Create images from text descriptions using AI models like DALL-E.
+## Image Generation
 
-## Generate Image
+**[NanoBanana Pro](/docs/en/nano-banana-pro/)** — Generate images from text descriptions.
 
-`POST https://aiberm.com/v1/images/generations`
+## Image Editing
 
-<CodeExample
-  client:load
-  examples={[
-    {
-      key: 'python',
-      label: 'Python',
-      code: `from openai import OpenAI
-
-client = OpenAI(
-    api_key="YOUR_API_KEY",
-    base_url="https://aiberm.com/v1"
-)
-
-response = client.images.generate(
-    model="dall-e-3",
-    prompt="A cute cat playing piano",
-    size="1024x1024",
-    n=1
-)
-
-image_url = response.data[0].url
-print(image_url)`
-    },
-    {
-      key: 'curl',
-      label: 'cURL',
-      code: `curl https://aiberm.com/v1/images/generations \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "dall-e-3",
-    "prompt": "A cute cat playing piano",
-    "size": "1024x1024"
-  }'`
-    }
-  ]}
-/>
-
-<Callout client:load type="info">
-Available sizes: 1024x1024, 1024x1792, 1792x1024
-</Callout>
+**[NanoBananaPro Edit](/docs/en/nano-banana-pro-edit/)** — Edit and modify existing images.
