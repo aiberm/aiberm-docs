@@ -56,68 +56,6 @@ aiberm-docs/
 └── dist/                         # Build output (static files)
 ```
 
-## Deployment
-
-The documentation is deployed as static files and served through nginx.
-
-### Build
-
-Build the static site:
-
-```bash
-npm run build
-```
-
-This generates the static files in the `dist/` directory.
-
-### Deploy with Nginx
-
-1. **Deploy to server:**
-
-   Use the included deployment script:
-   ```bash
-   ./deploy.sh
-   ```
-
-   Or manually:
-   ```bash
-   # Build the site
-   npm run build
-
-   # Copy to deployment directory
-   sudo mkdir -p /var/html/newapi/aiberm-docs
-   sudo cp -r dist /var/html/newapi/aiberm-docs/
-   sudo chown -R www-data:www-data /var/html/newapi/aiberm-docs
-
-   # Copy nginx config
-   sudo cp aiberm.com.conf /etc/nginx/sites-available/aiberm.com
-
-   # Test and reload nginx
-   sudo nginx -t
-   sudo systemctl reload nginx
-   ```
-
-2. **Nginx Configuration:**
-
-   The nginx configuration (in `aiberm.com.conf`) proxies `/docs` to the static files:
-
-   ```nginx
-   location ^~ /docs {
-       alias /var/html/newapi/aiberm-docs/dist;
-       try_files $uri $uri/ $uri.html /docs/404.html =404;
-
-       gzip on;
-       gzip_vary on;
-       gzip_types text/plain text/css text/xml text/javascript application/javascript application/json application/xml+rss image/svg+xml;
-
-       # Cache static assets
-       location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-           expires 1y;
-           add_header Cache-Control "public, immutable";
-       }
-   }
-   ```
-
 ## URL Structure
 
 After configuring nginx with `/docs` base path:
@@ -244,10 +182,6 @@ dist/
 └── index.html           # Redirects to /en/
 ```
 
-## Environment Variables
-
-No environment variables required for static build. Everything is pre-rendered at build time.
-
 ## Troubleshooting
 
 ### Build fails with "module not found"
@@ -255,13 +189,6 @@ No environment variables required for static build. Everything is pre-rendered a
 rm -rf node_modules package-lock.json
 npm install
 ```
-
-### Nginx serves wrong files or 404 errors
-Check these:
-1. `alias` path points to correct directory (`/var/html/newapi/aiberm-docs/dist`)
-2. File permissions: `sudo chown -R www-data:www-data /var/html/newapi/aiberm-docs`
-3. Verify nginx config is loaded: `sudo nginx -t`
-4. Ensure `base: '/docs'` is set in `astro.config.mjs`
 
 ### Language switching doesn't work
 Ensure both language versions exist:
