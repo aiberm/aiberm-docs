@@ -1,0 +1,66 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Trae Setup
+lang: en
+activeId: trae
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Trae Setup
+
+Trae is an AI-powered IDE by ByteDance that integrates intelligent coding assistance directly into your development workflow. By configuring Trae with Aiberm, you can leverage various powerful models for code completion, refactoring, and generation.
+
+<Callout client:load type="info">
+  To use Trae with Aiberm, you need a valid Aiberm API key. If you haven't obtained one yet, please refer to the [Authentication](/docs/en/authentication) page.
+</Callout>
+
+## Configuration Steps
+
+Follow these steps to configure Trae to use Aiberm's API:
+
+1.  **Open Settings**: Launch Trae and click on the **Settings** icon (gear icon) in the bottom left corner, or use the command palette (`Ctrl/Cmd + Shift + P`) and search for "Settings".
+
+2.  **Navigate to Models**: In the Settings menu, look for the **Models** section. This is where you can manage the AI models available in the IDE.
+
+3.  **Add Custom Model**: Click on the **Add Custom Model** button or the **+** icon to add a new model provider configuration.
+
+4.  **Configure Provider**:
+    *   **Provider**: Select **OpenAI** from the dropdown list. Since Aiberm is OpenAI-compatible, we use this setting.
+    *   **Base URL**: Enter `https://aiberm.com/v1`. This directs the requests to Aiberm's servers.
+    *   **API Key**: Paste your Aiberm API key (starts with `sk-`).
+    *   **Model ID**: Enter the model ID you wish to use (e.g., `google/gemini-2.5-flash`, `claude-3-opus`, etc.). You can find the full list of supported models on the [Models List](/docs/en/models) page.
+
+    <Callout client:load type="tip">
+      **Screenshot Placeholder**: *[Insert a screenshot here showing the "Add Custom Model" dialog in Trae with the fields filled out as described above.]*
+    </Callout>
+
+5.  **Save and Verify**: Click **Add Model** or **Save** to confirm your settings. Trae will attempt to connect to the Aiberm API to verify your credentials.
+
+## Verification
+
+To ensure that Trae is correctly configured with Aiberm:
+
+1.  Open a new or existing code file.
+2.  Open the Chat panel (usually on the right side).
+3.  Select the model you just added from the model dropdown menu.
+4.  Ask a simple question, such as:
+
+    > "Write a Python function to calculate the Fibonacci sequence."
+
+5.  If Trae generates the code successfully, your configuration is working!
+
+## Troubleshooting
+
+<Callout client:load type="warning">
+  If you encounter connection errors, please double-check your API key and ensure the Base URL is exactly `https://aiberm.com/v1` (no trailing slash usually, but some clients might handle it differently).
+</Callout>
+
+*   **Invalid API Key**: Ensure you copied the key correctly without extra spaces.
+*   **Network Issues**: Check your internet connection.
+*   **Model ID**: Verify that the model ID you entered is valid and supported by Aiberm.
+
+---
+
+By integrating Aiberm with Trae, you unlock a flexible and powerful coding experience with access to top-tier AI models. Happy coding!

@@ -1,0 +1,66 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Trae 配置
+lang: zh
+activeId: trae
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Trae 配置
+
+Trae 是一款字节跳动推出的 AI 辅助 IDE，它集成了智能代码补全、重构和生成功能。通过配置 Trae 接入 Aiberm API，你可以利用多种强大的模型来提升编程效率。
+
+<Callout client:load type="info">
+  使用 Trae 接入 Aiberm 前，你需要获取一个有效的 API Key。如果你还没有，请参考 [身份认证](/docs/zh/authentication) 文档。
+</Callout>
+
+## 配置步骤
+
+请按照以下步骤将 Trae 配置为使用 Aiberm 的 API：
+
+1.  **打开设置 (Settings)**: 启动 Trae，点击左下角的 **设置 (Settings)** 图标（齿轮图标），或使用命令面板 (`Ctrl/Cmd + Shift + P`) 搜索并选择 "设置"。
+
+2.  **进入模型设置 (Navigate to Models)**: 在设置菜单中找到 **模型 (Models)** 部分。这里你可以管理 IDE 中可用的 AI 模型。
+
+3.  **添加自定义模型 (Add Custom Model)**: 点击 **添加自定义模型 (Add Custom Model)** 按钮或 **+** 号图标，添加一个新的模型提供商配置。
+
+4.  **配置提供商 (Configure Provider)**:
+    *   **提供商 (Provider)**: 从下拉列表中选择 **OpenAI**。由于 Aiberm 兼容 OpenAI 协议，我们使用此选项。
+    *   **API Key**: 粘贴你的 Aiberm API Key（以 `sk-` 开头）。
+    *   **Base URL**: 输入 `https://aiberm.com/v1`。这将请求重定向到 Aiberm 的服务器。
+    *   **Model ID**: 输入你想使用的模型 ID（例如 `google/gemini-2.5-flash`、`claude-3-opus` 等）。完整的支持模型列表请查看 [模型列表](/docs/zh/models) 页面。
+
+    <Callout client:load type="tip">
+      **截图占位**: *[此处插入 Trae 中“添加自定义模型”对话框的截图，展示上述填写的字段]*
+    </Callout>
+
+5.  **保存并验证 (Save and Verify)**: 点击 **添加模型 (Add Model)** 或 **保存 (Save)** 确认设置。Trae 会尝试连接 Aiberm API 以验证你的凭证。
+
+## 验证
+
+为了确保 Trae 已正确配置 Aiberm：
+
+1.  打开一个新的或现有的代码文件。
+2.  打开右侧的聊天面板 (Chat Panel)。
+3.  从模型下拉菜单中选择你刚刚添加的模型。
+4.  尝试提问一个简单的问题，例如：
+
+    > "写一个 Python 函数来计算斐波那契数列。"
+
+5.  如果 Trae 成功生成了代码，说明你的配置已生效！
+
+## 故障排除
+
+<Callout client:load type="warning">
+  如果遇到连接错误，请仔细检查你的 API Key 和 Base URL 是否完全正确（通常为 `https://aiberm.com/v1`，某些客户端可能对末尾斜杠的处理有所不同）。
+</Callout>
+
+*   **API Key 无效**: 确保复制的 Key 没有多余空格。
+*   **网络问题**: 检查你的互联网连接是否正常。
+*   **Model ID 错误**: 确认输入的模型 ID 有效且受 Aiberm 支持。
+
+---
+
+通过将 Aiberm 集成到 Trae，你将解锁灵活且强大的编程体验，随时调用顶尖 AI 模型。祝编码愉快！
