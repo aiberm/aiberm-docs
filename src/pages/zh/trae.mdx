@@ -5,62 +5,202 @@ lang: zh
 activeId: trae
 ---
 
-import CodeExample from '../../components/CodeExample.tsx';
 import Callout from '../../components/Callout.tsx';
 
 # Trae 配置
 
-Trae 是一款字节跳动推出的 AI 辅助 IDE，它集成了智能代码补全、重构和生成功能。通过配置 Trae 接入 Aiberm API，你可以利用多种强大的模型来提升编程效率。
+Trae 是字节跳动推出的 AI 原生 IDE，可将智能编程辅助直接集成到你的开发工作流中。通过配置 Trae 使用 Aiberm，你可以调用各种强大的模型进行代码补全、对话辅助、重构和生成。
 
 <Callout client:load type="info">
-  使用 Trae 接入 Aiberm 前，你需要获取一个有效的 API Key。如果你还没有，请参考 [身份认证](/docs/zh/authentication) 文档。
+使用 Trae 配合 Aiberm 需要有效的 Aiberm API 密钥。如果你还没有获取，请参考 [身份认证](/docs/zh/authentication) 页面。
 </Callout>
+
+## 什么是 Trae？
+
+Trae 是中国首个 AI 原生集成开发环境（AI IDE），基于 Visual Studio Code 构建。它提供：
+
+- **内置 AI 模型**：免费使用 Claude 3.7 Sonnet、GPT-4o、DeepSeek V3/R1、Gemini 2.5 Pro 等。
+- **自定义模型支持**：添加 Aiberm 等自定义 API 提供商，灵活选择模型。
+- **完整 IDE 功能**：所有 VS Code 能力，外加 AI 驱动的代码补全、调试和生成。
+- **跨平台**：支持 macOS 和 Windows（Linux 支持即将推出）。
 
 ## 配置步骤
 
-请按照以下步骤将 Trae 配置为使用 Aiberm 的 API：
+按照以下步骤配置 Trae 使用 Aiberm 的 API：
 
-1.  **打开设置 (Settings)**: 启动 Trae，点击左下角的 **设置 (Settings)** 图标（齿轮图标），或使用命令面板 (`Ctrl/Cmd + Shift + P`) 搜索并选择 "设置"。
+### 步骤 1：打开模型设置
 
-2.  **进入模型设置 (Navigate to Models)**: 在设置菜单中找到 **模型 (Models)** 部分。这里你可以管理 IDE 中可用的 AI 模型。
+有两种方式访问模型配置：
 
-3.  **添加自定义模型 (Add Custom Model)**: 点击 **添加自定义模型 (Add Custom Model)** 按钮或 **+** 号图标，添加一个新的模型提供商配置。
+**方法 A：通过对话输入框**
+1. 打开 Trae IDE。
+2. 查看对话输入框的右下角。
+3. 点击当前模型名称打开模型列表。
+4. 点击 “添加模型” 按钮。
 
-4.  **配置提供商 (Configure Provider)**:
-    *   **提供商 (Provider)**: 从下拉列表中选择 **OpenAI**。由于 Aiberm 兼容 OpenAI 协议，我们使用此选项。
-    *   **API Key**: 粘贴你的 Aiberm API Key（以 `sk-` 开头）。
-    *   **Base URL**: 输入 `https://aiberm.com/v1`。这将请求重定向到 Aiberm 的服务器。
-    *   **Model ID**: 输入你想使用的模型 ID（例如 `google/gemini-2.5-flash`、`claude-3-opus` 等）。完整的支持模型列表请查看 [模型列表](/docs/zh/models) 页面。
+<Callout client:load type="tip">
+**截图**: *[截图 1: Trae 对话输入框显示模型下拉菜单和“添加模型”按钮]*
+</Callout>
 
-    <Callout client:load type="tip">
-      **截图占位**: *[此处插入 Trae 中“添加自定义模型”对话框的截图，展示上述填写的字段]*
-    </Callout>
+**方法 B：通过设置菜单**
+1. 点击右上角的头像。
+2. 选择 “AI 功能管理”。
+3. 进入 “模型” 部分。
+4. 点击 “添加模型” 按钮。
 
-5.  **保存并验证 (Save and Verify)**: 点击 **添加模型 (Add Model)** 或 **保存 (Save)** 确认设置。Trae 会尝试连接 Aiberm API 以验证你的凭证。
+<Callout client:load type="tip">
+**截图**: *[截图 2: 设置菜单路径到模型部分]*
+</Callout>
 
-## 验证
+### 步骤 2：配置自定义模型
 
-为了确保 Trae 已正确配置 Aiberm：
+在“添加模型”对话框中，填写以下字段：
 
-1.  打开一个新的或现有的代码文件。
-2.  打开右侧的聊天面板 (Chat Panel)。
-3.  从模型下拉菜单中选择你刚刚添加的模型。
-4.  尝试提问一个简单的问题，例如：
+- **供应商 (Provider)**：OpenAI
+- **基础 URL (Base URL)**：`https://aiberm.com/v1`
+- **API 密钥 (API Key)**：`sk-xxxxxxxxxxxxxxxx`（你的 Aiberm API Key）
+- **模型 ID (Model ID)**：输入支持的模型 ID（例如 `google/gemini-2.5-flash`）。
 
-    > "写一个 Python 函数来计算斐波那契数列。"
+<Callout client:load type="info">
+**支持的模型 ID（示例）：**
+- `google/gemini-2.5-flash` - 快速高效
+- `google/gemini-2.5-pro` - 高级推理
+- `anthropic/claude-3-opus` - 适合复杂任务
+- `openai/gpt-4o` - OpenAI 旗舰模型
 
-5.  如果 Trae 成功生成了代码，说明你的配置已生效！
+完整的可用模型列表，请访问 [模型列表](/docs/zh/models) 页面。
+</Callout>
+
+<Callout client:load type="tip">
+**截图**: *[截图 3: “添加自定义模型”对话框，字段已填写]*
+</Callout>
+
+### 步骤 3：保存配置
+
+1. 点击 “添加模型” 或 “保存” 按钮确认设置。
+2. Trae 将尝试验证与 Aiberm API 的连接。
+3. 如果成功，你的自定义模型将出现在模型列表中。
+
+## 验证配置
+
+确保 Trae 已正确配置 Aiberm：
+
+1. **打开对话面板**：点击左侧边栏的对话图标，或使用命令面板（`Ctrl/Cmd + Shift + P`）搜索“Chat”。
+2. **选择自定义模型**：在对话面板中，点击右下角的模型下拉菜单，选择你刚添加的 Aiberm 模型。
+3. **测试简单查询**：提出一个编程问题，例如：
+   ```plaintext
+   用 Python 写一个递归计算斐波那契数列的函数
+   ```
+4. **验证响应**：如果 Trae 使用你的自定义模型成功生成了代码，恭喜！你的配置已正确完成。
+
+<Callout client:load type="tip">
+**截图**: *[截图 4: 对话面板显示选中的 Aiberm 模型和成功响应]*
+</Callout>
+
+## 在 Trae 中使用 Aiberm 模型
+
+配置完成后，你可以通过多种方式使用 Aiberm 模型：
+
+### 1. 对话模式 (Chat Mode)
+- 打开对话面板并选择你的 Aiberm 模型。
+- 提问、请求代码生成或获取解释。
+- 使用 `#` 符号引用文件以获得上下文感知的响应。
+
+### 2. 行内补全 (Inline Completion)
+- 自然地输入代码，Trae 会提供补全建议。
+- 按 `Tab` 键接受建议。
+- *注意：自定义模型的行内补全支持取决于 Trae 的实现。*
+
+### 3. 代码操作 (Code Actions)
+- 在编辑器中选择代码。
+- 右键选择 AI 操作，如“解释”、“重构”、“添加注释”。
+- 在提示时选择你的 Aiberm 模型。
 
 ## 故障排除
 
-<Callout client:load type="warning">
-  如果遇到连接错误，请仔细检查你的 API Key 和 Base URL 是否完全正确（通常为 `https://aiberm.com/v1`，某些客户端可能对末尾斜杠的处理有所不同）。
-</Callout>
+### ❌ 连接失败
+**症状**：“无法连接到 API” 或 “网络错误”
+**解决方案**：
+- 验证基础 URL 是否准确为 `https://aiberm.com/v1`（通常不带尾部斜杠）。
+- 检查你的网络连接。
+- 确保你的 API 密钥有效且有足够的额度。
+- 尝试使用 curl 测试 API 密钥：
+  ```bash
+  curl https://aiberm.com/v1/models \
+    -H "Authorization: Bearer YOUR_API_KEY"
+  ```
 
-*   **API Key 无效**: 确保复制的 Key 没有多余空格。
-*   **网络问题**: 检查你的互联网连接是否正常。
-*   **Model ID 错误**: 确认输入的模型 ID 有效且受 Aiberm 支持。
+### ❌ API 密钥无效
+**症状**：“401 未授权” 或 “无效的 API 密钥”
+**解决方案**：
+- 仔细检查你复制的完整 API 密钥，确保没有多余空格。
+- 验证密钥以 `sk-` 开头。
+- 确保你的 Aiberm 账户处于活跃状态且有额度。
+- 从 Aiberm 控制台生成新的 API 密钥。
 
----
+### ❌ 模型未找到
+**症状**：“模型不可用” 或 “未知的模型 ID”
+**解决方案**：
+- 验证模型 ID 格式是否正确（例如：`google/gemini-2.5-flash`）。
+- 查看 [模型列表](/docs/zh/models) 页面确认支持的模型 ID。
+- 确保该模型在你的 Aiberm 计划中可用。
 
-通过将 Aiberm 集成到 Trae，你将解锁灵活且强大的编程体验，随时调用顶尖 AI 模型。祝编码愉快！
+### ❌ 速率限制超限
+**症状**：“请求过多” 或 “达到速率限制”
+**解决方案**：
+- 稍等片刻后重试。
+- 检查你的 Aiberm 账户使用限制。
+- 如需更高的速率限制，考虑升级你的计划。
+
+## 高级配置
+
+### 使用多个模型
+你可以添加多个不同配置的 Aiberm 模型：
+- 为每个模型重复配置步骤。
+- 使用描述性名称区分它们（如果 Trae 支持自定义命名）。
+- 根据任务切换模型：
+  - 快速模型（`gemini-2.5-flash`）用于快速迭代。
+  - 高级模型（`claude-3-opus`、`gemini-2.5-pro`）用于复杂推理。
+
+### 模型上下文协议 (MCP)
+Trae 支持模型上下文协议（Model Context Protocol），允许 AI 模型访问外部工具和数据源。使用 Aiberm 模型时，你可以利用 MCP 来：
+- 连接数据库。
+- 访问文件系统。
+- 集成外部 API。
+- 使用自定义工具。
+
+详细的 MCP 配置请参考 Trae 官方文档。
+
+## 最佳实践
+
+- **选择合适的模型**：日常任务使用快速模型，复杂问题保留强大模型。
+- **提供上下文**：在对话查询中使用 `#` 符号引用相关文件。
+- **增量迭代**：将大任务分解为小步骤，以获得更好的 AI 性能。
+- **审查 AI 输出**：在提交前始终审查和测试 AI 生成的代码。
+- **监控用量**：跟踪你的 Aiberm API 使用情况以有效管理成本。
+
+## 下一步
+
+现在你已经配置好了 Trae 与 Aiberm，探索这些资源：
+
+- [模型列表](/docs/zh/models) - 发现所有可用的 Aiberm 模型。
+- [对话 API](/docs/zh/chat) - 了解底层 API。
+- [最佳实践](/docs/zh/examples) - AI 辅助编程的有效技巧。
+
+## 截图清单
+
+为了让审核更顺畅，建议准备以下 **英文界面** 截图：
+
+1. **截图 1**：对话输入框右下角，展示模型下拉入口与“添加模型”入口。
+2. **截图 2**：设置菜单路径：头像菜单 → AI 功能管理 → 模型。
+3. **截图 3**：“添加模型”对话框，字段填写如下：
+   - Provider：OpenAI
+   - Base URL：`https://aiberm.com/v1`
+   - API Key：`sk-...`（部分遮挡）
+   - Model ID：`google/gemini-2.5-flash`
+4. **截图 4**：对话面板展示：
+   - 已选择自定义 Aiberm 模型
+   - 输入测试问题
+   - 成功返回的代码响应
+
+通过将 Aiberm 集成到 Trae，你可以获得灵活而强大的编程体验，访问顶级 AI 模型。
