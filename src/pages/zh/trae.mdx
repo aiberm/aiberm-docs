@@ -67,10 +67,10 @@ Trae 是中国首个 AI 原生集成开发环境（AI IDE），基于 Visual Stu
 
 <Callout client:load type="info">
 **支持的模型 ID（示例）：**
-- `google/gemini-2.5-flash` - 快速高效
-- `google/gemini-2.5-pro` - 高级推理
-- `anthropic/claude-3-opus` - 适合复杂任务
-- `openai/gpt-4o` - OpenAI 旗舰模型
+- `google/gemini-3-flash` - 快速高效
+- `google/gemini-3-pro` - 高级推理
+- `anthropic/claude-opus-4-6` - 适合复杂任务
+- `openai/gpt-5.2` - OpenAI 旗舰模型
 
 完整的可用模型列表，请访问 [模型列表](/docs/zh/models) 页面。
 </Callout>
@@ -147,7 +147,7 @@ Trae 是中国首个 AI 原生集成开发环境（AI IDE），基于 Visual Stu
 ### ❌ 模型未找到
 **症状**：“模型不可用” 或 “未知的模型 ID”
 **解决方案**：
-- 验证模型 ID 格式是否正确（例如：`google/gemini-2.5-flash`）。
+- 验证模型 ID 格式是否正确（例如：`google/gemini-3-flash`）。
 - 查看 [模型列表](/docs/zh/models) 页面确认支持的模型 ID。
 - 确保该模型在你的 Aiberm 计划中可用。
 
@@ -165,8 +165,8 @@ Trae 是中国首个 AI 原生集成开发环境（AI IDE），基于 Visual Stu
 - 为每个模型重复配置步骤。
 - 使用描述性名称区分它们（如果 Trae 支持自定义命名）。
 - 根据任务切换模型：
-  - 快速模型（`gemini-2.5-flash`）用于快速迭代。
-  - 高级模型（`claude-3-opus`、`gemini-2.5-pro`）用于复杂推理。
+  - 快速模型（`gemini-3-flash`）用于快速迭代。
+  - 高级模型（`claude-opus-4-6`、`gemini-3-pro`）用于复杂推理。
 
 ### 模型上下文协议 (MCP)
 Trae 支持模型上下文协议（Model Context Protocol），允许 AI 模型访问外部工具和数据源。使用 Aiberm 模型时，你可以利用 MCP 来：

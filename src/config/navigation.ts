@@ -80,11 +80,6 @@ export const navigation: NavGroup[] = [
     title: { en: 'GUIDES', zh: '指南' },
     items: [
       {
-        id: 'trae',
-        title: { en: 'Trae Setup', zh: 'Trae 设置' },
-        icon: 'terminal',
-      },
-      {
         id: 'claude-code',
         title: { en: 'Claude Code Setup', zh: 'Claude Code 设置' },
         icon: 'terminal',
@@ -102,6 +97,11 @@ export const navigation: NavGroup[] = [
       {
         id: 'openclaw',
         title: { en: 'OpenClaw Setup', zh: 'OpenClaw 设置' },
+        icon: 'terminal',
+      },
+      {
+        id: 'trae',
+        title: { en: 'Trae Setup', zh: 'Trae 设置' },
         icon: 'terminal',
       },
       {
