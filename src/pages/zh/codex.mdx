@@ -62,7 +62,7 @@ notepad $env:USERPROFILE\.codex\config.toml
 添加以下配置：
 
 ```toml
-model = "gpt-4"
+model = "gpt-5.4"
 model_reasoning_effort = "medium"
 model_provider = "aiberm"
 
@@ -80,7 +80,7 @@ wire_api = "responses"
 **macOS/Linux：**
 ```bash
 mkdir -p ~/.codex && cat > ~/.codex/config.toml << 'EOF'
-model = "gpt-4"
+model = "gpt-5.4"
 model_reasoning_effort = "medium"
 model_provider = "aiberm"
 
@@ -97,7 +97,7 @@ EOF
 $configPath = "$env:USERPROFILE\.codex"
 New-Item -ItemType Directory -Force -Path $configPath | Out-Null
 @"
-model = "gpt-4"
+model = "gpt-5.4"
 model_reasoning_effort = "medium"
 model_provider = "aiberm"
 
