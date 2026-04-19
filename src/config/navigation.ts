@@ -100,6 +100,11 @@ export const navigation: NavGroup[] = [
         icon: 'terminal',
       },
       {
+        id: 'hermes',
+        title: { en: 'Hermes Agent Setup', zh: 'Hermes Agent 设置' },
+        icon: 'terminal',
+      },
+      {
         id: 'trae',
         title: { en: 'Trae Setup', zh: 'Trae 设置' },
         icon: 'terminal',

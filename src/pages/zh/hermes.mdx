@@ -1,0 +1,277 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Hermes Agent 设置
+lang: zh
+activeId: hermes
+---
+
+# Hermes Agent 设置
+
+本指南介绍如何在 [Hermes Agent](https://hermes-agent.nousresearch.com/) 中使用 Aiberm 作为模型提供商。Hermes Agent 是 Nous Research 开源的 AI 代理，可运行于终端，并支持对接 Telegram、Discord、Slack、WhatsApp、Signal 等消息平台。
+
+Aiberm 提供 OpenAI 兼容的 `/v1` 接口，因此可以作为自定义 provider 直接接入 Hermes Agent，无需安装插件或修改源码。配置完成后，即可通过一个 API Key 调用 Aiberm 平台上的全部模型，包括 Claude、GPT、Gemini、DeepSeek、Kimi、MiniMax、GLM、Grok 等。
+
+## 前置条件
+
+- Aiberm 账户（[注册](https://aiberm.com/register)）
+- Aiberm API Key（[获取 Key](https://aiberm.com/console/token)）
+- 已安装 Hermes Agent，参见[官方安装文档](https://hermes-agent.nousresearch.com/docs/getting-started/)
+
+一键安装命令（Linux / macOS / WSL2）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+## 配置 Aiberm Provider
+
+Hermes Agent 的配置文件位于 `~/.hermes/config.yaml`。请打开该文件，在 `providers:` 段下新增 `aiberm` 条目。
+
+> **如果你不熟悉命令行编辑器（如 Vim）**，可以直接使用系统自带的图形化编辑器打开配置文件：
+>
+> - **macOS**：打开「访达（Finder）」，按下 `Shift + Command + G`，在弹出的对话框中输入 `~/.hermes` 后回车。找到 `config.yaml` 文件，右键选择「打开方式」→「文本编辑（TextEdit）」。
+> - **Windows**：打开「文件资源管理器」，在顶部地址栏输入 `%USERPROFILE%\.hermes` 后回车。右键 `config.yaml` 文件，选择「打开方式」→「记事本」。
+>
+> 编辑完成后请**保存文件**（`Command + S` 或 `Ctrl + S`），再执行下文的重启步骤。
+
+```yaml
+model:
+  default: claude-sonnet-4-6
+  provider: aiberm
+
+providers:
+  aiberm:
+    base_url: https://aiberm.com/v1
+    api_key: sk-your-aiberm-api-key
+    type: openai
+    default_model: claude-sonnet-4-6
+    models:
+      # Claude
+      - claude-opus-4-7
+      - claude-opus-4-6
+      - claude-opus-4-6-thinking
+      - claude-opus-4-5-20251101
+      - claude-opus-4-5-20251101-thinking
+      - claude-sonnet-4-6
+      - claude-sonnet-4-6-thinking
+      - claude-sonnet-4-5-20250929
+      - claude-sonnet-4-5-20250929-thinking
+      - claude-haiku-4-5-20251001
+      - claude-haiku-4-5-20251001-thinking
+      # Claude（anthropic/ 前缀）
+      - anthropic/claude-opus-4.7
+      - anthropic/claude-opus-4.6
+      - anthropic/claude-opus-4.6:thinking
+      - anthropic/claude-opus-4.5
+      - anthropic/claude-opus-4.5:thinking
+      - anthropic/claude-opus
+      - anthropic/claude-sonnet-4.6
+      - anthropic/claude-sonnet-4.6:thinking
+      - anthropic/claude-sonnet-4.5
+      - anthropic/claude-sonnet-4.5:thinking
+      - anthropic/claude-sonnet
+      - anthropic/claude-haiku-4.5
+      - anthropic/claude-haiku-4.5:thinking
+      # GPT / OpenAI
+      - gpt-5.4
+      - gpt-5.4-xhigh
+      - gpt-5.4-mini
+      - gpt-5.3-codex
+      - gpt-5.3-codex-xhigh
+      - gpt-5.2
+      - gpt-5.2-chat-latest
+      - gpt-5.2-codex
+      - gpt-5.1
+      - gpt-5.1-codex
+      - gpt-5.1-codex-max
+      - gpt-5
+      - gpt-5-mini
+      - gpt-5-nano
+      - o3-mini
+      - gpt-4.1
+      - gpt-4.1-mini
+      - gpt-4.1-nano
+      - gpt-4o
+      - gpt-4o-mini
+      # GPT / OpenAI（openai/ 前缀）
+      - openai/gpt-5.4
+      - openai/gpt-5.4-mini
+      - openai/gpt-5.3-codex
+      - openai/gpt-5.2
+      - openai/gpt-5.2-chat
+      - openai/gpt-5.2-codex
+      - openai/gpt-5.1
+      - openai/gpt-5.1-codex
+      - openai/gpt-5.1-codex-max
+      - openai/gpt-5
+      - openai/gpt-5-codex
+      - openai/gpt-5-mini
+      - openai/gpt-5-nano
+      - openai/gpt-4.1
+      - openai/gpt-4.1-mini
+      - openai/gpt-4.1-nano
+      - openai/gpt-4o
+      - openai/gpt-4o-mini
+      - openai/o3-mini
+      # Gemini
+      - gemini-3.1-pro-preview
+      - gemini-3.1-pro-preview-thinking
+      - gemini-3.1-flash-lite-preview
+      - gemini-3.1-flash-image-preview
+      - gemini-3-pro-preview
+      - gemini-3-pro-preview-thinking
+      - gemini-3-pro-image-preview
+      - gemini-3-flash-preview
+      - gemini-2.5-pro
+      - gemini-2.5-flash
+      - gemini-2.5-flash-image
+      # Gemini（google/ 前缀）
+      - google/gemini-3.1-pro
+      - google/gemini-3.1-flash-lite
+      - google/gemini-3-pro
+      - google/gemini-3-pro-mcpmark
+      - google/gemini-3-flash
+      - google/gemini-2.5-pro
+      - google/gemini-2.5-flash
+      # DeepSeek
+      - deepseek-v3.2
+      - deepseek-v3.2-exp
+      - deepseek-r1-0528
+      - deepseek-ocr
+      - deepseek/deepseek-v3.2
+      - deepseek/deepseek-v3.2-exp
+      - deepseek/deepseek-v3.2-exp-thinking
+      - deepseek/deepseek-r1
+      - deepseek/deepseek-r1-0528
+      # Grok（xAI）
+      - grok-code-fast-1
+      - grok-4-1-fast-reasoning
+      - grok-4-1-fast-non-reasoning
+      - grok-4.20-beta-0309-reasoning
+      - grok-4.20-beta-0309-non-reasoning
+      - x-ai/grok-4.1-fast
+      - x-ai/grok-code-fast-1
+      # Kimi / Moonshot
+      - Kimi-K2.6
+      - kimi-k2.5-thinking
+      - kimi-k2.5
+      # MiniMax
+      - MiniMax-M2.7
+      - minimax-m2.5
+      - minimax-m2.1
+      - minimax/minimax-m2.7
+      - minimax/minimax-m2.5
+      - minimax/minimax-m2.1
+      # GLM（智谱）
+      - glm-5.1
+      - glm-5
+      - glm-5-turbo
+      # Qwen（通义千问）
+      - qwen3.6-plus
+      - qwen3.5-plus
+      - qwen3.5-397b-a17b
+      # MiMo（小米）
+      - mimo-v2-pro
+      - mimo-v2-omni
+      - mimo-v2-flash
+      - xiaomi/mimo-v2-flash
+```
+
+> **提示**：以上列表涵盖 Aiberm 当前提供的绝大部分模型，数量较多。建议根据实际使用需求，**仅保留你常用的模型**，删除其余条目即可。
+
+### 字段说明
+
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `base_url` | 是 | Aiberm 的 OpenAI 兼容端点，固定为 `https://aiberm.com/v1`。 |
+| `api_key` | 是 | 你的 Aiberm API Key，可在[控制台](https://aiberm.com/console/token)获取。 |
+| `type` | 是 | 协议类型，填 `openai`。Aiberm 采用 OpenAI Chat Completions 规范。 |
+| `default_model` | 是 | 默认模型，在未显式切换时使用。 |
+| `models` | 建议填写 | 提供给 `/model` 选择器的候选模型列表。Hermes 仅展示出现在此列表中的模型（以及 `default_model`）；若留空，选择器仅显示单个按钮。 |
+
+顶层 `model:` 段用于指定当前活跃的 provider 与默认模型。若你此前使用其他 provider，将 `provider:` 改为 `aiberm`，并将 `default:` 设置为 `models` 列表中存在的模型即可。
+
+## 使用方式
+
+修改配置后请重启 Hermes（CLI：退出并重新运行 `hermes`；Gateway：`hermes gateway restart`）。
+
+**在终端（CLI）中：**
+
+```
+/model
+```
+
+Hermes 会打开模型选择器，先选择 **Aiberm**，再选择具体模型。也可以直接指定：
+
+```
+/model claude-opus-4-7
+/model gpt-5.4 --global
+```
+
+添加 `--global` 会将变更写入 `config.yaml` 并持久化；不添加则仅作用于当前会话。
+
+**在 Telegram / Discord / Slack / WhatsApp 中：**
+
+向机器人发送 `/model`，机器人会返回一个内联键盘，列出所有已配置凭证的 provider。点击 **Aiberm** 即可进入分页模型列表（每页 8 个，支持 Prev / Next 翻页），点击模型完成切换。
+
+![Telegram /model 选择器中的 Aiberm 分页模型列表](/docs/hermes-model-picker.png)
+
+## 获取完整模型列表
+
+上文的 `models:` 列表为精选子集。如需查看 Aiberm 当前支持的全部模型，可直接调用接口：
+
+```bash
+curl -H "Authorization: Bearer sk-your-aiberm-api-key" \
+     https://aiberm.com/v1/models | jq -r '.data[].id'
+```
+
+将所需的 model ID 添加到 `models:` 段后重启 Hermes，即可在 `/model` 选择器中看到对应模型。
+
+## 使用环境变量（可选）
+
+如不希望将 API Key 直接写入 `config.yaml`，可使用环境变量：
+
+```bash
+export AIBERM_API_KEY=sk-your-aiberm-api-key
+```
+
+然后在 `config.yaml` 中通过 `key_env` 引用：
+
+```yaml
+providers:
+  aiberm:
+    base_url: https://aiberm.com/v1
+    key_env: AIBERM_API_KEY
+    type: openai
+    default_model: claude-sonnet-4-6
+```
+
+## 故障排查
+
+### `/model` 中 Aiberm 只显示一个按钮
+
+原因为 `providers.aiberm` 下未配置 `models:` 列表。Hermes 的选择器仅在模型数量超过 8 个时启用分页。按照上文示例补全 `models:` 列表后重启 Hermes 即可。
+
+### 401 Unauthorized
+
+- 前往 [Aiberm 控制台](https://aiberm.com/console/token) 验证 API Key 是否有效。
+- 确认 API Key 配置在 `providers.aiberm.api_key` 下，而非配置文件顶层。
+
+### Model not found
+
+Aiberm 的模型目录会持续更新，原先列表中的模型可能已被重命名或下线。重新调用 `/v1/models`（见上文）并更新 `models:` 列表即可。
+
+### 如何确认配置已生效？
+
+```bash
+hermes doctor
+```
+
+该命令会输出诊断报告，包括当前激活的 provider 和模型。
+
+## 相关链接
+
+- [Hermes Agent 文档](https://hermes-agent.nousresearch.com/docs/)
+- [Hermes Agent GitHub](https://github.com/NousResearch/hermes-agent)
+- [Aiberm 控制台](https://aiberm.com/console/token)
+- [Aiberm 价格与模型列表](https://aiberm.com/pricing)
