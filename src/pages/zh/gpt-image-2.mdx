@@ -1,0 +1,258 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: GPT Image 2
+lang: zh
+activeId: gpt-image-2
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+
+# GPT Image 2
+
+GPT Image 2 是 OpenAI 最新的 GPT Image 图像生成与编辑模型。Aiberm 通过 OpenAI 兼容的图像接口提供该能力，因此使用官方 OpenAI SDK 时，只需要把 `base_url` / `baseURL` 改成 `https://aiberm.com/v1`。
+
+**生图端点**：`POST https://aiberm.com/v1/images/generations`
+
+**编辑端点**：`POST https://aiberm.com/v1/images/edits`
+
+**模型**：`gpt-image-2`
+
+## 选择接口
+
+如果只需要通过一次请求生成或编辑图片，使用 Image API 即可。这也是大多数 Aiberm 接入场景推荐的方式。
+
+OpenAI 官方还提供了 Responses API 的图片生成工具，适合对话式、多步骤图片工作流。如果你的业务需要多轮改图，请先确认 Aiberm 上对应模型与端点是否支持 Responses API。
+
+## 生成图片
+
+Image API 会在 `data[0].b64_json` 返回 base64 图片数据。将它解码后写入文件即可。
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+import base64
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1",
+)
+
+result = client.images.generate(
+    model="gpt-image-2",
+    prompt="一张干净的产品摄影图，白色背景上有一盏哑光黑色智能台灯",
+    size="1024x1024",
+    quality="medium",
+)
+
+image_base64 = result.data[0].b64_json
+image_bytes = base64.b64decode(image_base64)
+
+with open("lamp.png", "wb") as f:
+    f.write(image_bytes)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import fs from "fs";
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: "https://aiberm.com/v1",
+});
+
+const result = await client.images.generate({
+  model: "gpt-image-2",
+  prompt: "一张干净的产品摄影图，白色背景上有一盏哑光黑色智能台灯",
+  size: "1024x1024",
+  quality: "medium",
+});
+
+const imageBase64 = result.data[0].b64_json;
+fs.writeFileSync("lamp.png", Buffer.from(imageBase64, "base64"));`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1/images/generations" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "一张干净的产品摄影图，白色背景上有一盏哑光黑色智能台灯",
+    "size": "1024x1024",
+    "quality": "medium"
+  }' | jq -r '.data[0].b64_json' | base64 --decode > lamp.png`
+    }
+  ]}
+/>
+
+### 已验证示例输出
+
+下面这张图由上方 Python 示例生成，并从 `data[0].b64_json` 解码保存。
+
+![生成的哑光黑色智能台灯](/docs/gpt-image-2/generated-lamp.png)
+
+## 使用参考图编辑
+
+将一张或多张图片传给 `images.edit`，再用文字描述希望得到的结果。多张输入图片可以作为新构图的参考。
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+import base64
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1",
+)
+
+result = client.images.edit(
+    model="gpt-image-2",
+    image=[
+        open("product.png", "rb"),
+        open("background.png", "rb"),
+    ],
+    prompt="把第一张图中的产品放到第二张图的桌面上，保持真实光照。",
+    size="1536x1024",
+    quality="high",
+)
+
+image_bytes = base64.b64decode(result.data[0].b64_json)
+with open("edited-product.png", "wb") as f:
+    f.write(image_bytes)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import fs from "fs";
+import OpenAI, { toFile } from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: "https://aiberm.com/v1",
+});
+
+const images = await Promise.all([
+  toFile(fs.createReadStream("product.png"), null, { type: "image/png" }),
+  toFile(fs.createReadStream("background.png"), null, { type: "image/png" }),
+]);
+
+const result = await client.images.edit({
+  model: "gpt-image-2",
+  image: images,
+  prompt: "把第一张图中的产品放到第二张图的桌面上，保持真实光照。",
+  size: "1536x1024",
+  quality: "high",
+});
+
+fs.writeFileSync("edited-product.png", Buffer.from(result.data[0].b64_json, "base64"));`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1/images/edits" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F "model=gpt-image-2" \\
+  -F "image[]=@product.png" \\
+  -F "image[]=@background.png" \\
+  -F "prompt=把第一张图中的产品放到第二张图的桌面上，保持真实光照。" \\
+  -F "size=1536x1024" \\
+  -F "quality=high" \\
+  | jq -r '.data[0].b64_json' | base64 --decode > edited-product.png`
+    }
+  ]}
+/>
+
+### 已验证参考图编辑
+
+下面示例将产品图和桌面背景图合成，返回一张新的 `1536x1024` PNG。
+
+| 产品输入图 | 背景输入图 | 编辑输出图 |
+|------------|------------|------------|
+| ![产品参考图](/docs/gpt-image-2/product.png) | ![桌面背景参考图](/docs/gpt-image-2/background.png) | ![产品放置到桌面后的编辑结果](/docs/gpt-image-2/edited-product.png) |
+
+## 使用蒙版编辑
+
+当你希望引导模型只修改某个区域时，可以传入 mask。原图和 mask 必须尺寸一致、格式一致，并且 mask 必须包含 alpha 通道。
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+import base64
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1",
+)
+
+result = client.images.edit(
+    model="gpt-image-2",
+    image=open("room.png", "rb"),
+    mask=open("mask.png", "rb"),
+    prompt="把蒙版区域替换成一个现代胡桃木书架。",
+)
+
+image_bytes = base64.b64decode(result.data[0].b64_json)
+with open("room-bookshelf.png", "wb") as f:
+    f.write(image_bytes)`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1/images/edits" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F "model=gpt-image-2" \\
+  -F "image[]=@room.png" \\
+  -F "mask=@mask.png" \\
+  -F "prompt=把蒙版区域替换成一个现代胡桃木书架。" \\
+  | jq -r '.data[0].b64_json' | base64 --decode > room-bookshelf.png`
+    }
+  ]}
+/>
+
+### 已验证蒙版编辑
+
+mask 图片使用 alpha 通道标记可编辑区域，接口返回结果是普通 PNG。
+
+| 原图 | 蒙版图 | 编辑输出图 |
+|------|--------|------------|
+| ![房间原图](/docs/gpt-image-2/room.png) | ![Alpha 蒙版图](/docs/gpt-image-2/mask.png) | ![替换书架后的蒙版编辑结果](/docs/gpt-image-2/mask-edit-result.png) |
+
+## 流式返回局部图片
+
+OpenAI 上游接口文档中提供了 `stream` 和 `partial_images`，用于在最终图完成前接收中间图片。在 Aiberm 上，这属于兼容性相关能力：除非你确认当前端点已经支持流式图片事件，否则建议使用标准的非流式调用。
+
+即使传入 `stream: true` 和 `partial_images`，响应也可能仍然是普通的最终 JSON，并通过 `data[0].b64_json` 返回图片。
+
+## 输出选项
+
+| 参数 | 可选值 | 说明 |
+|------|--------|------|
+| `size` | `auto`、`1024x1024`、`1536x1024`、`1024x1536`、`2048x2048`、`2048x1152`、`3840x2160`、`2160x3840`，或其他符合约束的自定义尺寸 | 每条边必须是 16 px 的倍数，最长边不超过 3840 px，长短边比例不超过 3:1，总像素数需在 655,360 到 8,294,400 之间。 |
+| `quality` | `auto`、`low`、`medium`、`high` | 草稿和快速迭代可用 `low`，最终素材建议用 `medium` 或 `high`。 |
+| `output_format` | `png`、`jpeg`、`webp` | 默认是 `png`。不需要透明背景时，`jpeg` 通常更快。 |
+| `output_compression` | `0` 到 `100` | 仅适用于 `jpeg` 和 `webp`。 |
+| `background` | `auto`、不透明背景选项 | `gpt-image-2` 当前不支持 `background: "transparent"`。 |
+| `stream`、`partial_images` | 兼容性相关 | Aiberm 可能返回普通最终 JSON，而不是流式局部图片事件。 |
+| `moderation` | `auto`、`low` | `auto` 是默认过滤级别。 |
+
+## 注意事项与限制
+
+- 复杂 prompt 可能需要更长处理时间，业务侧建议设置合理超时或后台任务。
+- 模型的文字渲染能力已有提升，但仍不能保证完全准确。Logo、标签、UI mockup 等场景需要人工检查。
+- 跨多次生成时，角色、精确布局、品牌细节可能无法完全保持一致。
+- 使用 `gpt-image-2` 编辑图片时不要传 `input_fidelity`；模型会自动以高保真方式处理输入图片。
+- 蒙版是对编辑区域的引导，不等于像素级精确选区。

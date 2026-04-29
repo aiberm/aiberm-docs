@@ -65,6 +65,11 @@ export const navigation: NavGroup[] = [
         icon: 'image',
       },
       {
+        id: 'gpt-image-2',
+        title: { en: 'GPT Image 2', zh: 'GPT Image 2' },
+        icon: 'image',
+      },
+      {
         id: 'nano-banana-pro',
         title: { en: 'NanoBanana Pro', zh: 'NanoBanana Pro' },
         icon: 'image',
