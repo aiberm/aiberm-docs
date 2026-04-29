@@ -1,0 +1,107 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Claude Desktop Setup
+lang: en
+activeId: claude-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Claude Desktop Setup
+
+Claude Desktop can be configured to use a third-party inference provider. With Aiberm, you can point Claude Desktop at Aiberm's Anthropic-compatible endpoint and use your Aiberm API key.
+
+<Callout client:load type="info">
+Anthropic documents this flow in its Claude Desktop / Claude Cowork third-party platform setup guide. The feature requires a recent Claude Desktop build; older clients may not show the required Developer menu.
+</Callout>
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- The latest Claude Desktop app installed from Claude's official download page
+- An Aiberm account ([Sign up](https://aiberm.com/register))
+- An Aiberm API key ([Create one in Console](https://aiberm.com/console/token))
+
+## Configuration
+
+Follow these steps before signing in to Claude Desktop.
+
+1. Open the latest Claude Desktop app.
+2. Do not sign in yet.
+3. In the menu bar, open **Help → Troubleshooting → Enable Developer Mode**.
+
+![Enable Developer Mode in Claude Desktop](/docs/claude-desktop/enable-developer-mode.png)
+
+4. After Developer Mode is enabled, open **Developer → Configure third-party inference**.
+
+![Open Configure third-party inference](/docs/claude-desktop/configure-inference.png)
+
+5. Fill in the third-party inference settings:
+
+| Field | Value |
+|-------|-------|
+| Base URL | `https://aiberm.com` |
+| API Key | Your Aiberm API key, for example `sk-...` |
+| Authentication method | Select `x-api-key` |
+| Provider / API format | Anthropic-compatible, custom gateway, or equivalent option if shown |
+
+![Third-party inference settings for Aiberm](/docs/claude-desktop/third-party-inference.png)
+
+6. Choose **Apply locally** to save the configuration on this computer.
+7. Continue signing in or launching Claude Desktop as prompted.
+
+## Why the Base URL is not `/v1`
+
+Claude Desktop's third-party inference mode expects an Anthropic-compatible provider. Aiberm's Anthropic-compatible base URL is:
+
+```text
+https://aiberm.com
+```
+
+Do not use the OpenAI-compatible endpoint `https://aiberm.com/v1` here unless Claude Desktop explicitly asks for a full OpenAI-compatible API prefix. For Claude Desktop and Claude Code, use `https://aiberm.com`.
+
+## Verify It Works
+
+After applying the local configuration:
+
+1. Restart Claude Desktop if the app asks you to.
+2. Start a new conversation.
+3. Send a short test prompt such as:
+
+```text
+Reply with one sentence if this request is using Aiberm.
+```
+
+If the request succeeds, Claude Desktop is using the configured Aiberm provider.
+
+## Troubleshooting
+
+### Developer menu does not appear
+
+- Confirm you installed the latest Claude Desktop app. Older versions may not support this setup UI.
+- Enable Developer Mode from **Help → Troubleshooting → Enable Developer Mode**.
+- Fully quit and reopen Claude Desktop after enabling Developer Mode.
+
+### Third-party inference option is missing
+
+- Make sure you are using the desktop app, not the web app.
+- Try opening Claude Desktop before signing in.
+- Update Claude Desktop and repeat the Developer Mode step.
+
+### Invalid API key
+
+- Copy the full API key from [Aiberm Console](https://aiberm.com/console/token).
+- Check for extra spaces before or after the key.
+- Confirm the key starts with `sk-`.
+- Confirm the authentication method is set to `x-api-key`.
+
+### Connection or model errors
+
+- Confirm the Base URL is exactly `https://aiberm.com`.
+- Make sure your network can access `https://aiberm.com`.
+- If your Claude Desktop build exposes model settings, choose an Anthropic-compatible Claude model available on Aiberm.
+
+## Official Reference
+
+- [Anthropic Help Center: Install and configure Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680741-install-and-configure-claude-cowork-with-third-party-platforms)

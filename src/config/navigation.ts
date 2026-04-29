@@ -90,6 +90,11 @@ export const navigation: NavGroup[] = [
         icon: 'terminal',
       },
       {
+        id: 'claude-desktop',
+        title: { en: 'Claude Desktop Setup', zh: 'Claude Desktop 设置' },
+        icon: 'terminal',
+      },
+      {
         id: 'codex',
         title: { en: 'OpenAI Codex Setup', zh: 'OpenAI Codex 设置' },
         icon: 'code',
