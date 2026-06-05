@@ -100,6 +100,11 @@ export const navigation: NavGroup[] = [
         icon: 'code',
       },
       {
+        id: 'codex-desktop',
+        title: { en: 'Codex Desktop Setup', zh: 'Codex 桌面端设置' },
+        icon: 'code',
+      },
+      {
         id: 'opencode',
         title: { en: 'OpenCode Setup', zh: 'OpenCode 设置' },
         icon: 'terminal',

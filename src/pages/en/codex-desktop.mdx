@@ -1,0 +1,90 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Codex Desktop Setup
+lang: en
+activeId: codex-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Codex Desktop Setup
+
+The OpenAI Codex desktop app can sign in with an API key and open the user-level `config.toml` from inside the app. With Aiberm configured, Codex sends requests through Aiberm's Responses-compatible endpoint.
+
+<Callout client:load type="info">
+The sign-in field is still labeled OpenAI API key. Enter your Aiberm API key there, for example `sk-...`.
+</Callout>
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- The latest OpenAI Codex desktop app
+- An Aiberm account ([Sign up](https://aiberm.com/register))
+- An Aiberm API key ([Create one in Console](https://aiberm.com/console/token))
+
+## Configuration
+
+1. Open the Codex desktop app.
+2. On the sign-in screen, choose **Sign in another way**.
+
+![Choose another sign-in method in Codex Desktop](/docs/codex-desktop/codex-signin.png)
+
+3. Enter your Aiberm API key in the **OpenAI API key** field, then choose **Continue**.
+
+![Enter an API key in Codex Desktop](/docs/codex-desktop/codex-signin-with-apikey.png)
+
+4. After entering the app, open Settings.
+5. Select **Configuration** in the sidebar.
+6. Under **Custom config.toml settings**, make sure **User config** is selected.
+7. Choose **Open config.toml** to open the user-level config file.
+
+![Open config.toml in Codex Desktop](/docs/codex-desktop/codex-configuration.png)
+
+8. Add or replace the contents of `config.toml` with:
+
+```toml
+model = "gpt-5.5"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+wire_api = "responses"
+```
+
+9. Save `config.toml`.
+10. Fully quit and reopen the Codex desktop app.
+
+## Verify It Works
+
+After reopening Codex:
+
+1. Open a project or workspace.
+2. Ask Codex to perform a real coding task, such as explaining the current file, editing a small piece of code, or running project tests.
+
+If the task runs and returns a result, the configuration is working.
+
+## Troubleshooting
+
+### Invalid API Key
+
+- Copy the full key from [Aiberm Console](https://aiberm.com/console/token).
+- Check for extra spaces before or after the key.
+- Confirm the key starts with `sk-`.
+
+### Configuration Changes Do Not Apply
+
+- Confirm you edited the `config.toml` opened from **User config**.
+- Fully quit and reopen the Codex desktop app after saving the file.
+- Confirm `model_provider = "aiberm"` matches `[model_providers.aiberm]`.
+
+### Model or Connection Errors
+
+- Confirm the `base_url` is exactly `https://aiberm.com/v1`.
+- Confirm `wire_api` is `responses`.
+- Confirm your account can access `gpt-5.5`. For the current list, see [Models List](/docs/en/models).
+
+## Official Reference
+
+- [OpenAI Codex: Configuration Reference](https://developers.openai.com/codex/config-reference/)

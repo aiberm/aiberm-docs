@@ -1,0 +1,90 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Codex 桌面端设置
+lang: zh
+activeId: codex-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Codex 桌面端设置
+
+OpenAI Codex 桌面端可以通过 API Key 登录，并在应用内打开用户级 `config.toml`。配置 Aiberm 后，Codex 会通过 Aiberm 的 Responses 兼容接口发起请求。
+
+<Callout client:load type="info">
+Codex 登录界面中的字段名称仍显示为 OpenAI API key。这里填写你的 Aiberm API Key，例如 `sk-...`。
+</Callout>
+
+## 前置条件
+
+开始之前，请确认你已经准备好：
+
+- 最新版 OpenAI Codex 桌面端
+- Aiberm 账户（[注册](https://aiberm.com/register)）
+- Aiberm API Key（[在控制台创建](https://aiberm.com/console/token)）
+
+## 配置步骤
+
+1. 打开 Codex 桌面端。
+2. 在登录页面选择 **Sign in another way**。
+
+![Codex 桌面端选择其他登录方式](/docs/codex-desktop/codex-signin.png)
+
+3. 在 **OpenAI API key** 输入框中填写你的 Aiberm API Key，然后选择 **Continue**。
+
+![在 Codex 桌面端中填写 API Key](/docs/codex-desktop/codex-signin-with-apikey.png)
+
+4. 进入应用后，打开设置页面。
+5. 在左侧选择 **Configuration**。
+6. 在 **Custom config.toml settings** 中确认选择的是 **User config**。
+7. 选择 **Open config.toml**，打开用户级配置文件。
+
+![在 Codex 桌面端中打开 config.toml](/docs/codex-desktop/codex-configuration.png)
+
+8. 在 `config.toml` 中写入或替换为以下配置：
+
+```toml
+model = "gpt-5.5"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+wire_api = "responses"
+```
+
+9. 保存 `config.toml`。
+10. 完全退出并重新打开 Codex 桌面端。
+
+## 验证配置
+
+重新打开 Codex 后：
+
+1. 打开一个项目或工作区。
+2. 让 Codex 执行一次真实的代码任务，例如解释当前文件、修改一段代码或运行项目测试。
+
+如果任务可以正常执行并返回结果，说明配置已经生效。
+
+## 常见问题
+
+### API Key 无效
+
+- 从 [Aiberm 控制台](https://aiberm.com/console/token) 复制完整 API Key。
+- 检查 API Key 前后是否有多余空格。
+- 确认 API Key 以 `sk-` 开头。
+
+### 配置没有生效
+
+- 确认修改的是 **User config** 下打开的 `config.toml`。
+- 保存文件后完全退出并重新打开 Codex 桌面端。
+- 确认 `model_provider = "aiberm"` 和 `[model_providers.aiberm]` 的名称一致。
+
+### 模型或连接错误
+
+- 确认 `base_url` 严格填写为 `https://aiberm.com/v1`。
+- 确认 `wire_api` 是 `responses`。
+- 确认你的账号可以访问 `gpt-5.5`。当前模型列表可参考 [获取模型列表](/docs/zh/models)。
+
+## 官方参考
+
+- [OpenAI Codex: Configuration Reference](https://developers.openai.com/codex/config-reference/)
