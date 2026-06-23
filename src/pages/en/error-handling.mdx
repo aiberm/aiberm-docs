@@ -7,40 +7,108 @@ activeId: error-handling
 
 # Error Handling
 
-Understand API error codes and handling methods.
+When an Aiberm API request fails, the API returns a JSON error object. Use the HTTP status code, `error.code`, and `error.message` to identify the issue and decide what to do next.
 
-## Common Error Codes
+If you need support, include the complete error response with every `request id`.
 
-<div class="space-y-4 mt-8">
-  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
-    <div class="flex items-center gap-2 mb-1">
-      <span class="text-lg font-mono font-bold text-red-600">401</span>
-      <h3 class="text-lg font-semibold text-gray-900">Unauthorized</h3>
-    </div>
-    <p class="text-sm text-gray-700">Invalid or expired API key</p>
-  </div>
+## Error Response Format
 
-  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
-    <div class="flex items-center gap-2 mb-1">
-      <span class="text-lg font-mono font-bold text-red-600">403</span>
-      <h3 class="text-lg font-semibold text-gray-900">Forbidden</h3>
-    </div>
-    <p class="text-sm text-gray-700">Insufficient permissions or restricted account</p>
-  </div>
+```json
+{
+  "error": {
+    "message": "用户额度不足, 剩余额度: ¥0.00 (request id: 20260622xxxxxxxx)",
+    "type": "new_api_error",
+    "code": "insufficient_user_quota"
+  }
+}
+```
 
-  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
-    <div class="flex items-center gap-2 mb-1">
-      <span class="text-lg font-mono font-bold text-red-600">429</span>
-      <h3 class="text-lg font-semibold text-gray-900">Too Many Requests</h3>
-    </div>
-    <p class="text-sm text-gray-700">Rate limit exceeded</p>
-  </div>
+| Field | Meaning |
+| --- | --- |
+| `message` | Human-readable error message. The trailing `(request id: ...)` is the trace ID for this request. Include it when contacting support. |
+| `code` | Error category identifier. Match it with the common errors below. |
+| `type` | Error source marker. In most cases, you do not need to handle it directly. |
 
-  <div class="bg-red-50 rounded-lg px-4 py-3 border border-red-100">
-    <div class="flex items-center gap-2 mb-1">
-      <span class="text-lg font-mono font-bold text-red-600">500</span>
-      <h3 class="text-lg font-semibold text-gray-900">Internal Server Error</h3>
-    </div>
-    <p class="text-sm text-gray-700">An error occurred on the server</p>
-  </div>
-</div>
+> If `message` contains multiple `(request id: ...)` values, that is normal. It means the request passed through multiple service layers. Copy the full error message when contacting support.
+
+## HTTP Status Codes
+
+| Status | Meaning | What to do |
+| --- | --- | --- |
+| `400` | Invalid request format | Check the request JSON, required fields, `Content-Type`, and model name. |
+| `401` | Invalid API key | Check whether the API key is correct, expired, disabled, or out of quota. |
+| `403` | No permission or insufficient balance | Check account balance, token permissions, model permissions, and source IP. |
+| `404` | Resource not found | Check the endpoint URL and model name spelling. |
+| `429` | Too many requests | Reduce concurrency or request frequency, then retry later. |
+| `500` | Internal server error | Retry later. If it keeps happening, contact support with the `request id`. |
+| `503` | No service temporarily available | The model currently has no available route. Retry later or contact support. |
+
+## API Key and Authentication Errors
+
+These errors usually return `401`.
+
+| Message you may see | Common cause | How to fix |
+| --- | --- | --- |
+| `无效的令牌` | The API key is incorrect or does not exist. | Check that the key is complete and has no extra or missing characters. Copy it again from the console. |
+| `该令牌已过期` | The token has expired. | Regenerate the token in the console, or extend its validity period. |
+| `该令牌额度已用尽` | The quota assigned to this token has been used up. | Increase the token quota, or use another token with enough quota. |
+| `该令牌状态不可用` | The token is disabled. | Enable the token in the console, or create a new one. |
+| `未提供令牌` | The request did not include an API key. | Add `Authorization: Bearer sk-xxxxxx` to the request headers. |
+
+## Permission and Balance Errors
+
+These errors usually return `403`.
+
+| Message you may see | Common cause | How to fix |
+| --- | --- | --- |
+| `用户额度不足, 剩余额度: ...` | The account balance is not enough for this request. | Recharge the account and retry. |
+| `预扣费额度失败, 用户剩余额度: ...` | The balance is not enough to cover the estimated request cost. | Recharge, or reduce `max_tokens` and shorten the input. |
+| `您的 IP 不在令牌允许访问的列表中` | The token has an IP allowlist, and the current IP is not allowed. | Use an allowed IP, or update the allowlist in the console. |
+| `用户已被封禁` | The account has been suspended. | Contact support for details. |
+| `无权访问 xxx 分组` | The token does not have access to the requested group. | Use an allowed group, or request access. |
+| `该令牌无权访问模型 xxx` | The token's allowed model list does not include this model. | Use an allowed model, or update the token's model permissions in the console. |
+
+## Request Content Errors
+
+These errors usually return `400`.
+
+| Message you may see | Common cause | How to fix |
+| --- | --- | --- |
+| `Invalid request, ...` | The request body cannot be parsed. | Check that the JSON is valid and `Content-Type` is `application/json`. |
+| `未指定模型名称，模型名称不能为空` | The request is missing the `model` field. | Add the correct `model` to the request body. |
+| Messages like `检测到敏感词` | The input matched a content safety rule. | Adjust the input and retry. |
+
+## Rate Limit Errors
+
+These errors usually return `429`.
+
+| Message you may see | Common cause | How to fix |
+| --- | --- | --- |
+| `您已达到请求数限制：N分钟内最多请求M次` | You reached the limit for successful requests. | Lower request frequency and retry after the limit window resets. |
+| `您已达到总请求数限制：...，包括失败次数...` | The total request limit was reached, including failed requests. | Check whether repeated failed requests are looping, fix the cause, then retry. |
+
+## Model and Route Errors
+
+These errors usually return `404` or `503`.
+
+| Message you may see | Common cause | How to fix |
+| --- | --- | --- |
+| `模型不存在` | The model name is misspelled, or this model is not enabled for the token. | Confirm the model name and token model permissions. |
+| `无可用渠道` | The model currently has no available route. | Retry later. If it remains unavailable, contact support. |
+
+## Server Errors
+
+These errors usually return `500` or `503`.
+
+| Message you may see | Common cause | How to fix |
+| --- | --- | --- |
+| Internal error messages | Temporary server issue, or an upstream service is temporarily unavailable. | Retry later. If it keeps happening, contact support with the `request id`. |
+
+## Before Contacting Support
+
+To help us locate the issue faster, provide:
+
+1. The complete error response, including `message`, `code`, and every `request id`.
+2. Approximate time when the issue happened.
+3. The model name and endpoint URL you called.
+4. The first few characters of the API key, such as `sk-abcd...`. Do not send the full key.
