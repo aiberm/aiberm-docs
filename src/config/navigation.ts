@@ -120,6 +120,11 @@ export const navigation: NavGroup[] = [
         icon: 'terminal',
       },
       {
+        id: 'deepseek-harness',
+        title: { en: 'DeepSeek Harness Setup', zh: 'DeepSeek Harness 设置' },
+        icon: 'terminal',
+      },
+      {
         id: 'trae',
         title: { en: 'Trae Setup', zh: 'Trae 设置' },
         icon: 'terminal',
