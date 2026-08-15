@@ -86,6 +86,8 @@ Aiberm **不是**内置的 DeepSeek 卡片，也 **不是** 目录里的 OpenAI 
 | **API 协议** | `openai-completions` |
 | **API 密钥** | 从 [控制台 → API Tokens](https://aiberm.com/console/token) 获取的 Aiberm Key |
 
+![添加自定义提供方表单](/docs/deepseek-harness-provider.png)
+
 <Callout client:load type="warning">
 Provider ID 之后不能改名。请求、已保存会话、默认模型和凭据引用都会使用它。若要更换，请新增提供方并删除旧的。
 </Callout>
@@ -93,6 +95,8 @@ Provider ID 之后不能改名。请求、已保存会话、默认模型和凭�
 ### 步骤 3：拉取或手填模型
 
 在 **模型目录** 中选择 **获取可用模型**。Harness 会用你刚填的密钥调用 Aiberm 的 OpenAI 兼容接口 `GET /v1/models`。勾选需要的模型后保存。
+
+![从 Aiberm 获取可用模型](/docs/deepseek-harness-models.png)
 
 若发现失败，请手工填写模型 ID。ID 见[模型列表](/docs/zh/models)或 [Aiberm 价格页](https://aiberm.com/pricing)。例如：
 
@@ -109,7 +113,9 @@ Provider ID 之后不能改名。请求、已保存会话、默认模型和凭�
 
 ### 步骤 4：选择模型
 
-保存后，模型选择器会出现 **Aiberm**。选中某个模型，也会把它设为**新会话**的默认值。已经发过请求的会话会保留自身日志里记录的模型。
+保存后，输入框右下角的模型选择器会出现 **Aiberm**。选中某个模型，也会把它设为**新会话**的默认值。已经发过请求的会话会保留自身日志里记录的模型。
+
+选择器会把内置 DeepSeek 模型与自定义提供方 **Aiberm** 分组显示。Claude、GPT、Gemini 以及其余目录请走 Aiberm 这一组。
 
 ## 配置 Aiberm（settings.yaml）
 
@@ -189,6 +195,9 @@ defaultInput: [text, image]
 
 1. 打开 `http://127.0.0.1:3080`。
 2. 确认模型选择器里有 **Aiberm** 以及你的模型。
+
+![模型选择器中的 Aiberm 分组](/docs/deepseek-harness-ui.png)
+
 3. 发送一句简短提示，例如 `Hi`。
 4. 可选：直接向 Aiberm 拉取模型列表：
 

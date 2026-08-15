@@ -86,6 +86,8 @@ Choose **Add a custom provider** and fill in:
 | **API protocol** | `openai-completions` |
 | **API key** | your Aiberm key from [Console → API Tokens](https://aiberm.com/console/token) |
 
+![Add a custom provider form](/docs/deepseek-harness-provider.png)
+
 <Callout client:load type="warning">
 The Provider ID cannot be renamed later. Requests, saved sessions, the default model, and the stored credential all use it. To change it, add a new provider and delete the old one.
 </Callout>
@@ -93,6 +95,8 @@ The Provider ID cannot be renamed later. Requests, saved sessions, the default m
 ### Step 3: Load or enter models
 
 Under **Model catalog**, choose **Fetch available models**. Harness calls Aiberm's OpenAI-compatible `GET /v1/models` with the key you just typed. Select the models you want, then save.
+
+![Fetch available models from Aiberm](/docs/deepseek-harness-models.png)
 
 If discovery fails, enter model IDs by hand. Use the IDs from the [Models List](/docs/en/models) or [Aiberm Pricing](https://aiberm.com/pricing). Examples:
 
@@ -109,7 +113,9 @@ The page never writes the API key into `settings.yaml`. The key is stored write-
 
 ### Step 4: Select a model
 
-After saving, Aiberm appears in the model picker. Choose a model — that selection also becomes the default for **new** sessions. A session that has already sent a request keeps the model recorded in its own log.
+After saving, Aiberm appears in the model picker at the bottom of the composer. Choose a model — that selection also becomes the default for **new** sessions. A session that has already sent a request keeps the model recorded in its own log.
+
+The picker groups built-in DeepSeek models separately from the **Aiberm** custom provider. Use the Aiberm group for Claude, GPT, Gemini, and the rest of the catalog.
 
 ## Configure Aiberm (settings.yaml)
 
@@ -189,6 +195,9 @@ defaultInput: [text, image]
 
 1. Open `http://127.0.0.1:3080`.
 2. Confirm the model picker lists **Aiberm** and your models.
+
+![Model picker showing the Aiberm group](/docs/deepseek-harness-ui.png)
+
 3. Send a short prompt such as `Hi`.
 4. Optional: list models through Aiberm directly:
 
