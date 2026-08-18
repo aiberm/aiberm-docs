@@ -1,0 +1,258 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: GPT Image 2
+lang: vi
+activeId: gpt-image-2
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+
+# GPT Image 2
+
+GPT Image 2 là mô hình GPT Image mới nhất của OpenAI để tạo và chỉnh sửa ảnh. Aiberm cung cấp nó qua các endpoint ảnh tương thích OpenAI, vì vậy bạn có thể dùng OpenAI SDK bằng cách đổi `base_url` / `baseURL` thành `https://aiberm.com/v1`.
+
+**Endpoint tạo ảnh**: `POST https://aiberm.com/v1/images/generations`
+
+**Endpoint chỉnh sửa**: `POST https://aiberm.com/v1/images/edits`
+
+**Mô hình**: `gpt-image-2`
+
+## Chọn API
+
+Dùng Image API khi bạn cần một yêu cầu để tạo hoặc chỉnh sửa ảnh. Đây là đường dẫn khuyến nghị cho hầu hết tích hợp Aiberm.
+
+OpenAI cũng tài liệu hóa việc tạo ảnh như một công cụ trong Responses API cho các quy trình ảnh hội thoại hoặc nhiều bước. Nếu tích hợp của bạn phụ thuộc vào chỉnh sửa nhiều lượt, hãy xác nhận trước rằng mô hình và endpoint Aiberm hỗ trợ Responses API.
+
+## Tạo ảnh
+
+Image API trả về dữ liệu ảnh base64 trong `data[0].b64_json`. Giải mã rồi ghi các byte ra tệp.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+import base64
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1",
+)
+
+result = client.images.generate(
+    model="gpt-image-2",
+    prompt="A clean product photo of a matte black smart desk lamp on a white background",
+    size="1024x1024",
+    quality="medium",
+)
+
+image_base64 = result.data[0].b64_json
+image_bytes = base64.b64decode(image_base64)
+
+with open("lamp.png", "wb") as f:
+    f.write(image_bytes)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import fs from "fs";
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: "https://aiberm.com/v1",
+});
+
+const result = await client.images.generate({
+  model: "gpt-image-2",
+  prompt: "A clean product photo of a matte black smart desk lamp on a white background",
+  size: "1024x1024",
+  quality: "medium",
+});
+
+const imageBase64 = result.data[0].b64_json;
+fs.writeFileSync("lamp.png", Buffer.from(imageBase64, "base64"));`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1/images/generations" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A clean product photo of a matte black smart desk lamp on a white background",
+    "size": "1024x1024",
+    "quality": "medium"
+  }' | jq -r '.data[0].b64_json' | base64 --decode > lamp.png`
+    }
+  ]}
+/>
+
+### Đầu ra ví dụ đã xác minh
+
+Ảnh này được tạo bằng ví dụ Python ở trên và lưu từ `data[0].b64_json`.
+
+![Generated matte black smart desk lamp](/docs/gpt-image-2/generated-lamp.png)
+
+## Chỉnh sửa với ảnh tham chiếu
+
+Truyền một hoặc nhiều ảnh vào `images.edit` và mô tả đầu ra mong muốn. Nhiều ảnh đầu vào có thể dùng làm tham chiếu cho một bố cục mới.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+import base64
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1",
+)
+
+result = client.images.edit(
+    model="gpt-image-2",
+    image=[
+        open("product.png", "rb"),
+        open("background.png", "rb"),
+    ],
+    prompt="Place the product from the first image onto the desk in the second image. Keep realistic lighting.",
+    size="1536x1024",
+    quality="high",
+)
+
+image_bytes = base64.b64decode(result.data[0].b64_json)
+with open("edited-product.png", "wb") as f:
+    f.write(image_bytes)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import fs from "fs";
+import OpenAI, { toFile } from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: "https://aiberm.com/v1",
+});
+
+const images = await Promise.all([
+  toFile(fs.createReadStream("product.png"), null, { type: "image/png" }),
+  toFile(fs.createReadStream("background.png"), null, { type: "image/png" }),
+]);
+
+const result = await client.images.edit({
+  model: "gpt-image-2",
+  image: images,
+  prompt: "Place the product from the first image onto the desk in the second image. Keep realistic lighting.",
+  size: "1536x1024",
+  quality: "high",
+});
+
+fs.writeFileSync("edited-product.png", Buffer.from(result.data[0].b64_json, "base64"));`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1/images/edits" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F "model=gpt-image-2" \\
+  -F "image[]=@product.png" \\
+  -F "image[]=@background.png" \\
+  -F "prompt=Place the product from the first image onto the desk in the second image. Keep realistic lighting." \\
+  -F "size=1536x1024" \\
+  -F "quality=high" \\
+  | jq -r '.data[0].b64_json' | base64 --decode > edited-product.png`
+    }
+  ]}
+/>
+
+### Chỉnh sửa tham chiếu đã xác minh
+
+Ví dụ chỉnh sửa kết hợp ảnh sản phẩm với nền bàn và trả về PNG `1536x1024` mới.
+
+| Đầu vào sản phẩm | Đầu vào nền | Đầu ra đã chỉnh |
+|---------------|------------------|---------------|
+| ![Product reference image](/docs/gpt-image-2/product.png) | ![Desk background reference image](/docs/gpt-image-2/background.png) | ![Edited product placed on desk](/docs/gpt-image-2/edited-product.png) |
+
+## Chỉnh sửa với mask
+
+Dùng mask khi bạn muốn hướng dẫn vùng nào nên thay đổi. Ảnh nguồn và mask phải cùng kích thước và định dạng, và mask phải có kênh alpha.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+import base64
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1",
+)
+
+result = client.images.edit(
+    model="gpt-image-2",
+    image=open("room.png", "rb"),
+    mask=open("mask.png", "rb"),
+    prompt="Replace the masked area with a modern walnut bookshelf.",
+)
+
+image_bytes = base64.b64decode(result.data[0].b64_json)
+with open("room-bookshelf.png", "wb") as f:
+    f.write(image_bytes)`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1/images/edits" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F "model=gpt-image-2" \\
+  -F "image[]=@room.png" \\
+  -F "mask=@mask.png" \\
+  -F "prompt=Replace the masked area with a modern walnut bookshelf." \\
+  | jq -r '.data[0].b64_json' | base64 --decode > room-bookshelf.png`
+    }
+  ]}
+/>
+
+### Chỉnh sửa mask đã xác minh
+
+Ảnh mask dùng kênh alpha để hướng dẫn vùng có thể chỉnh. Ảnh trả về là PNG thông thường.
+
+| Ảnh nguồn | Ảnh mask | Đầu ra đã chỉnh |
+|--------------|------------|---------------|
+| ![Room source image](/docs/gpt-image-2/room.png) | ![Alpha mask image](/docs/gpt-image-2/mask.png) | ![Bookshelf mask edit output](/docs/gpt-image-2/mask-edit-result.png) |
+
+## Stream ảnh từng phần
+
+API gốc của OpenAI tài liệu hóa `stream` và `partial_images` để nhận ảnh trung gian trước kết quả cuối. Trên Aiberm, hãy coi đây là phụ thuộc tương thích: dùng luồng không stream tiêu chuẩn trừ khi endpoint của bạn đã xác nhận rõ hỗ trợ streaming.
+
+Nếu bạn gửi `stream: true` và `partial_images`, phản hồi vẫn có thể là payload JSON cuối cùng thông thường với `data[0].b64_json`.
+
+## Tùy chọn đầu ra
+
+| Tham số | Giá trị | Ghi chú |
+|-----------|--------|-------|
+| `size` | `auto`, `1024x1024`, `1536x1024`, `1024x1536`, `2048x2048`, `2048x1152`, `3840x2160`, `2160x3840`, hoặc kích thước tùy chỉnh hợp lệ khác | Mỗi cạnh phải là bội số của 16 px, cạnh tối đa là 3840 px, tỷ lệ khung hình không quá 3:1, và tổng số pixel phải nằm trong khoảng 655,360 đến 8,294,400. |
+| `quality` | `auto`, `low`, `medium`, `high` | Dùng `low` cho bản nháp nhanh và `medium` hoặc `high` cho tài sản cuối. |
+| `output_format` | `png`, `jpeg`, `webp` | Mặc định là `png`. `jpeg` thường nhanh hơn khi không cần trong suốt. |
+| `output_compression` | `0` đến `100` | Áp dụng cho `jpeg` và `webp`. |
+| `background` | `auto`, các tùy chọn nền đục | `gpt-image-2` hiện không hỗ trợ `background: "transparent"`. |
+| `stream`, `partial_images` | Phụ thuộc tương thích | Aiberm có thể trả về phản hồi JSON cuối cùng thông thường thay vì các sự kiện ảnh từng phần được stream. |
+| `moderation` | `auto`, `low` | `auto` là mức lọc mặc định. |
+
+## Lưu ý và giới hạn
+
+- Prompt phức tạp có thể mất nhiều thời gian xử lý hơn; hãy thiết kế ứng dụng với timeout và công việc nền.
+- Kết xuất chữ đã cải thiện nhưng vẫn không đảm bảo chính xác tuyệt đối. Với logo, nhãn hoặc mockup UI, hãy kiểm tra đầu ra trước khi xuất bản.
+- Mô hình có thể không giữ nguyên nhân vật lặp lại, bố cục chính xác hoặc chi tiết thương hiệu hoàn hảo qua các lần sinh riêng biệt.
+- Khi chỉnh sửa, bỏ `input_fidelity` với `gpt-image-2`; mô hình tự xử lý đầu vào ảnh ở độ trung thực cao.
+- Với chỉnh sửa mask, mask là hướng dẫn chứ không phải vùng chọn chính xác từng pixel.

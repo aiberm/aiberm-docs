@@ -1,0 +1,188 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: OpenClaw のセットアップ
+lang: ja
+activeId: openclaw
+---
+
+# OpenClaw のセットアップ
+
+OpenClaw を Aiberm の API で使うための設定方法を説明します。このガイドでは Windows、macOS、Linux 向けのインストールと設定を扱います。
+
+## OpenClaw とは
+
+OpenClaw は、ターミナルやメッセージアプリに直接 AI 支援をもたらすオープンソースの AI エージェントプラットフォームです。複数の LLM プロバイダに対応し、プラグインで拡張できます。
+
+**openclaw-aiberm** プラグインをインストールすると、1 つの API キーと統一インターフェースから、Aiberm 上のすべてのモデル（GPT、Claude、Gemini、DeepSeek、Grok など）にアクセスできます。
+
+## 前提条件
+
+開始する前に、次を用意してください。
+
+- Aiberm アカウント（[こちらから登録](https://aiberm.com/register)）
+- Aiberm API キー（[キーを取得](https://aiberm.com/console/token)）
+- お使いのコンピュータでのターミナル／コマンドプロンプトへのアクセス
+- Node.js 18 以上がインストールされていること
+
+## インストール
+
+### ステップ 1: OpenClaw をインストールする
+
+**macOS & Linux:**
+
+```bash
+curl -fsSL https://openclaw.ai/install.sh | bash
+```
+
+または npm を使います。
+
+```bash
+npm i -g openclaw
+```
+
+**Windows:**
+
+```bash
+npm i -g openclaw
+```
+
+**インストールの確認:**
+
+```bash
+openclaw --version
+```
+
+### ステップ 2: Aiberm プラグインをインストールする
+
+Aiberm プロバイダプラグインをインストールします。
+
+```bash
+openclaw plugins install openclaw-aiberm
+```
+
+プラグインを有効にします。
+
+```bash
+openclaw plugins enable openclaw-aiberm
+```
+
+**重要:** 有効化後は、変更を反映するためにゲートウェイを再起動してください。
+
+```bash
+openclaw gateway restart
+```
+
+## 認証
+
+プラグインをインストールして有効にしたら、Aiberm API キーで認証します。
+
+```bash
+openclaw models auth login --provider aiberm --set-default
+```
+
+Aiberm API キーの入力を求められます。API キーは [https://aiberm.com/console/token](https://aiberm.com/console/token) で取得できます。
+
+別のモデルに切り替えたい場合は、`openclaw onboard` を再実行し、Model/auth provider で **Skip for now** を選び、Filter models by provider で **aiberm** を選択してから、モデル一覧で切り替えたいモデルを選びます。
+
+![](/docs/openclaw-model.png)
+
+> プラグインのインストールが不便な Docker コンテナ内では、[この設定](https://github.com/aiberm/openclaw-aiberm/blob/main/openclaw.json)ファイルを直接参照し、`~/.openclaw/openclaw.json` に保存できます。
+
+## 利用可能なモデル
+
+プラグインは Aiberm API からモデルを動的に読み込みます。例は次のとおりです。
+
+### OpenAI GPT
+- `aiberm/openai/gpt-5.2-codex`
+- `aiberm/openai/gpt-5.2`
+- `aiberm/openai/gpt-4.1`
+- `aiberm/openai/gpt-4o`
+- `aiberm/openai/gpt-4o-mini`
+
+### Anthropic Claude
+- `aiberm/anthropic/claude-opus-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5`
+- `aiberm/anthropic/claude-haiku-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5:thinking`
+
+### Google Gemini
+- `aiberm/google/gemini-3-pro`
+- `aiberm/google/gemini-3-flash`
+- `aiberm/google/gemini-2.5-pro`
+
+### DeepSeek
+- `aiberm/deepseek/deepseek-r1`
+- `aiberm/deepseek/deepseek-v3.2`
+
+### X.AI Grok
+- `aiberm/x-ai/grok-4.1-fast`
+- `aiberm/x-ai/grok-code-fast-1`
+
+利用可能なモデルの最新の完全な一覧は、[Aiberm Pricing](https://aiberm.com/pricing) をご覧ください。
+
+## 使い方
+
+認証後は OpenClaw を使い始められます。詳しい使い方は [OpenClaw Documentation](https://docs.openclaw.ai) を参照してください。
+
+インストール済みモデルを一覧表示します。
+
+```bash
+openclaw models list | grep aiberm
+```
+
+## 環境変数
+
+API キーは環境変数でも設定できます。
+
+```bash
+export AIBERM_API_KEY=sk-your-api-key
+```
+
+## 動的なモデル読み込み
+
+openclaw-aiberm プラグインは動的なモデル読み込みに対応しています。
+
+1. プラグイン読み込み時に、Aiberm API から最新のモデル一覧を取得します
+2. API が利用できない場合は、組み込みのモデル一覧にフォールバックします
+3. 認証時にも最新モデルを再取得します
+
+これにより次が可能です。
+- プラグインを更新しなくても、新しいモデルをすぐに使えます
+- 非推奨になったモデルは自動で削除されます
+- モデルの機能情報は常に最新です
+
+## トラブルシューティング
+
+### 「No provider plugins found」エラー
+
+次を確認してください。
+1. プラグインをインストール済み: `openclaw plugins install openclaw-aiberm`
+2. プラグインを有効化済み: `openclaw plugins enable openclaw-aiberm`
+3. ゲートウェイを再起動済み: `openclaw gateway restart`
+
+### 401/403 エラー
+
+- **401 エラー**: API Key が未設定、または無効です
+- **403 エラー**: 権限不足、またはキーの期限切れです
+- [Aiberm Console](https://aiberm.com/console/token) で API キーを確認してください
+
+### プラグインが読み込まれない
+
+プラグインが有効か確認します。
+
+```bash
+openclaw plugins list
+```
+
+有効でない場合は、次を実行します。
+
+```bash
+openclaw plugins enable openclaw-aiberm
+openclaw gateway restart
+```
+
+## リンク
+
+- [openclaw-aiberm on npm](https://www.npmjs.com/package/openclaw-aiberm)
+- [openclaw-aiberm on GitHub](https://github.com/aiberm/openclaw-aiberm)
+- [OpenClaw Documentation](https://docs.openclaw.ai)

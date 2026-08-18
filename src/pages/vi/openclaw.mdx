@@ -1,0 +1,188 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cài đặt OpenClaw
+lang: vi
+activeId: openclaw
+---
+
+# Cài đặt OpenClaw
+
+Tìm hiểu cách cấu hình OpenClaw để dùng API của Aiberm. Hướng dẫn này gồm cài đặt và cấu hình cho Windows, macOS và Linux.
+
+## OpenClaw là gì?
+
+OpenClaw là nền tảng agent AI mã nguồn mở, mang trợ lý AI trực tiếp vào terminal và ứng dụng nhắn tin. Nó hỗ trợ nhiều nhà cung cấp LLM và có thể mở rộng bằng plugin.
+
+Bằng cách cài plugin **openclaw-aiberm**, bạn có thể truy cập mọi mô hình có trên Aiberm (gồm GPT, Claude, Gemini, DeepSeek, Grok và hơn thế nữa) qua một giao diện thống nhất với một API key.
+
+## Điều kiện tiên quyết
+
+Trước khi bắt đầu, hãy đảm bảo bạn có:
+
+- Một tài khoản Aiberm ([Đăng ký tại đây](https://aiberm.com/register))
+- Một API key Aiberm ([Lấy khóa của bạn](https://aiberm.com/console/token))
+- Quyền truy cập Terminal/Command Prompt trên máy tính
+- Đã cài Node.js 18+
+
+## Cài đặt
+
+### Bước 1: Cài OpenClaw
+
+**macOS & Linux:**
+
+```bash
+curl -fsSL https://openclaw.ai/install.sh | bash
+```
+
+Hoặc dùng npm:
+
+```bash
+npm i -g openclaw
+```
+
+**Windows:**
+
+```bash
+npm i -g openclaw
+```
+
+**Kiểm tra cài đặt:**
+
+```bash
+openclaw --version
+```
+
+### Bước 2: Cài plugin Aiberm
+
+Cài plugin nhà cung cấp Aiberm:
+
+```bash
+openclaw plugins install openclaw-aiberm
+```
+
+Bật plugin:
+
+```bash
+openclaw plugins enable openclaw-aiberm
+```
+
+**Quan trọng:** Sau khi bật, hãy khởi động lại gateway để thay đổi có hiệu lực:
+
+```bash
+openclaw gateway restart
+```
+
+## Xác thực
+
+Sau khi cài và bật plugin, xác thực bằng API key Aiberm của bạn:
+
+```bash
+openclaw models auth login --provider aiberm --set-default
+```
+
+Bạn sẽ được nhắc nhập API key Aiberm. Lấy API key tại [https://aiberm.com/console/token](https://aiberm.com/console/token).
+
+Nếu cần chuyển sang mô hình khác, bạn có thể chạy lại `openclaw onboard`, chọn **Skip for now** ở Model/auth provider, chọn **aiberm** ở Filter models by provider, rồi chọn mô hình muốn chuyển từ danh sách mô hình.
+
+![](/docs/openclaw-model.png)
+
+> Nếu bạn đang ở trong container Docker nơi việc cài plugin bất tiện, bạn có thể tham chiếu trực tiếp [tệp cấu hình này](https://github.com/aiberm/openclaw-aiberm/blob/main/openclaw.json) và lưu vào `~/.openclaw/openclaw.json`.
+
+## Các mô hình có sẵn
+
+Plugin tải mô hình động từ API Aiberm. Dưới đây là một số ví dụ:
+
+### OpenAI GPT
+- `aiberm/openai/gpt-5.2-codex`
+- `aiberm/openai/gpt-5.2`
+- `aiberm/openai/gpt-4.1`
+- `aiberm/openai/gpt-4o`
+- `aiberm/openai/gpt-4o-mini`
+
+### Anthropic Claude
+- `aiberm/anthropic/claude-opus-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5`
+- `aiberm/anthropic/claude-haiku-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5:thinking`
+
+### Google Gemini
+- `aiberm/google/gemini-3-pro`
+- `aiberm/google/gemini-3-flash`
+- `aiberm/google/gemini-2.5-pro`
+
+### DeepSeek
+- `aiberm/deepseek/deepseek-r1`
+- `aiberm/deepseek/deepseek-v3.2`
+
+### X.AI Grok
+- `aiberm/x-ai/grok-4.1-fast`
+- `aiberm/x-ai/grok-code-fast-1`
+
+Truy cập [Aiberm Pricing](https://aiberm.com/pricing) để xem danh sách đầy đủ và cập nhật nhất các mô hình có sẵn.
+
+## Sử dụng
+
+Sau khi xác thực, bạn có thể bắt đầu dùng OpenClaw. Để biết cách dùng chi tiết, vui lòng tham khảo [OpenClaw Documentation](https://docs.openclaw.ai).
+
+Liệt kê các mô hình đã cài:
+
+```bash
+openclaw models list | grep aiberm
+```
+
+## Biến môi trường
+
+Bạn cũng có thể đặt API key qua biến môi trường:
+
+```bash
+export AIBERM_API_KEY=sk-your-api-key
+```
+
+## Tải mô hình động
+
+Plugin openclaw-aiberm có tính năng tải mô hình động:
+
+1. Khi plugin tải, nó lấy danh sách mô hình mới nhất từ API Aiberm
+2. Nếu API không khả dụng, plugin sẽ fallback về danh sách mô hình tích hợp sẵn
+3. Trong quá trình xác thực, các mô hình mới nhất được lấy lại
+
+Điều này có nghĩa:
+- Mô hình mới có sẵn ngay mà không cần cập nhật plugin
+- Mô hình đã ngừng hỗ trợ được gỡ tự động
+- Khả năng của mô hình luôn được cập nhật
+
+## Xử lý sự cố
+
+### Lỗi "No provider plugins found"
+
+Hãy đảm bảo bạn đã:
+1. Cài plugin: `openclaw plugins install openclaw-aiberm`
+2. Bật plugin: `openclaw plugins enable openclaw-aiberm`
+3. Khởi động lại gateway: `openclaw gateway restart`
+
+### Lỗi 401/403
+
+- **Lỗi 401**: API Key chưa đặt hoặc không hợp lệ
+- **Lỗi 403**: Không đủ quyền hoặc khóa đã hết hạn
+- Xác nhận API key tại [Aiberm Console](https://aiberm.com/console/token)
+
+### Plugin không tải
+
+Kiểm tra plugin đã được bật chưa:
+
+```bash
+openclaw plugins list
+```
+
+Nếu chưa bật, chạy:
+
+```bash
+openclaw plugins enable openclaw-aiberm
+openclaw gateway restart
+```
+
+## Liên kết
+
+- [openclaw-aiberm on npm](https://www.npmjs.com/package/openclaw-aiberm)
+- [openclaw-aiberm on GitHub](https://github.com/aiberm/openclaw-aiberm)
+- [OpenClaw Documentation](https://docs.openclaw.ai)

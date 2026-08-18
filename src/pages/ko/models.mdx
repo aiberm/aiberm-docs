@@ -1,0 +1,151 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 모델 목록
+lang: ko
+activeId: models
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 모델 목록
+
+현재 사용자가 접근할 수 있는 모든 AI 모델 목록을 가져옵니다. 모델 ID, 이름, 공급자, 상세 정보가 포함됩니다.
+
+<Callout client:load type="info" title="모델 목록과 토큰 그룹에 대해">
+목록에 반환되는 모델은 API KEY가 속한 토큰 그룹에 따라 달라집니다. 콘솔 → API Tokens에서 토큰을 생성하거나 편집할 때 토큰 그룹을 선택할 수 있습니다.
+</Callout>
+
+## 엔드포인트
+
+`GET https://aiberm.com/v1/models`
+
+## 요청 예제
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X GET "https://aiberm.com/v1/models" \\
+  -H "Authorization: Bearer sk-your-api-token-here" \\
+  -H "Content-Type: application/json"`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+url = "https://aiberm.com/v1/models"
+headers = {
+    "Authorization": "Bearer sk-your-api-token-here",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/models', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer sk-your-api-token-here',
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## 응답 형식
+
+### 성공 응답 (200 OK)
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'json',
+      label: 'JSON',
+      code: `{
+  "success": true,
+  "data": [
+    {
+      "id": "gpt-4",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "gpt-3.5-turbo",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "claude-3-sonnet-20240229",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "anthropic",
+      "supported_endpoint_types": [
+        "chat"
+      ]
+    }
+  ]
+}`
+    }
+  ]}
+/>
+
+## 응답 필드
+
+**최상위 필드:**
+- `success` - Boolean, 요청 성공 여부
+- `data` - 모델 객체 배열 (성공 시에만 반환)
+- `message` - 오류 메시지 (실패 시에만 반환)
+
+**모델 객체 필드:**
+- `id` - 모델의 고유 식별자
+- `object` - 객체 유형, "model"로 고정
+- `created` - 모델 생성 타임스탬프
+- `owned_by` - 모델 공급자 (예: openai, anthropic)
+- `supported_endpoint_types` - 지원하는 API 엔드포인트 유형 배열
+
+## 지원 엔드포인트 유형
+
+- `chat` - 채팅 완성
+- `completion` - 텍스트 완성
+- `embedding` - 텍스트 임베딩
+- `image` - 이미지 생성
+- `audio` - 오디오 처리
+- `rerank` - 재순위(Rerank)
+
+## 중요 사항
+
+<Callout client:load type="info" title="인증 필요">
+유효한 API 토큰을 제공해야 합니다. 토큰에 따라 사용자가 접근할 수 있는 모델이 결정됩니다.
+</Callout>
+
+<Callout client:load type="info" title="권한 제어">
+반환되는 모델 목록은 사용자 그룹과 토큰 그룹을 기준으로 필터링되어, 사용자가 접근 권한을 가진 모델만 표시됩니다.
+</Callout>
+
+## 일반적인 오류
+
+- `401 Unauthorized` - API 토큰이 유효하지 않거나 만료됨
+- `403 Forbidden` - 사용자에게 접근 권한이 없음
+- `500 Internal Server Error` - 내부 서버 오류

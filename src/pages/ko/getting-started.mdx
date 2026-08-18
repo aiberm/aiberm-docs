@@ -1,0 +1,159 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 빠른 시작
+lang: ko
+activeId: getting-started
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 빠른 시작
+
+Aiberm는 단일 엔드포인트로 수백 개의 AI 모델에 접근할 수 있는 통합 API를 제공합니다. 간단한 연동 과정으로 몇 분 만에 시작할 수 있습니다.
+
+<Callout client:load type="tip">
+무료 모델과 요청 한도에 대한 정보가 필요하신가요? FAQ를 참고하세요.
+</Callout>
+
+## OpenAI SDK 사용하기
+
+가장 쉬운 방법은 공식 OpenAI SDK를 사용하는 것입니다. base_url만 변경하면 바로 사용할 수 있습니다.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-your-api-key-here",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="google/gemini-2.5-flash",
+    messages=[
+        {"role": "user", "content": "Hello!"}
+    ]
+)
+
+print(response.choices[0].message.content)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: 'sk-your-api-key-here',
+  baseURL: 'https://aiberm.com/v1'
+});
+
+const response = await openai.chat.completions.create({
+  model: 'google/gemini-2.5-flash',
+  messages: [
+    { role: 'user', content: 'Hello!' }
+  ]
+});
+
+console.log(response.choices[0].message.content);`
+    }
+  ]}
+/>
+
+## Aiberm API를 직접 사용하기
+
+HTTP 요청으로 API를 직접 호출할 수 있습니다.
+
+<Callout client:load type="info">
+대화형 Request Builder로 API 요청을 생성하세요.
+</Callout>
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json"
+    },
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [
+            {"role": "user", "content": "Hello!"}
+        ]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'google/gemini-2.5-flash',
+    messages: [{ role: 'user', content: 'Hello!' }]
+  })
+});
+
+const data = await response.json();
+console.log(data);`
+    },
+    {
+      key: 'curl',
+      label: 'Curl',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'`
+    }
+  ]}
+/>
+
+## 다음 단계
+
+API는 스트리밍과 배치 처리 같은 고급 기능도 지원합니다. Chat Completions API의 상세 문서를 확인하여 더 알아보세요.
+
+API는 스트리밍도 지원합니다.
+
+## 지원 모델
+
+다양한 AI 모델을 지원하며, 다음을 포함하되 이에 한정되지 않습니다.
+
+### OpenAI Models
+
+- GPT-4
+- GPT-4 Turbo
+- GPT-3.5 Turbo
+
+### Anthropic Models
+
+- Claude-3 Opus
+- Claude-3 Sonnet
+- Claude-3 Haiku
+
+### 기타 모델
+
+- Gemini Pro
+- Llama 2
+- 더 보기...

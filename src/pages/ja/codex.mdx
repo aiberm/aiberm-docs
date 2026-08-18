@@ -1,0 +1,246 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Codex CLI のセットアップ
+lang: ja
+activeId: codex
+---
+
+# Codex CLI のセットアップ
+
+Codex CLI を Aiberm の API で使うための設定方法を説明します。このガイドでは Windows、macOS、Linux 向けのインストールと設定を扱います。
+
+## Codex CLI とは
+
+Codex CLI は、コード関連のターミナル作業向けに設計された OpenAI のコマンドラインインターフェースです。一般的なチャットツールと比べて、より明確で実行しやすいコード変更を重視した、エンジニアリング向けの出力が特徴です。Aiberm を使うように設定すると、コスト効率の良いエンドポイントから複数の AI モデルにアクセスできます。
+
+## 前提条件
+
+開始する前に、次を用意してください。
+
+- Aiberm アカウント（[こちらから登録](https://aiberm.com/register)）
+- Aiberm API キー（[キーを取得](https://aiberm.com/console/token)）
+- Node.js v20 以上と npm
+
+## インストール
+
+npm で Codex CLI をグローバルインストールします。
+
+```bash
+npm install -g @openai/codex
+```
+
+**インストールの確認:**
+```bash
+codex --version
+```
+
+バージョン番号が表示されるはずです。
+
+## 設定
+
+Codex CLI は設定に `config.toml` を使います。設定ディレクトリの場所は OS によって異なります。
+
+- **Windows**: `%userprofile%\.codex`
+- **macOS/Linux**: `~/.codex`
+
+### 方法 1: 手動設定
+
+設定ディレクトリに移動し、`config.toml` を作成または編集します。
+
+**macOS/Linux:**
+```bash
+mkdir -p ~/.codex
+nano ~/.codex/config.toml
+```
+
+**Windows:**
+```powershell
+mkdir $env:USERPROFILE\.codex -Force
+notepad $env:USERPROFILE\.codex\config.toml
+```
+
+次の設定を追加します。
+
+```toml
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+wire_api = "responses"
+```
+
+**注意:** `env_key` は、Codex CLI が読み取る環境変数名を指定します。次のステップで、この変数に Aiberm API キーを設定します。
+
+### 方法 2: ワンコマンドでの設定
+
+**macOS/Linux:**
+```bash
+mkdir -p ~/.codex && cat > ~/.codex/config.toml << 'EOF'
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+wire_api = "responses"
+EOF
+```
+
+**Windows PowerShell:**
+```powershell
+$configPath = "$env:USERPROFILE\.codex"
+New-Item -ItemType Directory -Force -Path $configPath | Out-Null
+@"
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"
+wire_api = "responses"
+"@ | Out-File -FilePath "$configPath\config.toml" -Encoding utf8
+```
+
+**注意:** 上記の設定では、Codex CLI が `OPENAI_API_KEY` 環境変数から API キーを読み取ります。次のステップで、この変数に Aiberm API キーを設定します。
+
+## API キーの設定
+
+TOML ファイルを設定したら、Aiberm API キーを環境変数として設定します。
+
+**重要:** 変数名は `OPENAI_API_KEY` ですが、設定するのは **Aiberm API キー**です（OpenAI のキーではありません）。Codex CLI は互換性のためにこの標準的な変数名を使います。
+
+### 一時的（現在のセッションのみ）
+
+**macOS/Linux:**
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Windows PowerShell:**
+```powershell
+$env:OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Windows コマンドプロンプト:**
+```cmd
+set OPENAI_API_KEY=sk-your-aiberm-api-key
+```
+
+### 永続的な設定
+
+**macOS/Linux（Bash）:**
+
+`~/.bashrc` または `~/.bash_profile` に追加します。
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+変更を反映します。
+```bash
+source ~/.bashrc  # or source ~/.bash_profile
+```
+
+**macOS/Linux（Zsh）:**
+
+`~/.zshrc` に追加します。
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+変更を反映します。
+```bash
+source ~/.zshrc
+```
+
+**Windows PowerShell:**
+```powershell
+[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-your-aiberm-api-key', 'User')
+```
+
+**Windows コマンドプロンプト:**
+```cmd
+setx OPENAI_API_KEY "sk-your-aiberm-api-key"
+```
+
+## 設定の確認
+
+**Node.js のインストール確認:**
+```bash
+node -v
+npm -v
+```
+
+**Codex CLI のインストール確認:**
+```bash
+codex --version
+```
+
+**API 接続のテスト:**
+```bash
+codex "Hi"
+```
+
+**環境変数の確認:**
+
+**macOS/Linux:**
+```bash
+echo $OPENAI_API_KEY
+```
+
+**Windows PowerShell:**
+```powershell
+echo $env:OPENAI_API_KEY
+```
+
+正しく設定されていれば、Codex CLI は Aiberm の API を使って応答します。
+
+## トラブルシューティング
+
+### 401 Unauthorized エラー
+
+- API キーが正しいか確認します: [コンソール → API Keys](https://aiberm.com/console/token)
+- `OPENAI_API_KEY` 環境変数が正しく設定されていることを確認します
+- 環境変数を設定したあとはターミナルを再起動します
+
+### 403 Forbidden エラー
+
+- API キーの有効性を確認します
+- [https://aiberm.com/console](https://aiberm.com/console) でアカウント残高を確認します
+- API キーがリクエストしたモデルにアクセスできることを確認します
+
+### ネットワークエラー
+
+- インターネット接続を確認します
+- ブラウザで https://aiberm.com にアクセスできるか確認します
+- ファイアウォールが送信 HTTPS 接続を許可していることを確認します
+- `config.toml` の `base_url` が正しいことを確認します: `https://aiberm.com/v1`
+
+### 設定が反映されない
+
+- `config.toml` を編集したあとにターミナルを再起動します
+- TOML の書式を確認します（余分な空白や引用符の誤りがないこと）
+- お使いの OS に対して設定ファイルの場所が正しいことを確認します
+- ファイル名が `config.toml` であることを確認します（`config.toml.txt` ではないこと）
+
+### Codex コマンドが見つからない
+
+**macOS/Linux:**
+```bash
+# Check if npm global bin is in PATH
+npm config get prefix
+
+# If needed, add to PATH in ~/.zshrc or ~/.bashrc:
+export PATH="$(npm config get prefix)/bin:$PATH"
+```
+
+**Windows:**
+- npm のグローバルパスがシステムの PATH に含まれていることを確認します
+- npm インストール後はターミナルを再起動します

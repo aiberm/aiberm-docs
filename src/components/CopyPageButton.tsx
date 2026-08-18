@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
+import { ui, type Locale } from '../i18n';
 
 interface CopyPageButtonProps {
-  lang: 'zh' | 'en';
+  lang: Locale;
 }
 
 const CopyPageButton: React.FC<CopyPageButtonProps> = ({ lang }) => {
   const [copied, setCopied] = useState(false);
+  const strings = ui[lang] ?? ui.en;
 
-  const label = lang === 'zh' ? '复制本页' : 'Copy page';
-  const successLabel = lang === 'zh' ? '已复制' : 'Copied!';
+  const label = strings.copyPage;
+  const successLabel = strings.copied;
 
   const handleCopyPage = async () => {
     const article = document.querySelector('article.docs-content');

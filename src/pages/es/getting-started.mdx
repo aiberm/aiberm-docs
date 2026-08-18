@@ -1,0 +1,159 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Inicio rápido
+lang: es
+activeId: getting-started
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Inicio rápido
+
+Aiberm ofrece una API unificada que te da acceso a cientos de modelos de IA a través de un solo endpoint. Empieza en minutos con un proceso de integración sencillo.
+
+<Callout client:load type="tip">
+¿Buscas información sobre modelos gratuitos y límites de tasa? Consulta las preguntas frecuentes.
+</Callout>
+
+## Usar el SDK de OpenAI
+
+La forma más fácil es usar el SDK oficial de OpenAI: solo cambia el base_url para empezar a usarlo.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-your-api-key-here",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="google/gemini-2.5-flash",
+    messages=[
+        {"role": "user", "content": "Hello!"}
+    ]
+)
+
+print(response.choices[0].message.content)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: 'sk-your-api-key-here',
+  baseURL: 'https://aiberm.com/v1'
+});
+
+const response = await openai.chat.completions.create({
+  model: 'google/gemini-2.5-flash',
+  messages: [
+    { role: 'user', content: 'Hello!' }
+  ]
+});
+
+console.log(response.choices[0].message.content);`
+    }
+  ]}
+/>
+
+## Usar la API de Aiberm de forma directa
+
+Puedes usar solicitudes HTTP para llamar a la API de forma directa.
+
+<Callout client:load type="info">
+Usa nuestro Request Builder interactivo para generar solicitudes a la API.
+</Callout>
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json"
+    },
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [
+            {"role": "user", "content": "Hello!"}
+        ]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'google/gemini-2.5-flash',
+    messages: [{ role: 'user', content: 'Hello!' }]
+  })
+});
+
+const data = await response.json();
+console.log(data);`
+    },
+    {
+      key: 'curl',
+      label: 'Curl',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'`
+    }
+  ]}
+/>
+
+## Próximos pasos
+
+Nuestra API también admite funciones avanzadas como streaming y procesamiento por lotes. Obtén más información en la documentación detallada de la API de Chat Completions.
+
+La API también admite streaming.
+
+## Modelos compatibles
+
+Admitimos varios modelos de IA, entre ellos, entre otros:
+
+### Modelos de OpenAI
+
+- GPT-4
+- GPT-4 Turbo
+- GPT-3.5 Turbo
+
+### Modelos de Anthropic
+
+- Claude-3 Opus
+- Claude-3 Sonnet
+- Claude-3 Haiku
+
+### Otros modelos
+
+- Gemini Pro
+- Llama 2
+- Más...

@@ -1,0 +1,233 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Настройка Claude Code CLI
+lang: ru
+activeId: claude-code
+---
+
+# Настройка Claude Code CLI
+
+Узнайте, как настроить Claude Code CLI для работы с API Aiberm. В руководстве описаны установка и конфигурация для Windows, macOS и Linux.
+
+## Что такое Claude Code?
+
+Claude Code — официальный интерфейс командной строки (CLI) от Anthropic, который добавляет помощь ИИ прямо в терминал и редактор кода. Настроив его на Aiberm, вы получите доступ к нескольким моделям ИИ через один привычный интерфейс.
+
+## Предварительные требования
+
+Перед началом убедитесь, что у вас есть:
+
+- Аккаунт Aiberm ([Зарегистрироваться](https://aiberm.com/register))
+- API-ключ Aiberm ([Получить ключ](https://aiberm.com/console/token))
+- Доступ к Terminal / Command Prompt на компьютере
+
+## Установка
+
+Выберите операционную систему ниже, чтобы увидеть инструкции по установке.
+
+### macOS и Linux
+
+Откройте терминал и выполните:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | sh
+```
+
+Скрипт установки автоматически подтянет все зависимости — заранее ставить Node.js или npm не нужно.
+
+**Проверка установки:**
+```bash
+claude --version
+```
+
+### Windows
+
+1. Откройте **PowerShell от имени администратора** (правый щелчок по PowerShell → «Запуск от имени администратора»)
+
+2. Выполните команду установки:
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+3. После установки добавьте Claude Code в PATH:
+   - Нажмите `Win + X` и выберите «Система»
+   - Нажмите «Дополнительные параметры системы»
+   - Нажмите «Переменные среды»
+   - В разделе «Системные переменные» выберите «Path» и нажмите «Изменить»
+   - Нажмите «Создать» и добавьте: `C:\Users\YourUsername\.claude\bin`
+   - Нажмите «ОК», чтобы сохранить
+
+4. **Перезапустите терминал** и проверьте установку:
+```powershell
+claude --version
+```
+
+## Настройка
+
+Чтобы использовать Aiberm с Claude Code, задайте две переменные окружения:
+
+- `ANTHROPIC_AUTH_TOKEN` — ваш API-ключ Aiberm
+- `ANTHROPIC_BASE_URL` — эндпоинт API Aiberm (`https://aiberm.com`)
+
+Выберите один из способов настройки:
+
+### Способ 1: постоянная настройка (рекомендуется)
+
+Этот способ безопасно сохраняет API-ключ и сохраняется между сеансами.
+
+#### macOS и Linux
+
+Добавьте эти строки в файл конфигурации оболочки:
+
+**Для Bash** (`~/.bashrc` или `~/.bash_profile`):
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+**Для Zsh** (`~/.zshrc`):
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+Примените изменения:
+```bash
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+#### Windows
+
+**Через PowerShell (постоянно):**
+
+1. Откройте PowerShell от имени администратора
+2. Выполните эти команды:
+```powershell
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_AUTH_TOKEN', 'sk-your-aiberm-api-key', 'User')
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_BASE_URL', 'https://aiberm.com', 'User')
+```
+
+3. Перезапустите терминал, чтобы применить изменения
+
+**Через Command Prompt (постоянно):**
+```cmd
+setx ANTHROPIC_AUTH_TOKEN "sk-your-aiberm-api-key"
+setx ANTHROPIC_BASE_URL "https://aiberm.com"
+```
+
+### Способ 2: временная настройка (только текущий сеанс)
+
+#### macOS и Linux
+
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows PowerShell
+
+```powershell
+$env:ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+$env:ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows Command Prompt
+
+```cmd
+set ANTHROPIC_AUTH_TOKEN=sk-your-aiberm-api-key
+set ANTHROPIC_BASE_URL=https://aiberm.com
+```
+
+### Способ 3: настройки Claude Code
+
+Создайте или отредактируйте `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "sk-your-aiberm-api-key",
+    "ANTHROPIC_BASE_URL": "https://aiberm.com"
+  }
+}
+```
+
+### Способ 4: CC Switch (GUI)
+
+[CC Switch](https://github.com/farion1231/cc-switch) — инструмент с графическим интерфейсом для переключения провайдеров Claude Code и управления несколькими конфигурациями API. Инструкции по установке смотрите в репозитории.
+
+**Настройка провайдера Aiberm:**
+
+1. Запустите CC Switch, чтобы открыть интерфейс конфигурации
+2. **Выключите переключатель Live proxy вверху** (он направляет запросы через собственный прокси CC Switch, это не нужно)
+3. Добавьте нового провайдера со следующими параметрами:
+   - **Provider Name**: `Aiberm`
+   - **Note**: `Aiberm`
+   - **Website URL**: `https://aiberm.com`
+   - **API Key**: ваш API-ключ Aiberm
+   - **Request URL**: `https://aiberm.com` (без слэша в конце)
+   - **API Format**: `Anthropic Messages (Native)`
+   - **Main Model**: `claude-opus-4-6`
+   - **Thinking Model**: `claude-opus-4-6-thinking`
+   - **Haiku Default Model**: `claude-haiku-4-5-20251001`
+   - **Sonnet Default Model**: `claude-sonnet-4-5-20250929`
+   - **Opus Default Model**: `claude-opus-4-6`
+4. Нажмите «Save»
+
+## Проверка конфигурации
+
+После запуска Claude Code введите `/status`, чтобы проверить настройки. Если вы видите следующее, настройка прошла успешно:
+
+```
+Anthropic base URL: https://aiberm.com
+```
+
+Можно также проверить, отправив сообщение:
+
+```bash
+claude "Hi"
+```
+
+Если всё настроено правильно, Claude Code ответит через API Aiberm.
+
+**Проверка переменных окружения:**
+
+**macOS/Linux:**
+```bash
+echo $ANTHROPIC_BASE_URL
+echo $ANTHROPIC_AUTH_TOKEN
+```
+
+**Windows PowerShell:**
+```powershell
+echo $env:ANTHROPIC_BASE_URL
+echo $env:ANTHROPIC_AUTH_TOKEN
+```
+
+## Устранение неполадок
+
+### Ошибка «Invalid API key»
+
+- Проверьте правильность API-ключа: [Консоль → API Keys](https://aiberm.com/console/token)
+- Убедитесь, что в переменной окружения нет лишних пробелов
+- Проверьте, что `ANTHROPIC_BASE_URL` равен `https://aiberm.com` (без `/v1`)
+
+### Ошибка «Connection refused»
+
+- Проверьте подключение к интернету
+- Убедитесь, что https://aiberm.com открывается в браузере
+- Проверьте, что брандмауэр разрешает исходящие HTTPS-соединения
+
+### Claude Code не найден
+
+**macOS/Linux:**
+```bash
+# Check if Claude Code is in your PATH
+which claude
+
+# If not found, add to PATH in ~/.zshrc or ~/.bashrc:
+export PATH="$HOME/.claude/bin:$PATH"
+```
+
+**Windows:**
+- Убедитесь, что переменная PATH включает `C:\Users\YourUsername\.claude\bin`
+- Перезапустите терминал после добавления в PATH

@@ -1,0 +1,277 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cài đặt Hermes Agent
+lang: vi
+activeId: hermes
+---
+
+# Cài đặt Hermes Agent
+
+Hướng dẫn này mô tả cách cấu hình [Hermes Agent](https://hermes-agent.nousresearch.com/) để dùng Aiberm làm nhà cung cấp mô hình. Hermes Agent là agent AI mã nguồn mở do Nous Research phát triển, chạy trong terminal và tích hợp với các nền tảng nhắn tin gồm Telegram, Discord, Slack, WhatsApp và Signal.
+
+Vì Aiberm cung cấp API `/v1` tương thích OpenAI, bạn có thể đăng ký nó làm nhà cung cấp tùy chỉnh trong Hermes Agent mà không cần cài plugin hay sửa mã nguồn. Sau khi cấu hình, một API key cho phép bạn truy cập mọi mô hình có trên Aiberm, gồm Claude, GPT, Gemini, DeepSeek, Kimi, MiniMax, GLM và Grok.
+
+## Điều kiện tiên quyết
+
+- Một tài khoản Aiberm ([Đăng ký](https://aiberm.com/register))
+- Một API key Aiberm ([Lấy khóa của bạn](https://aiberm.com/console/token))
+- Đã cài Hermes Agent — xem [hướng dẫn cài đặt chính thức](https://hermes-agent.nousresearch.com/docs/getting-started/)
+
+Cài nhanh (Linux / macOS / WSL2):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+## Cấu hình Aiberm làm nhà cung cấp
+
+Hermes Agent lưu cấu hình tại `~/.hermes/config.yaml`. Mở tệp và thêm mục `aiberm` trong phần `providers:`.
+
+> **Nếu bạn không quen với trình soạn dòng lệnh như Vim**, bạn có thể mở tệp cấu hình bằng trình soạn tích hợp của hệ điều hành:
+>
+> - **macOS**: Mở **Finder**, nhấn `Shift + Command + G`, nhập `~/.hermes` trong hộp thoại hiện ra, rồi nhấn Return. Tìm tệp `config.yaml`, nhấp chuột phải và chọn **Open With → TextEdit**.
+> - **Windows**: Mở **File Explorer**, gõ `%USERPROFILE%\.hermes` trên thanh địa chỉ, rồi nhấn Enter. Nhấp chuột phải `config.yaml` và chọn **Open with → Notepad**.
+>
+> Sau khi chỉnh, nhớ **lưu tệp** (`Command + S` trên macOS, `Ctrl + S` trên Windows), rồi tiếp tục bước khởi động lại mô tả bên dưới.
+
+```yaml
+model:
+  default: claude-sonnet-4-6
+  provider: aiberm
+
+providers:
+  aiberm:
+    base_url: https://aiberm.com/v1
+    api_key: sk-your-aiberm-api-key
+    type: openai
+    default_model: claude-sonnet-4-6
+    models:
+      # Claude
+      - claude-opus-4-7
+      - claude-opus-4-6
+      - claude-opus-4-6-thinking
+      - claude-opus-4-5-20251101
+      - claude-opus-4-5-20251101-thinking
+      - claude-sonnet-4-6
+      - claude-sonnet-4-6-thinking
+      - claude-sonnet-4-5-20250929
+      - claude-sonnet-4-5-20250929-thinking
+      - claude-haiku-4-5-20251001
+      - claude-haiku-4-5-20251001-thinking
+      # Claude (anthropic/ prefix)
+      - anthropic/claude-opus-4.7
+      - anthropic/claude-opus-4.6
+      - anthropic/claude-opus-4.6:thinking
+      - anthropic/claude-opus-4.5
+      - anthropic/claude-opus-4.5:thinking
+      - anthropic/claude-opus
+      - anthropic/claude-sonnet-4.6
+      - anthropic/claude-sonnet-4.6:thinking
+      - anthropic/claude-sonnet-4.5
+      - anthropic/claude-sonnet-4.5:thinking
+      - anthropic/claude-sonnet
+      - anthropic/claude-haiku-4.5
+      - anthropic/claude-haiku-4.5:thinking
+      # GPT / OpenAI
+      - gpt-5.4
+      - gpt-5.4-xhigh
+      - gpt-5.4-mini
+      - gpt-5.3-codex
+      - gpt-5.3-codex-xhigh
+      - gpt-5.2
+      - gpt-5.2-chat-latest
+      - gpt-5.2-codex
+      - gpt-5.1
+      - gpt-5.1-codex
+      - gpt-5.1-codex-max
+      - gpt-5
+      - gpt-5-mini
+      - gpt-5-nano
+      - o3-mini
+      - gpt-4.1
+      - gpt-4.1-mini
+      - gpt-4.1-nano
+      - gpt-4o
+      - gpt-4o-mini
+      # GPT / OpenAI (openai/ prefix)
+      - openai/gpt-5.4
+      - openai/gpt-5.4-mini
+      - openai/gpt-5.3-codex
+      - openai/gpt-5.2
+      - openai/gpt-5.2-chat
+      - openai/gpt-5.2-codex
+      - openai/gpt-5.1
+      - openai/gpt-5.1-codex
+      - openai/gpt-5.1-codex-max
+      - openai/gpt-5
+      - openai/gpt-5-codex
+      - openai/gpt-5-mini
+      - openai/gpt-5-nano
+      - openai/gpt-4.1
+      - openai/gpt-4.1-mini
+      - openai/gpt-4.1-nano
+      - openai/gpt-4o
+      - openai/gpt-4o-mini
+      - openai/o3-mini
+      # Gemini
+      - gemini-3.1-pro-preview
+      - gemini-3.1-pro-preview-thinking
+      - gemini-3.1-flash-lite-preview
+      - gemini-3.1-flash-image-preview
+      - gemini-3-pro-preview
+      - gemini-3-pro-preview-thinking
+      - gemini-3-pro-image-preview
+      - gemini-3-flash-preview
+      - gemini-2.5-pro
+      - gemini-2.5-flash
+      - gemini-2.5-flash-image
+      # Gemini (google/ prefix)
+      - google/gemini-3.1-pro
+      - google/gemini-3.1-flash-lite
+      - google/gemini-3-pro
+      - google/gemini-3-pro-mcpmark
+      - google/gemini-3-flash
+      - google/gemini-2.5-pro
+      - google/gemini-2.5-flash
+      # DeepSeek
+      - deepseek-v3.2
+      - deepseek-v3.2-exp
+      - deepseek-r1-0528
+      - deepseek-ocr
+      - deepseek/deepseek-v3.2
+      - deepseek/deepseek-v3.2-exp
+      - deepseek/deepseek-v3.2-exp-thinking
+      - deepseek/deepseek-r1
+      - deepseek/deepseek-r1-0528
+      # Grok (xAI)
+      - grok-code-fast-1
+      - grok-4-1-fast-reasoning
+      - grok-4-1-fast-non-reasoning
+      - grok-4.20-beta-0309-reasoning
+      - grok-4.20-beta-0309-non-reasoning
+      - x-ai/grok-4.1-fast
+      - x-ai/grok-code-fast-1
+      # Kimi / Moonshot
+      - Kimi-K2.6
+      - kimi-k2.5-thinking
+      - kimi-k2.5
+      # MiniMax
+      - MiniMax-M2.7
+      - minimax-m2.5
+      - minimax-m2.1
+      - minimax/minimax-m2.7
+      - minimax/minimax-m2.5
+      - minimax/minimax-m2.1
+      # GLM (Zhipu)
+      - glm-5.1
+      - glm-5
+      - glm-5-turbo
+      # Qwen (Alibaba)
+      - qwen3.6-plus
+      - qwen3.5-plus
+      - qwen3.5-397b-a17b
+      # MiMo (Xiaomi)
+      - mimo-v2-pro
+      - mimo-v2-omni
+      - mimo-v2-flash
+      - xiaomi/mimo-v2-flash
+```
+
+> **Mẹo**: Danh sách trên bao phủ phần lớn các mô hình Aiberm hiện cung cấp, khá dài. Chúng tôi khuyến nghị **chỉ giữ những mô hình bạn thực sự dùng** và xóa phần còn lại.
+
+### Tham chiếu trường
+
+| Trường | Bắt buộc | Mô tả |
+|-------|----------|-------------|
+| `base_url` | Có | Endpoint tương thích OpenAI của Aiberm. Đặt thành `https://aiberm.com/v1`. |
+| `api_key` | Có | API key Aiberm của bạn, lấy từ [console](https://aiberm.com/console/token). |
+| `type` | Có | Kiểu giao thức. Đặt thành `openai` — Aiberm tuân theo đặc tả OpenAI Chat Completions. |
+| `default_model` | Có | Mô hình được dùng khi không chỉ định mô hình rõ ràng. |
+| `models` | Khuyến nghị | Danh sách mô hình hiển thị trong bộ chọn `/model`. Hermes chỉ hiện các mục có trong danh sách này (cộng với `default_model`). Nếu bỏ qua, bộ chọn chỉ hiển thị một nút. |
+
+Phần `model:` cấp cao nhất chỉ định nhà cung cấp đang dùng và mô hình mặc định. Nếu trước đó bạn dùng nhà cung cấp khác, hãy đặt `provider:` thành `aiberm` và đặt `default:` thành bất kỳ mô hình nào trong khối `models:`.
+
+## Sử dụng
+
+Sau khi cập nhật cấu hình, khởi động lại Hermes (CLI: thoát rồi chạy lại `hermes`; gateway: `hermes gateway restart`).
+
+**Trong terminal (CLI):**
+
+```
+/model
+```
+
+Hermes mở bộ chọn mô hình tương tác. Chọn **Aiberm**, rồi chọn mô hình mong muốn. Bạn cũng có thể chuyển trực tiếp:
+
+```
+/model claude-opus-4-7
+/model gpt-5.4 --global
+```
+
+Thêm `--global` sẽ lưu thay đổi vào `config.yaml`; bỏ qua thì thay đổi chỉ áp dụng cho phiên hiện tại.
+
+**Trong Telegram, Discord, Slack hoặc WhatsApp:**
+
+Gửi `/model` tới bot của bạn. Bot trả về bàn phím nội tuyến liệt kê mọi nhà cung cấp đã cấu hình thông tin xác thực. Chọn **Aiberm** để xem danh sách mô hình phân trang (8 mỗi trang, có điều hướng Prev / Next), rồi nhấn một mô hình để chuyển.
+
+![Telegram /model picker showing Aiberm's paginated model list](/docs/hermes-model-picker.png)
+
+## Xem danh mục mô hình đầy đủ
+
+Danh sách `models:` ở trên là một tập hợp đã chọn lọc. Để xem mọi mô hình Aiberm đang phục vụ, truy vấn API trực tiếp:
+
+```bash
+curl -H "Authorization: Bearer sk-your-aiberm-api-key" \
+     https://aiberm.com/v1/models | jq -r '.data[].id'
+```
+
+Thêm bất kỳ ID mô hình nào bạn muốn dùng vào khối `models:` rồi khởi động lại Hermes. Chúng sẽ xuất hiện trong bộ chọn `/model`.
+
+## Dùng biến môi trường (Tùy chọn)
+
+Nếu bạn không muốn lưu API key trong `config.yaml`, bạn có thể đọc từ biến môi trường. Đặt:
+
+```bash
+export AIBERM_API_KEY=sk-your-aiberm-api-key
+```
+
+Rồi tham chiếu trong `config.yaml` qua `key_env`:
+
+```yaml
+providers:
+  aiberm:
+    base_url: https://aiberm.com/v1
+    key_env: AIBERM_API_KEY
+    type: openai
+    default_model: claude-sonnet-4-6
+```
+
+## Xử lý sự cố
+
+### `/model` chỉ hiện một nút cho Aiberm
+
+Khối `providers.aiberm` thiếu danh sách `models:`. Bộ chọn Hermes chỉ phân trang khi cấu hình hơn 8 mô hình. Thêm danh sách đã chọn lọc ở trên rồi khởi động lại Hermes.
+
+### 401 Unauthorized
+
+- Xác nhận API key tại [Aiberm console](https://aiberm.com/console/token).
+- Xác nhận khóa được đặt dưới `providers.aiberm.api_key`, không phải ở cấp cao nhất của cấu hình.
+
+### Không tìm thấy mô hình
+
+Danh mục mô hình của Aiberm thay đổi theo thời gian; một mô hình bạn đã liệt kê có thể đã đổi tên hoặc bị ngừng. Truy vấn lại `/v1/models` (xem ở trên) và cập nhật danh sách `models:` cho phù hợp.
+
+### Cách xác nhận cấu hình đã được tải
+
+```bash
+hermes doctor
+```
+
+Lệnh này in báo cáo chẩn đoán gồm nhà cung cấp và mô hình đang hoạt động.
+
+## Liên kết
+
+- [Hermes Agent Documentation](https://hermes-agent.nousresearch.com/docs/)
+- [Hermes Agent on GitHub](https://github.com/NousResearch/hermes-agent)
+- [Aiberm Console](https://aiberm.com/console/token)
+- [Aiberm Pricing and Model List](https://aiberm.com/pricing)

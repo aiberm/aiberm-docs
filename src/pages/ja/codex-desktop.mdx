@@ -1,0 +1,90 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Codex Desktop のセットアップ
+lang: ja
+activeId: codex-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Codex Desktop のセットアップ
+
+OpenAI Codex デスクトップアプリは、API キーでサインインし、アプリ内からユーザーレベルの `config.toml` を開けます。Aiberm を設定すると、Codex は Aiberm の Responses 互換エンドポイント経由でリクエストを送信します。
+
+<Callout client:load type="info">
+サインイン欄のラベルは引き続き OpenAI API key です。そこに Aiberm API キー（例: `sk-...`）を入力してください。
+</Callout>
+
+## 前提条件
+
+開始する前に、次を用意してください。
+
+- 最新の OpenAI Codex デスクトップアプリ
+- Aiberm アカウント（[登録](https://aiberm.com/register)）
+- Aiberm API キー（[コンソールで作成](https://aiberm.com/console/token)）
+
+## 設定
+
+1. Codex デスクトップアプリを開きます。
+2. サインイン画面で **Sign in another way** を選びます。
+
+![Choose another sign-in method in Codex Desktop](/docs/codex-desktop/codex-signin.png)
+
+3. **OpenAI API key** 欄に Aiberm API キーを入力し、**Continue** を選びます。
+
+![Enter an API key in Codex Desktop](/docs/codex-desktop/codex-signin-with-apikey.png)
+
+4. アプリに入ったら Settings を開きます。
+5. サイドバーで **Configuration** を選びます。
+6. **Custom config.toml settings** の下で、**User config** が選択されていることを確認します。
+7. **Open config.toml** を選び、ユーザーレベルの設定ファイルを開きます。
+
+![Open config.toml in Codex Desktop](/docs/codex-desktop/codex-configuration.png)
+
+8. `config.toml` の内容を次で追加または置き換えます。
+
+```toml
+model = "gpt-5.5"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+wire_api = "responses"
+```
+
+9. `config.toml` を保存します。
+10. Codex デスクトップアプリを完全に終了して再度開きます。
+
+## 動作確認
+
+Codex を再度開いたあと:
+
+1. プロジェクトまたはワークスペースを開きます。
+2. 現在のファイルの説明、小さなコード編集、プロジェクトテストの実行など、実際のコーディングタスクを Codex に依頼します。
+
+タスクが実行されて結果が返れば、設定は動作しています。
+
+## トラブルシューティング
+
+### 無効な API キー
+
+- [Aiberm Console](https://aiberm.com/console/token) からキーをすべてコピーします。
+- キーの前後に余分な空白がないか確認します。
+- キーが `sk-` で始まることを確認します。
+
+### 設定変更が反映されない
+
+- **User config** から開いた `config.toml` を編集したことを確認します。
+- ファイル保存後に Codex デスクトップアプリを完全に終了して再度開きます。
+- `model_provider = "aiberm"` が `[model_providers.aiberm]` と一致することを確認します。
+
+### モデルまたは接続のエラー
+
+- `base_url` が正確に `https://aiberm.com/v1` であることを確認します。
+- `wire_api` が `responses` であることを確認します。
+- アカウントが `gpt-5.5` にアクセスできることを確認します。最新の一覧は [モデル一覧](/docs/ja/models) を参照してください。
+
+## 公式リファレンス
+
+- [OpenAI Codex: Configuration Reference](https://developers.openai.com/codex/config-reference/)

@@ -1,0 +1,90 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Codex Desktop 설정
+lang: ko
+activeId: codex-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Codex Desktop 설정
+
+OpenAI Codex 데스크톱 앱은 API 키로 로그인하고 앱 안에서 사용자 수준 `config.toml`을 열 수 있습니다. Aiberm를 구성하면 Codex가 Aiberm의 Responses 호환 엔드포인트를 통해 요청을 보냅니다.
+
+<Callout client:load type="info">
+로그인 필드는 여전히 OpenAI API key로 표시됩니다. 그곳에 Aiberm API 키를 입력하세요. 예: `sk-...`.
+</Callout>
+
+## 사전 준비
+
+시작하기 전에 다음이 준비되어 있는지 확인하세요.
+
+- 최신 OpenAI Codex 데스크톱 앱
+- Aiberm 계정 ([가입하기](https://aiberm.com/register))
+- Aiberm API 키 ([콘솔에서 만들기](https://aiberm.com/console/token))
+
+## 구성
+
+1. Codex 데스크톱 앱을 엽니다.
+2. 로그인 화면에서 **Sign in another way**를 선택합니다.
+
+![Choose another sign-in method in Codex Desktop](/docs/codex-desktop/codex-signin.png)
+
+3. **OpenAI API key** 필드에 Aiberm API 키를 입력한 뒤 **Continue**를 선택합니다.
+
+![Enter an API key in Codex Desktop](/docs/codex-desktop/codex-signin-with-apikey.png)
+
+4. 앱에 들어간 뒤 Settings를 엽니다.
+5. 사이드바에서 **Configuration**을 선택합니다.
+6. **Custom config.toml settings**에서 **User config**가 선택되어 있는지 확인합니다.
+7. **Open config.toml**을 선택해 사용자 수준 구성 파일을 엽니다.
+
+![Open config.toml in Codex Desktop](/docs/codex-desktop/codex-configuration.png)
+
+8. `config.toml`의 내용을 다음으로 추가하거나 교체합니다.
+
+```toml
+model = "gpt-5.5"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+wire_api = "responses"
+```
+
+9. `config.toml`을 저장합니다.
+10. Codex 데스크톱 앱을 완전히 종료한 뒤 다시 엽니다.
+
+## 동작 확인
+
+Codex를 다시 연 뒤:
+
+1. 프로젝트 또는 워크스페이스를 엽니다.
+2. Codex에 실제 코딩 작업을 요청합니다. 예: 현재 파일 설명, 작은 코드 편집, 프로젝트 테스트 실행.
+
+작업이 실행되고 결과가 돌아오면 구성이 동작하는 것입니다.
+
+## 문제 해결
+
+### 잘못된 API 키
+
+- [Aiberm Console](https://aiberm.com/console/token)에서 키 전체를 복사하세요.
+- 키 앞뒤에 여분의 공백이 없는지 확인하세요.
+- 키가 `sk-`로 시작하는지 확인하세요.
+
+### 구성 변경이 적용되지 않음
+
+- **User config**에서 연 `config.toml`을 편집했는지 확인하세요.
+- 파일을 저장한 뒤 Codex 데스크톱 앱을 완전히 종료하고 다시 여세요.
+- `model_provider = "aiberm"`가 `[model_providers.aiberm]`와 일치하는지 확인하세요.
+
+### 모델 또는 연결 오류
+
+- `base_url`이 정확히 `https://aiberm.com/v1`인지 확인하세요.
+- `wire_api`가 `responses`인지 확인하세요.
+- 계정에서 `gpt-5.5`에 접근할 수 있는지 확인하세요. 최신 목록은 [모델 목록](/docs/ko/models)을 참고하세요.
+
+## 공식 참고 자료
+
+- [OpenAI Codex: Configuration Reference](https://developers.openai.com/codex/config-reference/)

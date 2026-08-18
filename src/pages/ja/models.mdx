@@ -1,0 +1,151 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: モデル一覧
+lang: ja
+activeId: models
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# モデル一覧
+
+現在のユーザーが利用できるすべての AI モデルの一覧を取得します。モデル ID、名前、プロバイダ、詳細情報が含まれます。
+
+<Callout client:load type="info" title="モデル一覧とトークングループについて">
+一覧に返されるモデルは、API KEY が属するトークングループによって決まります。トークングループは、コンソール → API Tokens でトークンを作成または編集するときに選択できます。
+</Callout>
+
+## エンドポイント
+
+`GET https://aiberm.com/v1/models`
+
+## リクエスト例
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X GET "https://aiberm.com/v1/models" \\
+  -H "Authorization: Bearer sk-your-api-token-here" \\
+  -H "Content-Type: application/json"`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+url = "https://aiberm.com/v1/models"
+headers = {
+    "Authorization": "Bearer sk-your-api-token-here",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/models', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer sk-your-api-token-here',
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## レスポンス形式
+
+### 成功レスポンス（200 OK）
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'json',
+      label: 'JSON',
+      code: `{
+  "success": true,
+  "data": [
+    {
+      "id": "gpt-4",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "gpt-3.5-turbo",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "claude-3-sonnet-20240229",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "anthropic",
+      "supported_endpoint_types": [
+        "chat"
+      ]
+    }
+  ]
+}`
+    }
+  ]}
+/>
+
+## レスポンスフィールド
+
+**トップレベルフィールド:**
+- `success` - 真偽値。リクエストが成功したかどうかを示します
+- `data` - モデルオブジェクトの配列（成功時のみ返されます）
+- `message` - エラーメッセージ（失敗時のみ返されます）
+
+**モデルオブジェクトのフィールド:**
+- `id` - モデルの一意な識別子
+- `object` - オブジェクトタイプ。固定で "model"
+- `created` - モデル作成時のタイムスタンプ
+- `owned_by` - モデルプロバイダ（例: openai、anthropic）
+- `supported_endpoint_types` - 対応する API エンドポイントタイプの配列
+
+## 対応エンドポイントタイプ
+
+- `chat` - Chat Completion
+- `completion` - Text Completion
+- `embedding` - Text Embedding
+- `image` - Image Generation
+- `audio` - Audio Processing
+- `rerank` - Rerank
+
+## 重要な注意点
+
+<Callout client:load type="info" title="認証が必要です">
+有効な API トークンを指定する必要があります。トークンによって、ユーザーがアクセスできるモデルが決まります。
+</Callout>
+
+<Callout client:load type="info" title="権限管理">
+返されるモデル一覧は、ユーザーグループとトークングループに基づいてフィルタされ、ユーザーがアクセス権限を持つモデルだけが表示されます。
+</Callout>
+
+## よくあるエラー
+
+- `401 Unauthorized` - API トークンが無効、または期限切れです
+- `403 Forbidden` - ユーザーにアクセス権限がありません
+- `500 Internal Server Error` - 内部サーバーエラーです

@@ -2,18 +2,22 @@
 import { navigation } from '../config/navigation';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import CopyPageButton from '../components/CopyPageButton';
+import { isLocale, localeMeta, ui, type Locale } from '../i18n';
 
 interface Props {
   title: string;
-  lang: 'en' | 'zh';
+  lang: Locale;
   activeId: string;
 }
 
 // Access frontmatter from MDX
 const { frontmatter } = Astro.props as any;
 const title = frontmatter?.title || Astro.props.title;
-const lang = frontmatter?.lang || Astro.props.lang || 'en';
+const rawLang = frontmatter?.lang || Astro.props.lang || 'en';
+const lang: Locale = isLocale(rawLang) ? rawLang : 'en';
 const activeId = frontmatter?.activeId || Astro.props.activeId;
+const t = ui[lang];
+const htmlLang = localeMeta[lang].htmlLang;
 
 // Create refs for use in template expressions
 const navItems = navigation.map(group => ({
@@ -27,15 +31,14 @@ const navItems = navigation.map(group => ({
   }))
 }));
 
-const backHomeText = lang === 'en' ? 'Back to Home' : '返回首页';
-const tocTitle = lang === 'en' ? 'ON THIS PAGE' : '本页内容';
-const langSwitchUrl = `/docs/${lang === 'en' ? 'zh' : 'en'}/${activeId}/`;
-const editOnGitHubText = lang === 'en' ? 'Edit this page on GitHub' : '在 GitHub 上编辑此页';
+const backHomeText = t.backHome;
+const tocTitle = t.toc;
+const editOnGitHubText = t.editOnGitHub;
 const githubEditUrl = `https://github.com/aiberm/aiberm-docs/edit/main/src/pages/${lang}/${activeId}.mdx`;
 ---
 
 <!DOCTYPE html>
-<html lang={lang}>
+<html lang={htmlLang}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -75,23 +78,23 @@ const githubEditUrl = `https://github.com/aiberm/aiberm-docs/edit/main/src/pages
             <!-- Navigation Links -->
             <nav class="hidden md:flex items-center gap-1 lg:gap-2">
               <a href="https://aiberm.com/" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
-                {lang === 'en' ? 'Home' : '首页'}
+                {t.home}
               </a>
               <a href="https://aiberm.com/console" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
-                {lang === 'en' ? 'Console' : '控制台'}
+                {t.console}
               </a>
               <a href="https://aiberm.com/pricing" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
-                {lang === 'en' ? 'Models' : '模型'}
+                {t.models}
               </a>
               <a href={`/docs/${lang}/getting-started/`} class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
-                {lang === 'en' ? 'Docs' : '文档'}
+                {t.docs}
               </a>
               <a href="https://discord.gg/9WCaPdhkhx" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
                 Discord
               </a>
               <div class="relative" id="wechat-dropdown">
                 <button id="wechat-btn" class="flex items-center gap-1 p-2 text-sm text-gray-700 hover:text-blue-600 transition-colors rounded-md font-semibold">
-                  {lang === 'en' ? 'WeChat' : '微信群'}
+                  {t.wechat}
                 </button>
                 <div id="wechat-qrcode" class="hidden absolute top-full left-1/2 -translate-x-1/2 mt-2 p-2 bg-white rounded-lg shadow-lg border border-gray-200 w-64 h-64 z-50">
                   <img src="https://geddlestorage.blob.core.windows.net/geddle-data/assets/aiberm-qrcode.jpg" alt="WeChat QR Code" class="w-64 h-64 object-contain" />
@@ -100,15 +103,15 @@ const githubEditUrl = `https://github.com/aiberm/aiberm-docs/edit/main/src/pages
             </nav>
 
             <!-- Language Switcher -->
-            <LanguageSwitcher client:load currentLang={lang} switchUrl={langSwitchUrl} />
+            <LanguageSwitcher client:load currentLang={lang} activeId={activeId} />
 
             <!-- Login/Register Buttons -->
             <div class="flex items-center">
               <a href="https://aiberm.com/login" class="flex items-center justify-center py-2.5 px-3 rounded-l-full bg-gray-50 hover:bg-gray-100 transition-colors">
-                <span class="text-xs text-gray-700">{lang === 'en' ? 'Login' : '登录'}</span>
+                <span class="text-xs text-gray-700">{t.login}</span>
               </a>
               <a href="https://aiberm.com/register" class="hidden md:flex items-center justify-center py-2.5 px-3 rounded-r-full -ml-px bg-black hover:bg-gray-800 transition-colors">
-                <span class="text-xs text-white">{lang === 'en' ? 'Register' : '注册'}</span>
+                <span class="text-xs text-white">{t.register}</span>
               </a>
             </div>
           </div>
@@ -123,7 +126,7 @@ const githubEditUrl = `https://github.com/aiberm/aiberm-docs/edit/main/src/pages
     <aside id="mobile-nav" class="fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto">
       <div class="p-6">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-semibold text-gray-900">{lang === 'en' ? 'Navigation' : '导航'}</h2>
+          <h2 class="text-lg font-semibold text-gray-900">{t.navigation}</h2>
           <button
             id="mobile-menu-close"
             class="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
@@ -366,7 +369,7 @@ const githubEditUrl = `https://github.com/aiberm/aiberm-docs/edit/main/src/pages
           <!-- Friend Links -->
           <div class="flex items-center gap-6">
             <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              {lang === 'en' ? 'Friends' : '友情链接'}
+              {t.friends}
             </span>
             <div class="flex items-center gap-4">
               <a
@@ -745,7 +748,13 @@ const githubEditUrl = `https://github.com/aiberm/aiberm-docs/edit/main/src/pages
       headings.forEach((heading) => {
         const level = heading.tagName === 'H2' ? 0 : 1;
         const text = heading.textContent || '';
-        const id = heading.id || text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        const id = heading.id || text
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\p{L}\p{N}-]+/gu, '')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '') || `section-${tocItems.length}`;
 
         if (!heading.id) heading.id = id;
 

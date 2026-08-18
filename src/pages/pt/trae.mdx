@@ -1,0 +1,197 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Configuração do Trae
+lang: pt
+activeId: trae
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Configuração do Trae
+
+O Trae é um IDE com IA da ByteDance que integra assistência inteligente de programação diretamente ao seu fluxo de desenvolvimento. Ao configurar o Trae com a Aiberm, você pode aproveitar diversos modelos poderosos para conclusão de código, assistência por chat, refatoração e geração.
+
+<Callout client:load type="info">
+Para usar o Trae com a Aiberm, você precisa de uma chave de API válida da Aiberm. Se ainda não tiver uma, consulte a página [Autenticação](/docs/pt/authentication).
+</Callout>
+
+## O que é o Trae?
+
+O Trae é o primeiro Ambiente de Desenvolvimento Integrado nativo de IA (AI IDE) da China, construído sobre a base do Visual Studio Code. Ele oferece:
+
+- **Modelos de IA integrados**: Acesso gratuito a Claude 3.7 Sonnet, GPT-4o, DeepSeek V3/R1, Gemini 2.5 Pro e outros.
+- **Suporte a modelos personalizados**: Adicione seus próprios provedores de API, como a Aiberm, para uma seleção flexível de modelos.
+- **Recursos completos de IDE**: Todas as capacidades do VS Code, além de conclusão de código, depuração e geração com IA.
+- **Multiplataforma**: Disponível para macOS e Windows (suporte ao Linux em breve).
+
+## Etapas de configuração
+
+Siga estas etapas para configurar o Trae para usar a API da Aiberm:
+
+### Etapa 1: Abrir as configurações de modelo
+
+Há duas formas de acessar a configuração de modelos:
+
+**Método A: Pela caixa de entrada do chat**
+1. Abra o Trae IDE.
+2. Olhe para o canto inferior direito da caixa de entrada do chat.
+3. Clique no nome do modelo atual para abrir a lista de modelos.
+4. Clique no botão "Add Model".
+
+<Callout client:load type="tip">
+Captura de tela 1 (interface em inglês): Caixa de entrada do chat mostrando o menu suspenso de modelos e o ponto de entrada "Add Model".
+</Callout>
+
+![](/docs/trae/en/chat-model-dropdown.png)
+
+**Método B: Pelo menu Settings**
+1. Clique no seu avatar no canto superior direito.
+2. Selecione "AI Feature Management".
+3. Navegue até a seção "Models".
+4. Clique no botão "Add Model".
+
+<Callout client:load type="tip">
+Captura de tela 2 (interface em inglês): Caminho das configurações até a página Models.
+</Callout>
+
+![](/docs/trae/en/models-add-model.png)
+
+### Etapa 2: Configurar o modelo personalizado
+
+Na caixa de diálogo "Add Model", preencha os seguintes campos:
+
+- **Provider**: OpenAI
+- **Base URL**: `https://aiberm.com/v1`
+- **API Key**: `sk-xxxxxxxxxxxxxxxx` (Sua API Key da Aiberm)
+- **Model ID**: Insira um ID de modelo compatível (por exemplo, `google/gemini-2.5-flash`, `anthropic/claude-3-opus`, `openai/gpt-4o`).
+
+<Callout client:load type="info">
+**IDs de modelo compatíveis (exemplos):**
+- `google/gemini-3-flash` - Rápido e eficiente
+- `google/gemini-3-pro` - Raciocínio avançado
+- `anthropic/claude-opus-4-6` - Melhor para tarefas complexas
+- `openai/gpt-5.2` - Modelo principal da OpenAI
+
+Consulte a página [Lista de modelos](/docs/pt/models) para todos os modelos compatíveis.
+</Callout>
+
+<Callout client:load type="tip">
+Captura de tela 3 (interface em inglês): caixa de diálogo "Add Model".
+</Callout>
+
+![](/docs/trae/en/add-model-dialog.png)
+
+### Etapa 3: Salvar a configuração
+
+1. Clique no botão "Add Model" ou "Save" para confirmar suas configurações.
+2. O Trae tentará verificar a conexão com a API da Aiberm.
+3. Se for bem-sucedido, seu modelo personalizado aparecerá na lista de modelos.
+
+## Verificação
+
+Para garantir que o Trae esteja corretamente configurado com a Aiberm:
+
+1. **Abra o painel de chat**: Clique no ícone de chat na barra lateral esquerda ou use a paleta de comandos (`Ctrl/Cmd + Shift + P`) e pesquise por "Chat".
+2. **Selecione seu modelo personalizado**: No painel de chat, clique no menu suspenso de modelos no canto inferior direito e selecione o modelo da Aiberm que você acabou de adicionar.
+3. **Teste com uma consulta simples**: Faça uma pergunta de programação, como:
+   ```plaintext
+   Write a Python function to calculate the Fibonacci sequence using recursion.
+   ```
+4. **Verifique a resposta**: Se o Trae gerar código com sucesso usando seu modelo personalizado, parabéns! Sua configuração está funcionando corretamente.
+
+<Callout client:load type="tip">
+**Captura de tela**: *[Captura de tela 4: Painel de chat mostrando o modelo da Aiberm selecionado e uma resposta bem-sucedida]*
+</Callout>
+
+## Usar modelos da Aiberm no Trae
+
+Depois de configurado, você pode usar os modelos da Aiberm de várias formas:
+
+### 1. Modo Chat
+- Abra o painel de chat e selecione seu modelo da Aiberm.
+- Faça perguntas, solicite geração de código ou peça explicações.
+- Referencie arquivos usando o símbolo `#` para respostas com contexto.
+
+### 2. Conclusão inline
+- Digite o código naturalmente, e o Trae sugerirá conclusões.
+- Pressione `Tab` para aceitar as sugestões.
+- *Observação: Modelos personalizados podem ter suporte limitado à conclusão inline, dependendo da implementação do Trae.*
+
+### 3. Ações de código
+- Selecione o código no editor.
+- Clique com o botão direito e escolha ações de IA como "Explain", "Refactor", "Add Comments".
+- Escolha seu modelo da Aiberm quando solicitado.
+
+## Solução de problemas
+
+### ❌ Falha na conexão
+**Sintomas**: "Failed to connect to API" ou "Network error"
+**Soluções**:
+- Verifique se a Base URL é exatamente `https://aiberm.com/v1` (sem barra no final).
+- Verifique sua conexão com a internet.
+- Certifique-se de que sua chave de API é válida e tem créditos suficientes.
+- Tente testar a chave de API usando curl:
+  ```bash
+  curl https://aiberm.com/v1/models \
+    -H "Authorization: Bearer YOUR_API_KEY"
+  ```
+
+### ❌ Chave de API inválida
+**Sintomas**: "401 Unauthorized" ou "Invalid API key"
+**Soluções**:
+- Confira se você copiou a chave de API completa, sem espaços extras.
+- Verifique se a chave começa com `sk-`.
+- Certifique-se de que sua conta Aiberm está ativa e tem créditos.
+- Gere uma nova chave de API no Aiberm Dashboard.
+
+### ❌ Modelo não encontrado
+**Sintomas**: "Model not available" ou "Unknown model ID"
+**Soluções**:
+- Verifique se o formato do ID do modelo está correto (por exemplo, `google/gemini-2.5-flash`).
+- Consulte a página [Lista de modelos](/docs/pt/models) para os IDs de modelo compatíveis.
+- Certifique-se de que o modelo está disponível no seu plano da Aiberm.
+
+### ❌ Limite de taxa excedido
+**Sintomas**: "Too many requests" ou "Rate limit reached"
+**Soluções**:
+- Aguarde alguns instantes antes de tentar novamente.
+- Verifique os limites de uso da sua conta Aiberm.
+- Considere atualizar seu plano se precisar de limites de taxa mais altos.
+
+## Configuração avançada
+
+### Usar vários modelos
+Você pode adicionar vários modelos da Aiberm com configurações diferentes:
+- Repita as etapas de configuração para cada modelo.
+- Use nomes descritivos para diferenciá-los (se o Trae permitir nomes personalizados).
+- Alterne entre os modelos com base na sua tarefa:
+  - Modelos rápidos (`gemini-3-flash`) para iterações rápidas.
+  - Modelos avançados (`claude-opus-4-6`, `gemini-3-pro`) para raciocínio complexo.
+
+### Model Context Protocol (MCP)
+O Trae oferece suporte ao Model Context Protocol (MCP), que permite que os modelos de IA acessem ferramentas e fontes de dados externas. Ao usar modelos da Aiberm, você pode aproveitar o MCP para:
+- Conectar-se a bancos de dados.
+- Acessar sistemas de arquivos.
+- Integrar-se a APIs externas.
+- Usar ferramentas personalizadas.
+
+Consulte a documentação oficial do Trae para a configuração detalhada do MCP.
+
+## Boas práticas
+
+- **Escolha o modelo certo**: Use modelos mais rápidos para tarefas rotineiras e reserve os modelos poderosos para problemas complexos.
+- **Forneça contexto**: Use o símbolo `#` para referenciar arquivos relevantes nas suas consultas de chat.
+- **Itere de forma incremental**: Divida tarefas grandes em etapas menores para um melhor desempenho da IA.
+- **Revise a saída da IA**: Sempre revise e teste o código gerado pela IA antes de fazer o commit.
+- **Monitore o uso**: Acompanhe o uso da API da Aiberm para gerenciar os custos de forma eficaz.
+
+## Próximos passos
+
+Agora que você configurou o Trae com a Aiberm, explore estes recursos:
+
+- [Lista de modelos](/docs/pt/models) - Descubra todos os modelos disponíveis da Aiberm.
+- [API de chat](/docs/pt/chat) - Saiba mais sobre a API subjacente.
+- [Boas práticas](/docs/pt/examples) - Dicas para uma programação eficaz assistida por IA.
+
+
+Ao integrar a Aiberm com o Trae, você desbloqueia uma experiência de programação flexível e poderosa, com acesso a modelos de IA de primeira linha.

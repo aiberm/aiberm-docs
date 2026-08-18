@@ -1,0 +1,275 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cài đặt DeepSeek Harness
+lang: vi
+activeId: deepseek-harness
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Cài đặt DeepSeek Harness
+
+Hướng dẫn này cho biết cách chạy [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) với **Aiberm** như một nhà cung cấp tùy chỉnh tương thích OpenAI. Sau khi thiết lập, một API key Aiberm có thể truy cập Claude, GPT, Gemini, DeepSeek, Kimi, MiniMax, GLM, Grok và các mô hình còn lại trên Aiberm.
+
+<Callout client:load type="info">
+DeepSeek Harness đang ở bản xem trước dành cho nhà phát triển và thay đổi nhanh. Trang này theo [README](https://github.com/deepseek-ai/deepseek-harness/blob/master/README.md) chính thức và hướng dẫn [Configure models](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md), rồi ánh xạ các bước đó sang Aiberm.
+</Callout>
+
+## DeepSeek Harness là gì?
+
+DeepSeek Harness là harness agent mã nguồn mở từ [DeepSeek AI](https://deepseek.com). Mọi thứ đều là plugin, được ghép bởi [Cordis](https://github.com/cordiverse/cordis). Điểm vào thông thường là giao diện trình duyệt (`dsh web`); cùng thư mục home cũng hỗ trợ các tác vụ headless một lần.
+
+Dự án chính thức:
+
+- Trang chủ: [deepseek.com/harness](https://deepseek.com/harness)
+- Mã nguồn: [github.com/deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)
+- Thảo luận: [GitHub Discussions](https://github.com/deepseek-ai/deepseek-harness/discussions)
+
+## Điều kiện tiên quyết
+
+- Một tài khoản Aiberm ([Đăng ký](https://aiberm.com/register))
+- Một API key Aiberm ([Lấy khóa của bạn](https://aiberm.com/console/token))
+- Đã cài [Node.js](https://nodejs.org/) (cần cho `npx`)
+- Một terminal trên macOS, Linux hoặc Windows
+
+## Cài đặt và khởi chạy
+
+Đường dẫn cài đặt chính thức là khởi chạy `npx` một lần. Từ thư mục dự án mà bạn muốn agent làm việc:
+
+```bash
+npx @deepseek-ai/dsh web
+```
+
+Giao diện Web lắng nghe tại `http://127.0.0.1:3080` theo mặc định. Thư mục làm việc hiện tại trở thành gốc workspace.
+
+Các biến thể hữu ích:
+
+```bash
+# Another port
+npx @deepseek-ai/dsh web --port 8080
+
+# One-shot headless job (same models and credentials as the Web UI)
+npx @deepseek-ai/dsh --profile headless "summarize the README"
+```
+
+Nếu bạn đã cài CLI:
+
+```bash
+dsh web
+dsh --help
+dsh web --help
+```
+
+<Callout client:load type="tip">
+Các profile `web` và `headless` được tạo khi dùng lần đầu dưới `$DSH_HOME` (mặc định `~/.dsh`). Bạn không cần clone repository chỉ để dùng Aiberm.
+</Callout>
+
+## Cấu hình Aiberm (Web UI, khuyến nghị)
+
+Aiberm **không** phải thẻ DeepSeek tích hợp sẵn, và **không** phải nhà cung cấp catalog OpenAI / Anthropic. Các mục đó giữ endpoint chính thức của chúng. Aiberm là cổng tương thích OpenAI, vì vậy bạn thêm nó như một **nhà cung cấp tùy chỉnh**.
+
+Tham chiếu chính thức: [Configure models](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md).
+
+### Bước 1: Mở Settings → Models
+
+Trong Web UI, mở **Settings → Models**.
+
+### Bước 2: Thêm nhà cung cấp tùy chỉnh
+
+Chọn **Add a custom provider** và điền:
+
+| Trường | Giá trị |
+|---|---|
+| **Provider ID** | `aiberm` (chữ thường, cố định — được dùng bởi phiên, mặc định và tên thông tin xác thực) |
+| **Display name** | `Aiberm` |
+| **Base URL** | `https://aiberm.com/v1` |
+| **API protocol** | `openai-completions` |
+| **API key** | khóa Aiberm của bạn từ [Console → API Tokens](https://aiberm.com/console/token) |
+
+![Add a custom provider form](/docs/deepseek-harness-provider.png)
+
+<Callout client:load type="warning">
+Provider ID không thể đổi tên sau này. Yêu cầu, phiên đã lưu, mô hình mặc định và thông tin xác thực đã lưu đều dùng nó. Để đổi, hãy thêm nhà cung cấp mới và xóa nhà cung cấp cũ.
+</Callout>
+
+### Bước 3: Tải hoặc nhập mô hình
+
+Trong **Model catalog**, chọn **Fetch available models**. Harness gọi `GET /v1/models` tương thích OpenAI của Aiberm với khóa bạn vừa nhập. Chọn các mô hình bạn muốn, rồi lưu.
+
+![Fetch available models from Aiberm](/docs/deepseek-harness-models.png)
+
+Nếu khám phá thất bại, hãy nhập ID mô hình thủ công. Dùng ID từ [Danh sách mô hình](/docs/vi/models) hoặc [Aiberm Pricing](https://aiberm.com/pricing). Ví dụ:
+
+- `claude-sonnet-4-6`
+- `claude-opus-4-6`
+- `gpt-5.4`
+- `google/gemini-3-flash`
+- `deepseek/deepseek-v4-pro`
+- `grok-4.6`
+
+<Callout client:load type="info">
+Trang này không bao giờ ghi API key vào `settings.yaml`. Khóa được lưu chỉ-ghi trong `$DSH_HOME/.credentials.yaml`. Settings chỉ giữ một tham chiếu chẳng hạn `AIBERM_API_KEY`.
+</Callout>
+
+### Bước 4: Chọn mô hình
+
+Sau khi lưu, Aiberm xuất hiện trong bộ chọn mô hình ở cuối trình soạn. Chọn một mô hình — lựa chọn đó cũng trở thành mặc định cho các phiên **mới**. Phiên đã gửi yêu cầu sẽ giữ mô hình đã ghi trong nhật ký của riêng nó.
+
+Bộ chọn nhóm các mô hình DeepSeek tích hợp riêng với nhà cung cấp tùy chỉnh **Aiberm**. Dùng nhóm Aiberm cho Claude, GPT, Gemini và phần còn lại của danh mục.
+
+## Cấu hình Aiberm (settings.yaml)
+
+Bạn có thể khai báo cùng nhà cung cấp bằng cách chỉnh `$DSH_HOME/settings.yaml` (thường là `~/.dsh/settings.yaml`). **Đừng** đặt API key trong tệp này.
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      displayName: Aiberm
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: claude-opus-4-6
+        - id: claude-opus-4-6-thinking
+        - id: gpt-5.4
+        - id: google/gemini-3-flash
+        - id: deepseek/deepseek-v4-pro
+        - id: grok-4.6
+        - id: kimi-k2.6
+        - id: minimax-m2.7
+
+agent-default-model:
+  provider: aiberm
+  model: claude-sonnet-4-6
+```
+
+Rồi lưu khóa ở một trong các nơi sau (khớp đầu tiên thắng khi gửi yêu cầu):
+
+1. Môi trường khởi chạy: `AIBERM_API_KEY=sk-... npx @deepseek-ai/dsh web`
+2. `$DSH_HOME/.credentials.yaml` (nơi trang Models ghi):
+
+```yaml
+AIBERM_API_KEY: sk-your-aiberm-api-key
+```
+
+3. `.env` của dự án trong thư mục khởi chạy, hoặc `$DSH_HOME/.env`
+
+Thứ tự thông tin xác thực chính thức: môi trường tiến trình → `$DSH_HOME/.credentials.yaml` → `.env` dự án → `$DSH_HOME/.env`. Giá trị ghi trên trang Models ghi đè các khóa `.env` cũ hơn.
+
+Trên POSIX, giữ `.credentials.yaml` ở chế độ `600`.
+
+Một tuyến tùy chỉnh không có trong catalog đi kèm của Harness **phải** đặt `api`, `baseURL` và danh sách `models` không rỗng. `models` *thay thế* catalog cho tuyến đó — mọi mô hình bạn muốn trong bộ chọn phải xuất hiện ở đó. Một mục chỉ có `id` là đủ.
+
+## Mô hình thị giác
+
+Mô hình bạn nhập thủ công được coi là chỉ-văn-bản cho đến khi bạn nói khác. Nếu bạn đính kèm ảnh vào mô hình như vậy, Harness từ chối yêu cầu trước khi gửi.
+
+Với các mô hình thị giác Aiberm, thêm `input` trong `settings.yaml`:
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: gemini-3-pro-image-preview
+          input: [text, image]
+        - id: gpt-image-2
+          input: [text, image]
+```
+
+Nếu mọi mô hình được liệt kê đều chấp nhận ảnh, đặt fallback tuyến một lần:
+
+```yaml
+defaultInput: [text, image]
+```
+
+`defaultInput` là fallback, không phải ghi đè. Mặc định là `[text]`.
+
+## Kiểm tra thiết lập
+
+1. Mở `http://127.0.0.1:3080`.
+2. Xác nhận bộ chọn mô hình liệt kê **Aiberm** và các mô hình của bạn.
+
+![Model picker showing the Aiberm group](/docs/deepseek-harness-ui.png)
+
+3. Gửi một prompt ngắn chẳng hạn `Hi`.
+4. Tùy chọn: liệt kê mô hình qua Aiberm trực tiếp:
+
+```bash
+curl -H "Authorization: Bearer sk-your-aiberm-api-key" \
+     https://aiberm.com/v1/models
+```
+
+Thêm bất kỳ ID bổ sung nào vào danh sách `models` của nhà cung cấp (hoặc chạy lại **Fetch available models**) nếu chúng thiếu trong bộ chọn.
+
+## Ghi chú headless và CLI
+
+Web UI và `dsh --profile headless` dùng chung `$DSH_HOME`. Cấu hình Aiberm một lần, rồi chạy:
+
+```bash
+npx @deepseek-ai/dsh --profile headless "list the files in this directory"
+```
+
+Cờ launcher đứng trước; mọi thứ sau chúng thuộc về profile:
+
+```bash
+dsh --profile web --port 8080
+dsh --profile web --help
+dsh --help
+```
+
+## Xử lý sự cố
+
+### `MISSING_CREDENTIAL`
+
+Tuyến đặt tên `AIBERM_API_KEY` (hoặc `apiKeyEnv` khác) nhưng chưa lưu giá trị. Lưu khóa trên **Settings → Models**, hoặc xuất cùng biến trong shell khởi chạy `dsh`.
+
+### `UNKNOWN_MODEL`
+
+Mô hình đã chọn không có trong danh sách `models` của nhà cung cấp này. Tải mô hình lại, hoặc thêm ID thủ công. ID Aiberm thay đổi theo thời gian — xác nhận trên [Danh sách mô hình](/docs/vi/models).
+
+### 401 khi tải mô hình hoặc chat
+
+- Kiểm tra khóa tại [Aiberm Console](https://aiberm.com/console/token).
+- Base URL phải là `https://aiberm.com/v1` (gồm `/v1`).
+- Đừng dán khóa vào `settings.yaml`; đặt trong credentials hoặc môi trường.
+
+### Yêu cầu vẫn đi tới DeepSeek hoặc OpenAI
+
+Bạn đã cấu hình thẻ DeepSeek tích hợp hoặc nhà cung cấp catalog `openai` / `anthropic`. Những mục đó giữ endpoint chính thức. Xóa hàng cấu hình sai đó và thêm một nhà cung cấp **tùy chỉnh** với ID `aiberm` và base URL `https://aiberm.com/v1`.
+
+### Ảnh bị từ chối trước khi gửi
+
+Mô hình không có modality ảnh. Thêm `input: [text, image]` cho mô hình đó (xem [Mô hình thị giác](#vision-models)), rồi bắt đầu phiên **mới**. Ảnh đã đính kèm vẫn nằm trong nhật ký phiên cũ.
+
+### Chỉnh cấu hình không có hiệu lực
+
+Thay đổi nhà cung cấp và khóa áp dụng ở yêu cầu **tiếp theo**; bạn không cần khởi động lại máy chủ. Phiên hiện có giữ mô hình đã ghi trong nhật ký. Bắt đầu chat mới sau khi đổi mặc định.
+
+### Các tệp nằm ở đâu
+
+| Đường dẫn | Mục đích |
+|---|---|
+| `$DSH_HOME/settings.yaml` | Nhà cung cấp, danh sách mô hình, mô hình mặc định (`~/.dsh/settings.yaml`) |
+| `$DSH_HOME/.credentials.yaml` | Chỉ API key |
+| `$DSH_HOME/profiles/web/` | Profile web được tạo tự động |
+
+## Lưu ý
+
+- Ưu tiên trang Models cho khóa. `settings.yaml` chỉ nên giữ tham chiếu `apiKeyEnv`.
+- Đừng chạy agent trong thư mục đã chứa bí mật mà bạn không muốn nó đọc.
+- Với các trường ngoài hướng dẫn này (timeout, retry, tương thích reasoning), xem [`dsh-llm-pi-ai` README](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/llm/llm-pi-ai/README.md) chính thức.
+
+## Liên kết
+
+- [DeepSeek Harness on GitHub](https://github.com/deepseek-ai/deepseek-harness)
+- [Official configure-models guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md)
+- [Aiberm Console](https://aiberm.com/console/token)
+- [Aiberm Models List](/docs/vi/models)
+- [Aiberm Pricing](https://aiberm.com/pricing)

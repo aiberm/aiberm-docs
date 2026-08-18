@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Autenticazione
+lang: it
+activeId: authentication
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Autenticazione
+
+Tutte le richieste API richiedono autenticazione. Utilizziamo l'autenticazione Bearer Token per garantire che le chiamate API siano sicure e affidabili.
+
+## Ottenere la API Key
+
+Vai su Console → API Tokens per creare e gestire le tue chiavi API.
+
+<Callout client:load type="info" title="Passaggi per la creazione">
+1. Accedi al tuo account Aiberm
+2. Vai alla pagina Console
+3. Fai clic su "API Tokens" nel menu a sinistra
+4. Fai clic sul pulsante "New Token"
+5. Imposta il nome del token e i permessi
+6. Copia la API key generata
+</Callout>
+
+## Esempi di codice
+
+<CodeExample
+  client:load
+  title="Esempi di codice"
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers=headers,
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [{"role": "user", "content": "Hello!"}]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch(
+    "https://aiberm.com/v1/chat/completions",
+    {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer YOUR_API_KEY",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [{ role: "user", content: "Hello!" }]
+        })
+    }
+);
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## Note di sicurezza
+
+- Conserva la API key in modo sicuro e non esporla nel codice lato client
+- Ruota regolarmente le API key per migliorare la sicurezza dell'account
+- Se la API key viene compromessa, eliminala immediatamente nella console e generane una nuova
+- Usa variabili d'ambiente per memorizzare le API key invece di inserirle nel codice
+
+## Errori comuni
+
+<Callout client:load type="error" title="401 Unauthorized">
+API key non valida o scaduta
+
+**Soluzione:** Verifica che la API key sia corretta oppure genera una nuova API key
+</Callout>
+
+<Callout client:load type="error" title="403 Forbidden">
+Permessi insufficienti o account con restrizioni
+
+**Soluzione:** Controlla lo stato dell'account e contatta l'amministratore per i permessi appropriati
+</Callout>

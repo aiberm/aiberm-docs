@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 인증
+lang: ko
+activeId: authentication
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 인증
+
+모든 API 요청에는 인증이 필요합니다. Bearer Token 인증을 사용하여 API 호출을 안전하고 안정적으로 보호합니다.
+
+## API 키 발급
+
+콘솔 → API Tokens에서 API 키를 생성하고 관리하세요.
+
+<Callout client:load type="info" title="생성 단계">
+1. Aiberm 계정에 로그인합니다
+2. 콘솔 페이지로 이동합니다
+3. 왼쪽 메뉴에서 "API Tokens"를 클릭합니다
+4. "New Token" 버튼을 클릭합니다
+5. 토큰 이름과 권한을 설정합니다
+6. 생성된 API 키를 복사합니다
+</Callout>
+
+## 코드 예제
+
+<CodeExample
+  client:load
+  title="코드 예제"
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers=headers,
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [{"role": "user", "content": "Hello!"}]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch(
+    "https://aiberm.com/v1/chat/completions",
+    {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer YOUR_API_KEY",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [{ role: "user", content: "Hello!" }]
+        })
+    }
+);
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## 보안 주의사항
+
+- API 키를 안전하게 보관하고 클라이언트 측 코드에 노출하지 마세요
+- 계정 보안을 위해 API 키를 정기적으로 교체하세요
+- API 키가 유출되면 콘솔에서 즉시 삭제한 뒤 새로 발급하세요
+- API 키는 하드코딩하지 말고 환경 변수로 저장하세요
+
+## 일반적인 오류
+
+<Callout client:load type="error" title="401 Unauthorized">
+유효하지 않거나 만료된 API 키입니다
+
+**해결 방법:** API 키가 올바른지 확인하거나 새 API 키를 다시 발급하세요
+</Callout>
+
+<Callout client:load type="error" title="403 Forbidden">
+권한이 부족하거나 계정이 제한된 상태입니다
+
+**해결 방법:** 계정 상태를 확인하고 관리자에게 적절한 권한을 요청하세요
+</Callout>

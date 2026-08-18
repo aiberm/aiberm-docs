@@ -1,0 +1,246 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Configuración de Codex CLI
+lang: es
+activeId: codex
+---
+
+# Configuración de Codex CLI
+
+Aprende a configurar Codex CLI para usar la API de Aiberm. Esta guía cubre la instalación y la configuración en Windows, macOS y Linux.
+
+## ¿Qué es Codex CLI?
+
+Codex CLI es la interfaz de línea de comandos de OpenAI diseñada para tareas de terminal relacionadas con código. Prioriza una salida lista para ingeniería, con cambios de código más claros y accionables que las herramientas de chat generales. Al configurarla para usar Aiberm, puedes acceder a varios modelos de IA a través de un endpoint rentable.
+
+## Requisitos previos
+
+Antes de empezar, asegúrate de tener:
+
+- Una cuenta de Aiberm ([Regístrate aquí](https://aiberm.com/register))
+- Una clave de API de Aiberm ([Obtén tu clave](https://aiberm.com/console/token))
+- Node.js v20 o superior con npm
+
+## Instalación
+
+Instala Codex CLI de forma global con npm:
+
+```bash
+npm install -g @openai/codex
+```
+
+**Verificar la instalación:**
+```bash
+codex --version
+```
+
+Esto debería mostrar el número de versión.
+
+## Configuración
+
+Codex CLI usa un archivo `config.toml` para la configuración. La ubicación del directorio de configuración varía según el sistema operativo:
+
+- **Windows**: `%userprofile%\.codex`
+- **macOS/Linux**: `~/.codex`
+
+### Método 1: Configuración manual
+
+Ve al directorio de configuración y crea o edita `config.toml`:
+
+**macOS/Linux:**
+```bash
+mkdir -p ~/.codex
+nano ~/.codex/config.toml
+```
+
+**Windows:**
+```powershell
+mkdir $env:USERPROFILE\.codex -Force
+notepad $env:USERPROFILE\.codex\config.toml
+```
+
+Agrega la siguiente configuración:
+
+```toml
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+wire_api = "responses"
+```
+
+**Nota:** El ajuste `env_key` le indica a Codex CLI qué variable de entorno leer. En el siguiente paso definirás tu clave de API de Aiberm en esa variable.
+
+### Método 2: Configuración con un solo comando
+
+**macOS/Linux:**
+```bash
+mkdir -p ~/.codex && cat > ~/.codex/config.toml << 'EOF'
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+wire_api = "responses"
+EOF
+```
+
+**Windows PowerShell:**
+```powershell
+$configPath = "$env:USERPROFILE\.codex"
+New-Item -ItemType Directory -Force -Path $configPath | Out-Null
+@"
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"
+wire_api = "responses"
+"@ | Out-File -FilePath "$configPath\config.toml" -Encoding utf8
+```
+
+**Nota:** La configuración anterior hace que Codex CLI lea tu clave de API desde la variable de entorno `OPENAI_API_KEY`, que configurarás con tu clave de API de Aiberm en el siguiente paso.
+
+## Definir la clave de API
+
+Después de configurar el archivo TOML, define tu clave de API de Aiberm como variable de entorno.
+
+**Importante:** Aunque la variable se llama `OPENAI_API_KEY`, debes usar tu **clave de API de Aiberm** (no una clave de OpenAI). Codex CLI usa este nombre de variable estándar por compatibilidad.
+
+### Temporal (solo la sesión actual)
+
+**macOS/Linux:**
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Windows PowerShell:**
+```powershell
+$env:OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Símbolo del sistema de Windows:**
+```cmd
+set OPENAI_API_KEY=sk-your-aiberm-api-key
+```
+
+### Configuración permanente
+
+**macOS/Linux (Bash):**
+
+Agrega a `~/.bashrc` o `~/.bash_profile`:
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+Aplica los cambios:
+```bash
+source ~/.bashrc  # or source ~/.bash_profile
+```
+
+**macOS/Linux (Zsh):**
+
+Agrega a `~/.zshrc`:
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+Aplica los cambios:
+```bash
+source ~/.zshrc
+```
+
+**Windows PowerShell:**
+```powershell
+[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-your-aiberm-api-key', 'User')
+```
+
+**Símbolo del sistema de Windows:**
+```cmd
+setx OPENAI_API_KEY "sk-your-aiberm-api-key"
+```
+
+## Verificar la configuración
+
+**Comprobar la instalación de Node.js:**
+```bash
+node -v
+npm -v
+```
+
+**Verificar la instalación de Codex CLI:**
+```bash
+codex --version
+```
+
+**Probar la conexión a la API:**
+```bash
+codex "Hi"
+```
+
+**Comprobar la variable de entorno:**
+
+**macOS/Linux:**
+```bash
+echo $OPENAI_API_KEY
+```
+
+**Windows PowerShell:**
+```powershell
+echo $env:OPENAI_API_KEY
+```
+
+Si está configurado correctamente, Codex CLI debería responder usando la API de Aiberm.
+
+## Solución de problemas
+
+### Error 401 Unauthorized
+
+- Verifica que tu clave de API sea correcta: [Consola → API Keys](https://aiberm.com/console/token)
+- Asegúrate de que la variable de entorno `OPENAI_API_KEY` esté definida correctamente
+- Reinicia tu terminal después de definir las variables de entorno
+
+### Error 403 Forbidden
+
+- Revisa la validez de tu clave de API
+- Verifica el saldo de tu cuenta en [https://aiberm.com/console](https://aiberm.com/console)
+- Asegúrate de que tu clave de API tenga acceso al modelo solicitado
+
+### Errores de red
+
+- Verifica tu conexión a internet
+- Comprueba si puedes acceder a https://aiberm.com en el navegador
+- Asegúrate de que el firewall permita conexiones HTTPS salientes
+- Confirma que el `base_url` en `config.toml` sea correcto: `https://aiberm.com/v1`
+
+### La configuración no surte efecto
+
+- Reinicia tu terminal después de editar `config.toml`
+- Valida el formato de la sintaxis TOML (sin espacios extra, comillas correctas)
+- Comprueba que la ubicación del archivo de configuración sea la correcta para tu sistema operativo
+- Asegúrate de que el archivo se haya guardado como `config.toml` (no `config.toml.txt`)
+
+### No se encuentra el comando Codex
+
+**macOS/Linux:**
+```bash
+# Check if npm global bin is in PATH
+npm config get prefix
+
+# If needed, add to PATH in ~/.zshrc or ~/.bashrc:
+export PATH="$(npm config get prefix)/bin:$PATH"
+```
+
+**Windows:**
+- Verifica que la ruta global de npm esté en el PATH del sistema
+- Reinicia la terminal después de la instalación de npm

@@ -1,0 +1,246 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cài đặt Codex CLI
+lang: vi
+activeId: codex
+---
+
+# Cài đặt Codex CLI
+
+Tìm hiểu cách cấu hình Codex CLI để dùng API của Aiberm. Hướng dẫn này gồm cài đặt và cấu hình cho Windows, macOS và Linux.
+
+## Codex CLI là gì?
+
+Codex CLI là giao diện dòng lệnh của OpenAI, được thiết kế cho các tác vụ terminal liên quan đến mã. Nó chú trọng đầu ra sẵn sàng cho kỹ thuật với các thay đổi mã rõ ràng, có thể hành động hơn so với công cụ chat thông thường. Khi cấu hình để dùng Aiberm, bạn có thể truy cập nhiều mô hình AI qua một endpoint tiết kiệm chi phí.
+
+## Điều kiện tiên quyết
+
+Trước khi bắt đầu, hãy đảm bảo bạn có:
+
+- Một tài khoản Aiberm ([Đăng ký tại đây](https://aiberm.com/register))
+- Một API key Aiberm ([Lấy khóa của bạn](https://aiberm.com/console/token))
+- Node.js v20 trở lên kèm npm
+
+## Cài đặt
+
+Cài Codex CLI toàn cục bằng npm:
+
+```bash
+npm install -g @openai/codex
+```
+
+**Kiểm tra cài đặt:**
+```bash
+codex --version
+```
+
+Lệnh này sẽ hiển thị số phiên bản.
+
+## Cấu hình
+
+Codex CLI dùng tệp `config.toml` để cấu hình. Vị trí thư mục cấu hình khác nhau theo hệ điều hành:
+
+- **Windows**: `%userprofile%\.codex`
+- **macOS/Linux**: `~/.codex`
+
+### Phương pháp 1: Cấu hình thủ công
+
+Đi tới thư mục cấu hình rồi tạo hoặc chỉnh `config.toml`:
+
+**macOS/Linux:**
+```bash
+mkdir -p ~/.codex
+nano ~/.codex/config.toml
+```
+
+**Windows:**
+```powershell
+mkdir $env:USERPROFILE\.codex -Force
+notepad $env:USERPROFILE\.codex\config.toml
+```
+
+Thêm cấu hình sau:
+
+```toml
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+wire_api = "responses"
+```
+
+**Lưu ý:** Thiết lập `env_key` cho Codex CLI biết biến môi trường nào cần đọc. Bạn sẽ đặt API key Aiberm vào biến này ở bước tiếp theo.
+
+### Phương pháp 2: Cấu hình bằng một lệnh
+
+**macOS/Linux:**
+```bash
+mkdir -p ~/.codex && cat > ~/.codex/config.toml << 'EOF'
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+wire_api = "responses"
+EOF
+```
+
+**Windows PowerShell:**
+```powershell
+$configPath = "$env:USERPROFILE\.codex"
+New-Item -ItemType Directory -Force -Path $configPath | Out-Null
+@"
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"
+wire_api = "responses"
+"@ | Out-File -FilePath "$configPath\config.toml" -Encoding utf8
+```
+
+**Lưu ý:** Cấu hình trên đặt Codex CLI đọc API key từ biến môi trường `OPENAI_API_KEY`, bạn sẽ cấu hình biến này bằng API key Aiberm ở bước tiếp theo.
+
+## Đặt API Key
+
+Sau khi cấu hình tệp TOML, hãy đặt API key Aiberm làm biến môi trường.
+
+**Quan trọng:** Dù biến có tên `OPENAI_API_KEY`, bạn vẫn phải dùng **API key Aiberm** (không phải khóa OpenAI). Codex CLI dùng tên biến chuẩn này để tương thích.
+
+### Tạm thời (Chỉ phiên hiện tại)
+
+**macOS/Linux:**
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Windows PowerShell:**
+```powershell
+$env:OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Windows Command Prompt:**
+```cmd
+set OPENAI_API_KEY=sk-your-aiberm-api-key
+```
+
+### Cấu hình vĩnh viễn
+
+**macOS/Linux (Bash):**
+
+Thêm vào `~/.bashrc` hoặc `~/.bash_profile`:
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+Áp dụng thay đổi:
+```bash
+source ~/.bashrc  # or source ~/.bash_profile
+```
+
+**macOS/Linux (Zsh):**
+
+Thêm vào `~/.zshrc`:
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+Áp dụng thay đổi:
+```bash
+source ~/.zshrc
+```
+
+**Windows PowerShell:**
+```powershell
+[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-your-aiberm-api-key', 'User')
+```
+
+**Windows Command Prompt:**
+```cmd
+setx OPENAI_API_KEY "sk-your-aiberm-api-key"
+```
+
+## Kiểm tra cấu hình
+
+**Kiểm tra cài đặt Node.js:**
+```bash
+node -v
+npm -v
+```
+
+**Xác nhận cài đặt Codex CLI:**
+```bash
+codex --version
+```
+
+**Kiểm tra kết nối API:**
+```bash
+codex "Hi"
+```
+
+**Kiểm tra biến môi trường:**
+
+**macOS/Linux:**
+```bash
+echo $OPENAI_API_KEY
+```
+
+**Windows PowerShell:**
+```powershell
+echo $env:OPENAI_API_KEY
+```
+
+Nếu cấu hình đúng, Codex CLI sẽ phản hồi bằng API của Aiberm.
+
+## Xử lý sự cố
+
+### Lỗi 401 Unauthorized
+
+- Xác nhận API key đúng: [Console → API Keys](https://aiberm.com/console/token)
+- Đảm bảo biến môi trường `OPENAI_API_KEY` được đặt đúng
+- Khởi động lại terminal sau khi đặt biến môi trường
+
+### Lỗi 403 Forbidden
+
+- Kiểm tra API key còn hiệu lực
+- Xác nhận số dư tài khoản tại [https://aiberm.com/console](https://aiberm.com/console)
+- Đảm bảo API key có quyền truy cập mô hình được yêu cầu
+
+### Lỗi mạng
+
+- Kiểm tra kết nối internet
+- Kiểm tra xem bạn có truy cập được https://aiberm.com trên trình duyệt không
+- Đảm bảo tường lửa cho phép kết nối HTTPS đi ra
+- Xác nhận `base_url` trong `config.toml` đúng: `https://aiberm.com/v1`
+
+### Cấu hình không có hiệu lực
+
+- Khởi động lại terminal sau khi chỉnh `config.toml`
+- Kiểm tra cú pháp TOML (không có khoảng trắng thừa, dấu ngoặc đúng)
+- Kiểm tra vị trí tệp cấu hình đúng với hệ điều hành của bạn
+- Đảm bảo tệp được lưu là `config.toml` (không phải `config.toml.txt`)
+
+### Không tìm thấy lệnh Codex
+
+**macOS/Linux:**
+```bash
+# Check if npm global bin is in PATH
+npm config get prefix
+
+# If needed, add to PATH in ~/.zshrc or ~/.bashrc:
+export PATH="$(npm config get prefix)/bin:$PATH"
+```
+
+**Windows:**
+- Xác nhận đường dẫn npm global nằm trong PATH hệ thống
+- Khởi động lại terminal sau khi cài npm

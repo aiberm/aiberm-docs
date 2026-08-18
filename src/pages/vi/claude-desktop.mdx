@@ -1,0 +1,101 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cài đặt Claude Desktop
+lang: vi
+activeId: claude-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Cài đặt Claude Desktop
+
+Claude Desktop có thể được cấu hình để dùng nhà cung cấp suy luận bên thứ ba. Với Aiberm, bạn có thể trỏ Claude Desktop tới endpoint tương thích Anthropic của Aiberm và dùng API key Aiberm của bạn.
+
+<Callout client:load type="info">
+Anthropic tài liệu hóa luồng này trong hướng dẫn cài đặt nền tảng bên thứ ba của Claude Desktop / Claude Cowork. Tính năng yêu cầu bản dựng Claude Desktop gần đây; client cũ hơn có thể không hiện menu Developer cần thiết.
+</Callout>
+
+## Điều kiện tiên quyết
+
+Trước khi bắt đầu, hãy đảm bảo bạn có:
+
+- Ứng dụng Claude Desktop mới nhất đã cài từ trang tải chính thức của Claude
+- Một tài khoản Aiberm ([Đăng ký](https://aiberm.com/register))
+- Một API key Aiberm ([Tạo trong Console](https://aiberm.com/console/token))
+
+## Cấu hình
+
+Làm theo các bước sau trước khi đăng nhập Claude Desktop.
+
+1. Mở ứng dụng Claude Desktop mới nhất.
+2. Chưa đăng nhập.
+3. Trên thanh menu, mở **Help → Troubleshooting → Enable Developer Mode**.
+
+![Enable Developer Mode in Claude Desktop](/docs/claude-desktop/enable-developer-mode.png)
+
+4. Sau khi bật Developer Mode, mở **Developer → Configure third-party inference**.
+
+![Open Configure third-party inference](/docs/claude-desktop/configure-inference.png)
+
+5. Điền các thiết lập suy luận bên thứ ba:
+
+| Trường | Giá trị |
+|-------|-------|
+| Base URL | `https://aiberm.com` |
+| API Key | API key Aiberm của bạn, ví dụ `sk-...` |
+| Authentication method | Chọn `x-api-key` |
+| Provider / API format | Tương thích Anthropic, custom gateway, hoặc tùy chọn tương đương nếu được hiện |
+
+![Third-party inference settings for Aiberm](/docs/claude-desktop/third-party-inference.png)
+
+6. Chọn **Apply locally** để lưu cấu hình trên máy này.
+7. Tiếp tục đăng nhập hoặc khởi chạy Claude Desktop theo hướng dẫn.
+
+## Kiểm tra hoạt động
+
+Sau khi áp dụng cấu hình cục bộ:
+
+1. Khởi động lại Claude Desktop nếu ứng dụng yêu cầu.
+2. Bắt đầu cuộc hội thoại mới.
+3. Gửi một prompt thử ngắn, chẳng hạn:
+
+```text
+Reply with one sentence if this request is using Aiberm.
+```
+
+Nếu yêu cầu thành công, Claude Desktop đang dùng nhà cung cấp Aiberm đã cấu hình.
+
+Khi nhà cung cấp đã kết nối, bạn có thể chuyển giữa các mô hình có trên nền tảng Aiberm từ Claude Desktop. Điều này gồm các biến thể mô hình Claude khác nhau được cung cấp qua tài khoản Aiberm của bạn. Để xem danh sách hiện tại, xem [Danh sách mô hình](/docs/vi/models).
+
+![Switch Aiberm models in Claude Desktop](/docs/claude-desktop/switch-models.png)
+
+## Xử lý sự cố
+
+### Menu Developer không xuất hiện
+
+- Xác nhận bạn đã cài ứng dụng Claude Desktop mới nhất. Phiên bản cũ hơn có thể không hỗ trợ giao diện thiết lập này.
+- Bật Developer Mode từ **Help → Troubleshooting → Enable Developer Mode**.
+- Thoát hoàn toàn rồi mở lại Claude Desktop sau khi bật Developer Mode.
+
+### Thiếu tùy chọn suy luận bên thứ ba
+
+- Đảm bảo bạn đang dùng ứng dụng desktop, không phải ứng dụng web.
+- Thử mở Claude Desktop trước khi đăng nhập.
+- Cập nhật Claude Desktop rồi lặp lại bước Developer Mode.
+
+### API key không hợp lệ
+
+- Sao chép đầy đủ API key từ [Aiberm Console](https://aiberm.com/console/token).
+- Kiểm tra khoảng trắng thừa trước hoặc sau khóa.
+- Xác nhận khóa bắt đầu bằng `sk-`.
+- Xác nhận phương thức xác thực được đặt thành `x-api-key`.
+
+### Lỗi kết nối hoặc mô hình
+
+- Xác nhận Base URL chính xác là `https://aiberm.com`.
+- Đảm bảo mạng của bạn truy cập được `https://aiberm.com`.
+- Nếu bản dựng Claude Desktop của bạn hiện cài đặt mô hình, hãy chuyển sang mô hình khác có trên Aiberm rồi thử lại.
+
+## Tham chiếu chính thức
+
+- [Anthropic Help Center: Install and configure Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680741-install-and-configure-claude-cowork-with-third-party-platforms)

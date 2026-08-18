@@ -1,0 +1,233 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Claude Code CLI 설정
+lang: ko
+activeId: claude-code
+---
+
+# Claude Code CLI 설정
+
+Claude Code CLI를 Aiberm API와 함께 사용하도록 구성하는 방법을 안내합니다. 이 가이드는 Windows, macOS, Linux의 설치와 설정을 다룹니다.
+
+## Claude Code란 무엇인가요?
+
+Claude Code는 Anthropic의 공식 명령줄 인터페이스(CLI)로, 터미널과 코드 에디터에서 바로 AI 지원을 사용할 수 있게 해 줍니다. Aiberm을 사용하도록 구성하면 익숙한 단일 인터페이스에서 여러 AI 모델에 접근할 수 있습니다.
+
+## 사전 준비
+
+시작하기 전에 다음이 준비되어 있는지 확인하세요.
+
+- Aiberm 계정 ([여기에서 가입](https://aiberm.com/register))
+- Aiberm API 키 ([키 발급하기](https://aiberm.com/console/token))
+- 컴퓨터에서 터미널/명령 프롬프트 사용 가능
+
+## 설치
+
+아래 운영체제별 설치 안내를 선택하세요.
+
+### macOS & Linux
+
+터미널을 열고 다음을 실행하세요.
+
+```bash
+curl -fsSL https://claude.ai/install.sh | sh
+```
+
+이 설치 스크립트가 모든 종속성을 자동으로 처리하므로 Node.js나 npm을 미리 설치할 필요가 없습니다.
+
+**설치 확인:**
+```bash
+claude --version
+```
+
+### Windows
+
+1. **관리자 권한으로 PowerShell을 엽니다** (PowerShell을 마우스 오른쪽 버튼으로 클릭 → "관리자 권한으로 실행")
+
+2. 설치 명령을 실행합니다.
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+3. 설치 후 Claude Code를 PATH에 추가합니다.
+   - `Win + X`를 누르고 "시스템"을 선택합니다
+   - "고급 시스템 설정"을 클릭합니다
+   - "환경 변수"를 클릭합니다
+   - "시스템 변수"에서 "Path"를 선택한 뒤 "편집"을 클릭합니다
+   - "새로 만들기"를 클릭하고 다음을 추가합니다: `C:\Users\YourUsername\.claude\bin`
+   - "확인"을 클릭해 저장합니다
+
+4. **터미널을 다시 시작한 뒤** 설치를 확인합니다.
+```powershell
+claude --version
+```
+
+## 구성
+
+Claude Code에서 Aiberm을 사용하려면 다음 두 환경 변수를 설정해야 합니다.
+
+- `ANTHROPIC_AUTH_TOKEN` — Aiberm API 키
+- `ANTHROPIC_BASE_URL` — Aiberm API 엔드포인트 (`https://aiberm.com`)
+
+다음 구성 방법 중 하나를 선택하세요.
+
+### 방법 1: 영구 구성 (권장)
+
+이 방법은 API 키를 안전하게 저장하며 세션이 바뀌어도 유지됩니다.
+
+#### macOS & Linux
+
+셸 구성 파일에 다음 줄을 추가하세요.
+
+**Bash** (`~/.bashrc` 또는 `~/.bash_profile`):
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+**Zsh** (`~/.zshrc`):
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+변경 사항을 적용합니다.
+```bash
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+#### Windows
+
+**PowerShell 사용 (영구):**
+
+1. 관리자 권한으로 PowerShell을 엽니다
+2. 다음 명령을 실행합니다.
+```powershell
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_AUTH_TOKEN', 'sk-your-aiberm-api-key', 'User')
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_BASE_URL', 'https://aiberm.com', 'User')
+```
+
+3. 변경 사항을 적용하려면 터미널을 다시 시작합니다
+
+**명령 프롬프트 사용 (영구):**
+```cmd
+setx ANTHROPIC_AUTH_TOKEN "sk-your-aiberm-api-key"
+setx ANTHROPIC_BASE_URL "https://aiberm.com"
+```
+
+### 방법 2: 임시 구성 (현재 세션만)
+
+#### macOS & Linux
+
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows PowerShell
+
+```powershell
+$env:ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+$env:ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows 명령 프롬프트
+
+```cmd
+set ANTHROPIC_AUTH_TOKEN=sk-your-aiberm-api-key
+set ANTHROPIC_BASE_URL=https://aiberm.com
+```
+
+### 방법 3: Claude Code 설정 사용
+
+`~/.claude/settings.json`을 만들거나 편집합니다.
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "sk-your-aiberm-api-key",
+    "ANTHROPIC_BASE_URL": "https://aiberm.com"
+  }
+}
+```
+
+### 방법 4: CC Switch 사용 (GUI)
+
+[CC Switch](https://github.com/farion1231/cc-switch)는 여러 API 공급자 구성을 관리할 수 있는 그래픽 인터페이스를 제공하는 Claude Code 공급자 전환 도구입니다. 설치 방법은 저장소를 참고하세요.
+
+**Aiberm 공급자 구성:**
+
+1. CC Switch를 실행해 구성 인터페이스를 엽니다
+2. **상단의 Live proxy 토글을 끕니다** (이 토글은 요청을 CC Switch 자체 프록시로 보내므로 필요하지 않습니다)
+3. 다음 설정으로 새 공급자를 추가합니다.
+   - **Provider Name**: `Aiberm`
+   - **Note**: `Aiberm`
+   - **Website URL**: `https://aiberm.com`
+   - **API Key**: Aiberm API 키
+   - **Request URL**: `https://aiberm.com` (슬래시로 끝나지 않게 하세요)
+   - **API Format**: `Anthropic Messages (Native)`
+   - **Main Model**: `claude-opus-4-6`
+   - **Thinking Model**: `claude-opus-4-6-thinking`
+   - **Haiku Default Model**: `claude-haiku-4-5-20251001`
+   - **Sonnet Default Model**: `claude-sonnet-4-5-20250929`
+   - **Opus Default Model**: `claude-opus-4-6`
+4. "Save"를 클릭합니다
+
+## 구성 확인
+
+Claude Code를 실행한 뒤 `/status`를 입력해 구성을 확인하세요. 다음과 같이 표시되면 설정이 성공한 것입니다.
+
+```
+Anthropic base URL: https://aiberm.com
+```
+
+메시지를 보내 테스트할 수도 있습니다.
+
+```bash
+claude "Hi"
+```
+
+올바르게 구성되었다면 Claude Code가 Aiberm API를 사용해 응답합니다.
+
+**환경 변수 확인:**
+
+**macOS/Linux:**
+```bash
+echo $ANTHROPIC_BASE_URL
+echo $ANTHROPIC_AUTH_TOKEN
+```
+
+**Windows PowerShell:**
+```powershell
+echo $env:ANTHROPIC_BASE_URL
+echo $env:ANTHROPIC_AUTH_TOKEN
+```
+
+## 문제 해결
+
+### "Invalid API key" 오류
+
+- API 키가 올바른지 확인하세요: [콘솔 → API Keys](https://aiberm.com/console/token)
+- 환경 변수에 불필요한 공백이 없는지 확인하세요
+- `ANTHROPIC_BASE_URL`이 `https://aiberm.com`으로 설정되어 있는지 확인하세요 (`/v1` 없이)
+
+### "Connection refused" 오류
+
+- 인터넷 연결을 확인하세요
+- 브라우저에서 https://aiberm.com 에 접속할 수 있는지 확인하세요
+- 방화벽이 아웃바운드 HTTPS 연결을 허용하는지 확인하세요
+
+### Claude Code를 찾을 수 없음
+
+**macOS/Linux:**
+```bash
+# Check if Claude Code is in your PATH
+which claude
+
+# If not found, add to PATH in ~/.zshrc or ~/.bashrc:
+export PATH="$HOME/.claude/bin:$PATH"
+```
+
+**Windows:**
+- PATH 환경 변수에 `C:\Users\YourUsername\.claude\bin`이 포함되어 있는지 확인하세요
+- PATH에 추가한 뒤 터미널을 다시 시작하세요

@@ -1,0 +1,155 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 채팅 완성
+lang: ko
+activeId: chat
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 채팅 완성
+
+통합 API를 통해 다양한 AI 모델로 대화형 응답을 생성합니다.
+
+## 채팅 완성 생성
+
+`POST https://aiberm.com/v1/chat/completions`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "gpt-4",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is the capital of France?"}
+    ],
+    "temperature": 0.7
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "What is the capital of France?"}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: 'https://aiberm.com/v1'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user', content: 'What is the capital of France?' }
+  ],
+  temperature: 0.7
+});
+
+console.log(response.choices[0].message.content);`
+    }
+  ]}
+/>
+
+## 요청 파라미터
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|-----------|------|----------|-------------|
+| `model` | string | 예 | 사용할 모델의 ID |
+| `messages` | array | 예 | 메시지 객체 배열 |
+| `temperature` | number | 아니요 | 샘플링 온도 (0-2). 기본값: 1 |
+| `max_tokens` | integer | 아니요 | 생성할 최대 토큰 수 |
+| `top_p` | number | 아니요 | 핵 샘플링(nucleus sampling) 파라미터 |
+| `stream` | boolean | 아니요 | 응답을 스트리밍할지 여부 |
+
+## 메시지 역할
+
+메시지에는 `role`과 `content`가 포함되어야 합니다.
+
+- **system** - 어시스턴트의 행동/성격을 설정합니다
+- **user** - 최종 사용자의 메시지입니다
+- **assistant** - AI의 이전 응답입니다
+
+## 스트리밍 응답
+
+스트리밍을 활성화하면 응답을 점진적으로 받을 수 있습니다.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+stream = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const stream = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Tell me a story' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || '');
+}`
+    }
+  ]}
+/>
+
+## 모범 사례
+
+<Callout client:load type="tip" title="요청 최적화하기">
+- `max_tokens`를 설정해 비용을 제한하세요
+- 용도에 맞는 `temperature` 값을 사용하세요 (사실 기반은 낮게, 창의적인 작업은 높게)
+- 시스템 메시지를 포함해 동작을 안내하세요
+- 더 나은 UX를 위해 응답을 스트리밍하세요
+</Callout>
+
+<Callout client:load type="warning">
+각 모델의 토큰 한도를 염두에 두세요. 대화가 길어지면 대화 이력을 관리해야 할 수 있습니다.
+</Callout>

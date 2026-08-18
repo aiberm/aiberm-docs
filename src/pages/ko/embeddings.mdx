@@ -1,0 +1,56 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 임베딩
+lang: ko
+activeId: embeddings
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 임베딩
+
+텍스트를 수치 벡터 표현으로 변환하여 의미 검색, 클러스터링, 추천에 활용합니다.
+
+## 임베딩 생성
+
+`POST https://aiberm.com/v1/embeddings`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input="Your text here"
+)
+
+embedding = response.data[0].embedding
+print(f"Embedding dimension: {len(embedding)}")`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/embeddings \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "text-embedding-3-small",
+    "input": "Your text here"
+  }'`
+    }
+  ]}
+/>
+
+<Callout client:load type="tip">
+임베딩은 의미 검색, 문서 유사도, 추천 시스템에 사용하세요.
+</Callout>

@@ -1,0 +1,276 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: OpenCode CLI のセットアップ
+lang: ja
+activeId: opencode
+---
+
+# OpenCode CLI のセットアップ
+
+OpenCode CLI を Aiberm の API で使うための設定方法を説明します。このガイドでは Windows、macOS、Linux 向けのインストールと設定を扱います。
+
+## OpenCode とは
+
+OpenCode は、開発者向けに強力な AI 支援を提供する、Go 製のオープンソースコマンドラインプログラミングツール（CLI）です。直感的な Terminal User Interface（TUI）を備え、OpenAI、Anthropic、Gemini など複数の LLM プロバイダに対応しています。
+
+OpenCode を **Aiberm API** と連携すると、1 つのキーと 1 つの base URL で、Aiberm 上の任意のモデル（Claude、GPT、Gemini など）に統一インターフェースからアクセスできます。
+
+## 前提条件
+
+開始する前に、次を用意してください。
+
+- Aiberm アカウント（[こちらから登録](https://aiberm.com/register)）
+- Aiberm API キー（[キーを取得](https://aiberm.com/console/token)）
+- お使いのコンピュータでのターミナル／コマンドプロンプトへのアクセス
+
+### ターミナルエミュレータ
+
+OpenCode にはモダンなターミナルエミュレータが必要です。推奨オプションは次のとおりです。
+
+- **WezTerm**（クロスプラットフォーム）
+- **Alacritty**（クロスプラットフォーム）
+- **Ghostty**（Linux および macOS）
+- **Kitty**（Linux および macOS）
+
+Windows ユーザーは PowerShell または Windows Terminal も使えます。macOS ユーザーは内蔵の Terminal.app または iTerm2 を使えます。Linux ユーザーは内蔵ターミナル、GNOME Terminal、Konsole などを使えます。
+
+## インストール
+
+お使いの OS に合わせて、以下の手順でインストールしてください。
+
+### macOS & Linux
+
+いちばん簡単な方法は、インストーラスクリプトを使うことです。
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+または Homebrew を使います。
+
+```bash
+brew install anomalyco/tap/opencode
+```
+
+**インストールの確認:**
+```bash
+opencode --version
+```
+
+### Windows
+
+Windows ユーザーはまず [Node.js](https://nodejs.org/en/download) をインストールし、その後 NPM でインストールします。
+
+```bash
+npm i -g opencode-ai@latest
+```
+
+または Chocolatey を使います。
+
+```bash
+choco install opencode
+```
+
+または Scoop を使います。
+
+```bash
+scoop bucket add extras
+scoop install extras/opencode
+```
+
+**インストールの確認:**
+```bash
+opencode --version
+```
+
+グラフィカルインターフェースを使いたい場合は、OpenCode のデスクトップアプリもあります。[OpenCode Download Page](https://opencode.ai/download) から入手できます。
+
+## 設定
+
+### ステップ 1: プロバイダを初期化する
+
+インストール後、OpenCode を起動する前に、ターミナルで次のコマンドを実行します。
+
+```bash
+opencode auth login
+```
+
+1. プロバイダ一覧で **other** を選びます（一番下にあります。検索もできます）
+2. **Provider ID** を入力します: `aiberm` と入力します
+3. **API Key token** を入力します: 任意の値（例: `admin`）で構いません。実際のキーは設定ファイル経由で参照されます
+
+この手順で、OpenCode のローカル認証情報マネージャにカスタムプロバイダが登録されます。
+
+### ステップ 2: 設定ファイルを編集する
+
+OpenCode の設定ディレクトリを開きます。
+
+**Windows:**
+
+`Win + R` を押し、次を貼り付けて Enter を押します。
+
+```
+%userprofile%\.config\opencode
+```
+
+**macOS / Linux:**
+
+ターミナルで次を実行します。
+
+```bash
+cd ~/.config/opencode
+```
+
+または Finder／ファイルマネージャで `~/.config/opencode/` にアクセスします。
+
+このディレクトリで `opencode.json` を作成または編集します。以下は Claude モデルを含む設定例です。
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "aiberm": {
+            "npm": "@ai-sdk/anthropic",
+            "name": "Aiberm",
+            "options": {
+                "baseURL": "https://aiberm.com/v1",
+                "apiKey": "sk-your-aiberm-api-key"
+            },
+            "models": {
+                "claude-opus-4-5-20251101": {
+                    "name": "Claude-4.5-Opus"
+                },
+                "claude-sonnet-4-5-20250929": {
+                    "name": "Claude-4.5-Sonnet"
+                },
+                "claude-haiku-4-5-20251001": {
+                    "name": "Claude-4.5-Haiku"
+                }
+            }
+        }
+    }
+}
+```
+
+Aiberm 上の他のモデルを追加することもできます。たとえば OpenAI GPT モデルを追加する場合は次のようにします。
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "aiberm": {
+            "npm": "@ai-sdk/openai",
+            "name": "Aiberm",
+            "options": {
+                "baseURL": "https://aiberm.com/v1",
+                "apiKey": "sk-your-aiberm-api-key"
+            },
+            "models": {
+                "openai/gpt-4.1": {
+                    "name": "GPT-4.1"
+                },
+                "openai/gpt-4.1-mini": {
+                    "name": "GPT-4.1 Mini"
+                },
+                "openai/gpt-4.1-nano": {
+                    "name": "GPT-4.1 Nano"
+                },
+                "openai/gpt-4o": {
+                    "name": "GPT-4o"
+                },
+                "openai/gpt-4o-mini": {
+                    "name": "GPT-4o Mini"
+                }
+            }
+        }
+    }
+}
+```
+
+Aiberm で利用できるすべてのモデルは、[モデル一覧](/docs/ja/models) ページまたは [Aiberm Pricing](https://aiberm.com/pricing) で確認できます。
+
+**重要:**
+
+- `"sk-your-aiberm-api-key"` を、[Aiberm Console](https://aiberm.com/console/token) で取得した実際の API Key に置き換えてください
+- JSON 形式は記号に敏感です
+
+## 設定の確認
+
+設定ファイルを保存したらターミナルを再起動し、作業ディレクトリに移動します。
+
+```bash
+cd your-working-directory
+```
+
+OpenCode を起動します。
+
+```bash
+opencode
+```
+
+チャット画面で次のコマンドを入力します。
+
+```
+/models
+```
+
+モデル一覧に Aiberm とそのモデルが表示されるはずです。1 つ選んで使い始められます。
+
+## モデルの切り替え
+
+OpenCode の画面で `/models` コマンドを入力し、一覧から使いたいモデルを選びます。
+
+**Aiberm 経由で利用できるモデルの例:**
+
+- **anthropic/claude-sonnet-4-5-20250514**: Anthropic の Claude 4.5 Sonnet
+- **anthropic/claude-opus-4-20250514**: Anthropic の Claude 4 Opus
+- **openai/gpt-4.1**: OpenAI の GPT-4.1
+- **openai/gpt-4o-mini**: OpenAI の GPT-4o Mini
+- **google/gemini-3-pro**: Google の Gemini 3 Pro
+- その他...
+
+利用可能なモデルの完全な一覧は、[Aiberm Pricing](https://aiberm.com/pricing) をご覧ください。
+
+## トラブルシューティング
+
+### 設定変更が反映されない
+
+- OpenCode を再起動します
+- `opencode.json` の構文（JSON 形式）を確認します
+- 設定ファイルのパスが正しいことを確認します
+
+### 401/403 エラー
+
+- **401 エラー**: API Key が未設定、または無効です
+- **403 エラー**: 権限不足、またはキーの期限切れです
+- 設定ファイルの `apiKey` を確認します
+- [Aiberm Console](https://aiberm.com/console/token) で API キーを確認します
+
+### OpenCode が見つからない
+
+**macOS/Linux:**
+```bash
+# Check if OpenCode is in your PATH
+which opencode
+
+# If not found, try reinstalling:
+curl -fsSL https://opencode.ai/install | bash
+```
+
+**Windows:**
+- Node.js が正しくインストールされていることを確認します
+- npm で再インストールを試します: `npm i -g opencode-ai@latest`
+
+### 設定ファイルの場所
+
+`opencode.json` 設定ファイルは次の場所に置きます。
+
+- **Windows**: `C:\Users\{username}\.config\opencode\opencode.json`
+- **macOS / Linux**: `~/.config/opencode/opencode.json`
+
+## 注意事項
+
+- OpenCode は専用のプロジェクトフォルダで実行してください。機密ディレクトリ（システムフォルダや認証情報を含むディレクトリなど）では実行しないでください。OpenCode は現在の作業ディレクトリを起点に動作します。
+- OpenCode は JSON 形式の設定ファイルを使います。構文が正しいことを確認してください。オンラインの JSON バリデータを使って形式をチェックできます。
+- OpenCode は、明示的に許可した場合にのみファイル内容を読み取ります。専用のプロジェクトフォルダでの利用を推奨します。
+- 中国語の入出力にも完全対応しています。

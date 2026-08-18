@@ -1,0 +1,144 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: NanoBanana Pro Edit
+lang: vi
+activeId: nano-banana-pro-edit
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+
+# NanoBanana Pro Edit
+
+Chỉnh sửa ảnh dùng **cùng Gemini API** (`generateContent`) như [NanoBanana Pro](/docs/vi/nano-banana-pro/) khi tạo ảnh. Bạn gửi **ảnh gốc + hướng dẫn chỉnh sửa** trong yêu cầu và nhận ảnh đã chỉnh trong phản hồi. Xem [Gemini docs: Image editing](https://ai.google.dev/gemini-api/docs/image-generation#gemini-image-editing).
+
+**Endpoint**: Giống tạo ảnh: `POST https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent`.
+
+**Điểm chính**: Đặt một **phần ảnh** (`inlineData`) và một **phần văn bản** (hướng dẫn chỉnh sửa) trong `contents`; đặt `generationConfig.responseModalities` thành `["TEXT", "IMAGE"]` để nhận ảnh đã chỉnh; đọc kết quả từ `candidates[0].content.parts` → `inline_data`.
+
+## Ví dụ mã
+
+Python dùng snake_case; REST/cURL dùng camelCase. Cùng ý nghĩa.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from google import genai
+from google.genai import types
+from PIL import Image
+from io import BytesIO
+
+base_url = "https://aiberm.com"
+api_key = "YOUR_API_KEY"
+model = "gemini-3-pro-image-preview"
+output_file = "edited.png"
+
+image_path = "original.png"
+edit_prompt = "Add a stylish top hat to this image, keep the rest unchanged."
+
+client = genai.Client(
+    api_key=api_key,
+    http_options=types.HttpOptions(api_version="v1beta", base_url=base_url),
+)
+image = Image.open(image_path)
+
+response = client.models.generate_content(
+    model=model,
+    contents=[edit_prompt, image],
+    config=types.GenerateContentConfig(
+        response_modalities=["TEXT", "IMAGE"],
+    ),
+)
+
+for part in response.parts:
+    if part.text is not None:
+        print(part.text)
+    elif part.inline_data is not None:
+        Image.open(BytesIO(part.inline_data.data)).save(output_file)
+        print(f"Saved edited image: {output_file}")`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `# Encode the source image to base64, then put it in contents.parts
+# e.g. IMAGE_B64=\$(base64 -w0 original.png)
+curl -X POST "https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "contents": [{
+      "parts": [
+        { "inlineData": { "mimeType": "image/png", "data": "<BASE64_IMAGE>" }},
+        { "text": "Add a stylish top hat to this image, keep the rest unchanged." }
+      ]
+    }],
+    "generationConfig": {
+      "responseModalities": ["TEXT", "IMAGE"]
+    }
+  }'`
+    }
+  ]}
+/>
+
+## Chỉnh sửa so với tạo ảnh
+
+| | Tạo ảnh (NanoBanana Pro) | Chỉnh sửa (trang này) |
+|--|---------------------------|------------------|
+| `contents` | Chỉ văn bản (mô tả ảnh cần tạo) | **Ảnh + văn bản** (mô tả cách chỉnh) |
+| `generationConfig.imageConfig` | Bắt buộc (tỷ lệ khung hình, 1K/2K/4K) | Tùy chọn khi chỉnh sửa |
+| `responseModalities` | `["IMAGE"]` hoặc `["TEXT","IMAGE"]` | Thường là `["TEXT","IMAGE"]` |
+
+Cùng endpoint và xác thực; chỉ khác `contents` và việc bạn có truyền `imageConfig` hay không. Để biết thêm tham số, xem [NanoBanana Pro](/docs/vi/nano-banana-pro/).
+
+## Nhiều ảnh
+
+Đặt nhiều phần ảnh trong `contents.parts` (một `inlineData` cho mỗi ảnh), rồi một phần văn bản chứa hướng dẫn chỉnh sửa. Mô hình dùng tất cả ảnh và hướng dẫn để tạo kết quả (ví dụ “ghép chủ thể từ ảnh thứ nhất lên nền của ảnh thứ hai”).
+
+**Python**: truyền nhiều đối tượng ảnh và một văn bản trong `contents`.
+
+```python
+image1 = Image.open("photo.png")
+image2 = Image.open("background.png")
+response = client.models.generate_content(
+    model=model,
+    contents=["Place the person from the first image onto the background of the second.", image1, image2],
+    config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
+)
+```
+
+**cURL**: trong `contents[0].parts`, thêm một `inlineData` cho mỗi ảnh, rồi một `text`.
+
+```json
+"contents": [{
+  "parts": [
+    { "inlineData": { "mimeType": "image/png", "data": "<BASE64_IMAGE1>" }},
+    { "inlineData": { "mimeType": "image/png", "data": "<BASE64_IMAGE2>" }},
+    { "text": "Place the person from the first image onto the background of the second." }
+  ]
+}]
+```
+
+## Dùng URL ảnh
+
+API chỉ chấp nhận **inlineData** (base64) hoặc **fileData** (qua File API); không chấp nhận URL ảnh trực tiếp. Với ảnh ở URL, hãy tải xuống trước rồi đưa vào yêu cầu.
+
+**Python**: tải từ URL và truyền ảnh cho SDK (SDK sẽ mã hóa khi cần).
+
+```python
+import requests
+from io import BytesIO
+
+image_url = "https://example.com/photo.jpg"
+resp = requests.get(image_url)
+image = Image.open(BytesIO(resp.content))
+
+response = client.models.generate_content(
+    model=model,
+    contents=["Add a top hat to this image.", image],
+    config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
+)
+```
+
+**cURL**: tải ảnh từ URL, chuyển thành base64, rồi đặt kết quả vào `inlineData.data`.

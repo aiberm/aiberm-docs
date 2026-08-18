@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 認証
+lang: ja
+activeId: authentication
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 認証
+
+すべての API リクエストには認証が必要です。Bearer Token 認証を使用して、API 呼び出しの安全性と信頼性を確保します。
+
+## API キーの取得
+
+コンソール → API Tokens で API キーを作成・管理してください。
+
+<Callout client:load type="info" title="作成手順">
+1. Aiberm アカウントにログインします
+2. コンソールページへ移動します
+3. 左メニューの「API Tokens」をクリックします
+4. 「New Token」ボタンをクリックします
+5. トークン名と権限を設定します
+6. 生成された API キーをコピーします
+</Callout>
+
+## コード例
+
+<CodeExample
+  client:load
+  title="コード例"
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers=headers,
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [{"role": "user", "content": "Hello!"}]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch(
+    "https://aiberm.com/v1/chat/completions",
+    {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer YOUR_API_KEY",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [{ role: "user", content: "Hello!" }]
+        })
+    }
+);
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## セキュリティに関する注意
+
+- API キーは安全に保管し、クライアントサイドのコードに埋め込まないでください
+- アカウントのセキュリティ向上のため、API キーは定期的にローテーションしてください
+- API キーが漏洩した場合は、直ちにコンソールで削除し、新しいキーを再発行してください
+- API キーはハードコードせず、環境変数で管理してください
+
+## よくあるエラー
+
+<Callout client:load type="error" title="401 Unauthorized">
+無効または期限切れの API キーです
+
+**対処法:** API キーが正しいか確認するか、新しい API キーを再発行してください
+</Callout>
+
+<Callout client:load type="error" title="403 Forbidden">
+権限不足、またはアカウントが制限されています
+
+**対処法:** アカウントの状態を確認し、管理者に適切な権限を依頼してください
+</Callout>

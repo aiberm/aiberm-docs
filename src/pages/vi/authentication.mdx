@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Xác thực
+lang: vi
+activeId: authentication
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Xác thực
+
+Tất cả yêu cầu API đều cần xác thực. Chúng tôi sử dụng xác thực Bearer Token để đảm bảo các lệnh gọi API của bạn an toàn và đáng tin cậy.
+
+## Lấy API Key
+
+Vui lòng vào Console → API Tokens để tạo và quản lý các khóa API của bạn.
+
+<Callout client:load type="info" title="Các bước tạo">
+1. Đăng nhập vào tài khoản Aiberm của bạn
+2. Đi tới trang Console
+3. Nhấp "API Tokens" trong menu bên trái
+4. Nhấp nút "New Token"
+5. Đặt tên token và quyền hạn
+6. Sao chép API key đã tạo
+</Callout>
+
+## Ví dụ mã
+
+<CodeExample
+  client:load
+  title="Ví dụ mã"
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers=headers,
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [{"role": "user", "content": "Hello!"}]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch(
+    "https://aiberm.com/v1/chat/completions",
+    {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer YOUR_API_KEY",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [{ role: "user", content: "Hello!" }]
+        })
+    }
+);
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## Lưu ý bảo mật
+
+- Giữ API key an toàn và không lộ nó trong mã phía client
+- Thường xuyên xoay vòng API key để nâng cao bảo mật tài khoản
+- Nếu API key bị rò rỉ, hãy xóa ngay trong console và tạo lại khóa mới
+- Dùng biến môi trường để lưu API key thay vì hardcode
+
+## Lỗi thường gặp
+
+<Callout client:load type="error" title="401 Unauthorized">
+API key không hợp lệ hoặc đã hết hạn
+
+**Cách xử lý:** Kiểm tra API key có đúng không, hoặc tạo lại API key mới
+</Callout>
+
+<Callout client:load type="error" title="403 Forbidden">
+Không đủ quyền hoặc tài khoản bị hạn chế
+
+**Cách xử lý:** Kiểm tra trạng thái tài khoản và liên hệ quản trị viên để được cấp quyền phù hợp
+</Callout>

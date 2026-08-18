@@ -1,0 +1,275 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: DeepSeek Harness のセットアップ
+lang: ja
+activeId: deepseek-harness
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# DeepSeek Harness のセットアップ
+
+このガイドでは、[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）を、カスタムの OpenAI 互換プロバイダとして **Aiberm** で動かす方法を説明します。設定後は、1 つの Aiberm API キーで Claude、GPT、Gemini、DeepSeek、Kimi、MiniMax、GLM、Grok、および Aiberm 上のその他のモデルにアクセスできます。
+
+<Callout client:load type="info">
+DeepSeek Harness は開発者プレビューであり、急速に変化します。このページは公式の [README](https://github.com/deepseek-ai/deepseek-harness/blob/master/README.md) と [Configure models](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md) ガイドに沿い、その手順を Aiberm に対応づけています。
+</Callout>
+
+## DeepSeek Harness とは
+
+DeepSeek Harness は [DeepSeek AI](https://deepseek.com) のオープンソースエージェントハーネスです。すべてはプラグインであり、[Cordis](https://github.com/cordiverse/cordis) によって構成されます。通常の入り口はブラウザ UI（`dsh web`）で、同じホームディレクトリがワンショットのヘッドレスジョブにも使われます。
+
+公式プロジェクト:
+
+- ホームページ: [deepseek.com/harness](https://deepseek.com/harness)
+- ソース: [github.com/deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)
+- ディスカッション: [GitHub Discussions](https://github.com/deepseek-ai/deepseek-harness/discussions)
+
+## 前提条件
+
+- Aiberm アカウント（[登録](https://aiberm.com/register)）
+- Aiberm API キー（[キーを取得](https://aiberm.com/console/token)）
+- [Node.js](https://nodejs.org/) がインストール済みであること（`npx` に必要）
+- macOS、Linux、または Windows のターミナル
+
+## インストールと起動
+
+公式のインストール方法は、ワンショットの `npx` 起動です。エージェントに作業させたいプロジェクトディレクトリから実行します。
+
+```bash
+npx @deepseek-ai/dsh web
+```
+
+Web UI はデフォルトで `http://127.0.0.1:3080` で待ち受けます。現在の作業ディレクトリがワークスペースのルートになります。
+
+便利なバリエーション:
+
+```bash
+# Another port
+npx @deepseek-ai/dsh web --port 8080
+
+# One-shot headless job (same models and credentials as the Web UI)
+npx @deepseek-ai/dsh --profile headless "summarize the README"
+```
+
+すでに CLI をインストールしている場合:
+
+```bash
+dsh web
+dsh --help
+dsh web --help
+```
+
+<Callout client:load type="tip">
+`web` と `headless` プロファイルは、初回利用時に `$DSH_HOME`（デフォルトは `~/.dsh`）の下に作成されます。Aiberm を使うためだけにリポジトリをクローンする必要はありません。
+</Callout>
+
+## Aiberm を設定する（Web UI、推奨）
+
+Aiberm は **組み込みの DeepSeek カードではなく**、カタログ上の OpenAI / Anthropic プロバイダでも **ありません**。それらのエントリは公式エンドポイントを維持します。Aiberm は OpenAI 互換ゲートウェイなので、**カスタムプロバイダ**として追加します。
+
+公式リファレンス: [Configure models](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md)。
+
+### ステップ 1: Settings → Models を開く
+
+Web UI で **Settings → Models** を開きます。
+
+### ステップ 2: カスタムプロバイダを追加する
+
+**Add a custom provider** を選び、次を入力します。
+
+| フィールド | 値 |
+|---|---|
+| **Provider ID** | `aiberm`（小文字、永続 — セッション、デフォルト、認証情報名に使われます） |
+| **Display name** | `Aiberm` |
+| **Base URL** | `https://aiberm.com/v1` |
+| **API protocol** | `openai-completions` |
+| **API key** | [コンソール → API Tokens](https://aiberm.com/console/token) の Aiberm キー |
+
+![Add a custom provider form](/docs/deepseek-harness-provider.png)
+
+<Callout client:load type="warning">
+Provider ID は後から名前を変更できません。リクエスト、保存済みセッション、デフォルトモデル、保存された認証情報はすべてこれを使います。変更するには、新しいプロバイダを追加して古いものを削除してください。
+</Callout>
+
+### ステップ 3: モデルを読み込む、または入力する
+
+**Model catalog** の下で **Fetch available models** を選びます。Harness は、今入力したキーで Aiberm の OpenAI 互換 `GET /v1/models` を呼び出します。使いたいモデルを選んで保存します。
+
+![Fetch available models from Aiberm](/docs/deepseek-harness-models.png)
+
+検出に失敗した場合は、モデル ID を手入力します。[モデル一覧](/docs/ja/models) または [Aiberm Pricing](https://aiberm.com/pricing) の ID を使います。例:
+
+- `claude-sonnet-4-6`
+- `claude-opus-4-6`
+- `gpt-5.4`
+- `google/gemini-3-flash`
+- `deepseek/deepseek-v4-pro`
+- `grok-4.6`
+
+<Callout client:load type="info">
+このページは API キーを `settings.yaml` に書き込みません。キーは `$DSH_HOME/.credentials.yaml` に書き込み専用で保存されます。設定側には `AIBERM_API_KEY` のような参照だけが残ります。
+</Callout>
+
+### ステップ 4: モデルを選ぶ
+
+保存後、コンポーザー下部のモデルピッカーに Aiberm が表示されます。モデルを選ぶと、その選択が **新しい** セッションのデフォルトにもなります。すでにリクエストを送ったセッションは、自身のログに記録されたモデルを維持します。
+
+ピッカーは、組み込みの DeepSeek モデルと **Aiberm** カスタムプロバイダを分けて表示します。Claude、GPT、Gemini、その他のカタログには Aiberm グループを使います。
+
+## Aiberm を設定する（settings.yaml）
+
+同じプロバイダを、`$DSH_HOME/settings.yaml`（通常は `~/.dsh/settings.yaml`）を編集して宣言することもできます。このファイルに API キーを **入れないでください**。
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      displayName: Aiberm
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: claude-opus-4-6
+        - id: claude-opus-4-6-thinking
+        - id: gpt-5.4
+        - id: google/gemini-3-flash
+        - id: deepseek/deepseek-v4-pro
+        - id: grok-4.6
+        - id: kimi-k2.6
+        - id: minimax-m2.7
+
+agent-default-model:
+  provider: aiberm
+  model: claude-sonnet-4-6
+```
+
+その後、キーを次のいずれかに保存します（リクエスト時は最初に一致したものが使われます）。
+
+1. 起動環境: `AIBERM_API_KEY=sk-... npx @deepseek-ai/dsh web`
+2. `$DSH_HOME/.credentials.yaml`（Models ページが書き込む場所）:
+
+```yaml
+AIBERM_API_KEY: sk-your-aiberm-api-key
+```
+
+3. 起動ディレクトリのプロジェクト `.env`、または `$DSH_HOME/.env`
+
+公式の認証情報の優先順: プロセス環境 → `$DSH_HOME/.credentials.yaml` → プロジェクト `.env` → `$DSH_HOME/.env`。Models ページに書き込んだ値は、古い `.env` のキーより優先されます。
+
+POSIX では、`.credentials.yaml` のモードを `600` にしてください。
+
+Harness の同梱カタログにないカスタムルートでは、`api`、`baseURL`、空でない `models` 一覧を **必ず** 設定します。`models` はそのルートのカタログを *置き換えます* — ピッカーに出したいモデルはすべてそこに含める必要があります。`id` だけのエントリで十分です。
+
+## Vision モデル
+
+手入力したモデルは、明示するまでテキスト専用として扱われます。そのようなモデルに画像を添付すると、Harness は送信前にリクエストを拒否します。
+
+Aiberm の Vision モデルでは、`settings.yaml` に `input` を追加します。
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: gemini-3-pro-image-preview
+          input: [text, image]
+        - id: gpt-image-2
+          input: [text, image]
+```
+
+一覧のすべてのモデルが画像を受け付ける場合は、ルートのフォールバックを一度設定します。
+
+```yaml
+defaultInput: [text, image]
+```
+
+`defaultInput` は上書きではなくフォールバックです。デフォルトは `[text]` です。
+
+## 設定の確認
+
+1. `http://127.0.0.1:3080` を開きます。
+2. モデルピッカーに **Aiberm** とモデルが一覧されていることを確認します。
+
+![Model picker showing the Aiberm group](/docs/deepseek-harness-ui.png)
+
+3. `Hi` のような短いプロンプトを送ります。
+4. 任意: Aiberm 経由でモデルを直接一覧します。
+
+```bash
+curl -H "Authorization: Bearer sk-your-aiberm-api-key" \
+     https://aiberm.com/v1/models
+```
+
+ピッカーにない追加 ID は、プロバイダの `models` 一覧に追加するか、**Fetch available models** を再実行します。
+
+## ヘッドレスと CLI の注意
+
+Web UI と `dsh --profile headless` は `$DSH_HOME` を共有します。Aiberm を一度設定したら、次を実行します。
+
+```bash
+npx @deepseek-ai/dsh --profile headless "list the files in this directory"
+```
+
+ランチャーフラグが先で、そのあとはプロファイルに属します。
+
+```bash
+dsh --profile web --port 8080
+dsh --profile web --help
+dsh --help
+```
+
+## トラブルシューティング
+
+### `MISSING_CREDENTIAL`
+
+ルートは `AIBERM_API_KEY`（または別の `apiKeyEnv`）を指定していますが、値が保存されていません。**Settings → Models** でキーを保存するか、`dsh` を起動するシェルで同じ変数をエクスポートしてください。
+
+### `UNKNOWN_MODEL`
+
+選択したモデルが、このプロバイダの `models` 一覧にありません。モデルを再取得するか、ID を手入力してください。Aiberm の ID は時間とともに変わるため、[モデル一覧](/docs/ja/models) で確認してください。
+
+### モデル取得時またはチャット時の 401
+
+- [Aiberm Console](https://aiberm.com/console/token) でキーを確認します。
+- Base URL は `https://aiberm.com/v1` である必要があります（`/v1` を含めます）。
+- キーを `settings.yaml` に貼り付けないでください。認証情報または環境に置きます。
+
+### リクエストがまだ DeepSeek または OpenAI に行く
+
+組み込みの DeepSeek カード、またはカタログの `openai` / `anthropic` プロバイダを設定しています。それらは公式エンドポイントを維持します。誤設定の行を削除し、ID `aiberm` と base URL `https://aiberm.com/v1` の **カスタム** プロバイダを追加してください。
+
+### 送信前に画像が拒否される
+
+そのモデルに画像モダリティがありません。そのモデルに `input: [text, image]` を追加し（[Vision モデル](#vision-models) を参照）、**新しい** セッションを開始してください。添付済みの画像は古いセッションログに残ります。
+
+### 設定の編集が反映されない
+
+プロバイダとキーの変更は **次の** リクエストで適用されます。サーバーの再起動は不要です。既存セッションは、すでにログに書かれたモデルを維持します。デフォルトを変えたあとは新しいチャットを開始してください。
+
+### ファイルの場所
+
+| パス | 用途 |
+|---|---|
+| `$DSH_HOME/settings.yaml` | プロバイダ、モデル一覧、デフォルトモデル（`~/.dsh/settings.yaml`） |
+| `$DSH_HOME/.credentials.yaml` | API キーのみ |
+| `$DSH_HOME/profiles/web/` | 自動作成される web プロファイル |
+
+## 注意事項
+
+- キーは Models ページで設定することを推奨します。`settings.yaml` には `apiKeyEnv` の参照だけを置いてください。
+- エージェントに読ませたくないシークレットがすでに入っているディレクトリでは実行しないでください。
+- このガイド以外のフィールド（タイムアウト、リトライ、reasoning 互換）は、公式の [`dsh-llm-pi-ai` README](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/llm/llm-pi-ai/README.md) を参照してください。
+
+## リンク
+
+- [DeepSeek Harness on GitHub](https://github.com/deepseek-ai/deepseek-harness)
+- [Official configure-models guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md)
+- [Aiberm Console](https://aiberm.com/console/token)
+- [Aiberm Models List](/docs/ja/models)
+- [Aiberm Pricing](https://aiberm.com/pricing)

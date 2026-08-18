@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Xử lý lỗi
+lang: vi
+activeId: error-handling
+---
+
+# Xử lý lỗi
+
+Khi một yêu cầu API Aiberm thất bại, API trả về một đối tượng lỗi JSON. Dùng mã trạng thái HTTP, `error.code` và `error.message` để xác định vấn đề và quyết định bước tiếp theo.
+
+Nếu bạn cần hỗ trợ, hãy kèm phản hồi lỗi đầy đủ với mọi `request id`.
+
+## Định dạng phản hồi lỗi
+
+```json
+{
+  "error": {
+    "message": "用户额度不足, 剩余额度: ¥0.00 (request id: 20260622xxxxxxxx)",
+    "type": "new_api_error",
+    "code": "insufficient_user_quota"
+  }
+}
+```
+
+| Trường | Ý nghĩa |
+| --- | --- |
+| `message` | Thông báo lỗi dễ đọc. Phần cuối `(request id: ...)` là ID truy vết của yêu cầu này. Hãy kèm theo khi liên hệ hỗ trợ. |
+| `code` | Định danh nhóm lỗi. Đối chiếu với các lỗi thường gặp bên dưới. |
+| `type` | Dấu hiệu nguồn lỗi. Trong hầu hết trường hợp, bạn không cần xử lý trực tiếp. |
+
+> Nếu `message` chứa nhiều giá trị `(request id: ...)`, điều đó là bình thường. Nghĩa là yêu cầu đã đi qua nhiều lớp dịch vụ. Sao chép toàn bộ thông báo lỗi khi liên hệ hỗ trợ.
+
+## Mã trạng thái HTTP
+
+| Trạng thái | Ý nghĩa | Việc cần làm |
+| --- | --- | --- |
+| `400` | Định dạng yêu cầu không hợp lệ | Kiểm tra JSON yêu cầu, các trường bắt buộc, `Content-Type` và tên mô hình. |
+| `401` | API key không hợp lệ | Kiểm tra API key có đúng, hết hạn, bị tắt, hoặc hết hạn mức không. |
+| `403` | Không có quyền hoặc số dư không đủ | Kiểm tra số dư tài khoản, quyền token, quyền mô hình và IP nguồn. |
+| `404` | Không tìm thấy tài nguyên | Kiểm tra URL endpoint và chính tả tên mô hình. |
+| `429` | Quá nhiều yêu cầu | Giảm đồng thời hoặc tần suất yêu cầu, rồi thử lại sau. |
+| `500` | Lỗi máy chủ nội bộ | Thử lại sau. Nếu vẫn xảy ra, liên hệ hỗ trợ kèm `request id`. |
+| `503` | Tạm thời không có dịch vụ | Mô hình hiện không có tuyến khả dụng. Thử lại sau hoặc liên hệ hỗ trợ. |
+
+## Lỗi API Key và xác thực
+
+Các lỗi này thường trả về `401`.
+
+| Thông báo bạn có thể thấy | Nguyên nhân thường gặp | Cách xử lý |
+| --- | --- | --- |
+| `无效的令牌` | API key sai hoặc không tồn tại. | Kiểm tra khóa đầy đủ, không thừa hoặc thiếu ký tự. Sao chép lại từ console. |
+| `该令牌已过期` | Token đã hết hạn. | Tạo lại token trong console, hoặc gia hạn thời gian hiệu lực. |
+| `该令牌额度已用尽` | Hạn mức gán cho token này đã dùng hết. | Tăng hạn mức token, hoặc dùng token khác còn đủ hạn mức. |
+| `该令牌状态不可用` | Token đã bị tắt. | Bật token trong console, hoặc tạo token mới. |
+| `未提供令牌` | Yêu cầu không kèm API key. | Thêm `Authorization: Bearer sk-xxxxxx` vào header yêu cầu. |
+
+## Lỗi quyền và số dư
+
+Các lỗi này thường trả về `403`.
+
+| Thông báo bạn có thể thấy | Nguyên nhân thường gặp | Cách xử lý |
+| --- | --- | --- |
+| `用户额度不足, 剩余额度: ...` | Số dư tài khoản không đủ cho yêu cầu này. | Nạp tiền tài khoản rồi thử lại. |
+| `预扣费额度失败, 用户剩余额度: ...` | Số dư không đủ để trang trải chi phí ước tính của yêu cầu. | Nạp tiền, hoặc giảm `max_tokens` và rút ngắn đầu vào. |
+| `您的 IP 不在令牌允许访问的列表中` | Token có danh sách IP cho phép, và IP hiện tại không được phép. | Dùng IP được phép, hoặc cập nhật danh sách cho phép trong console. |
+| `用户已被封禁` | Tài khoản đã bị đình chỉ. | Liên hệ hỗ trợ để biết chi tiết. |
+| `无权访问 xxx 分组` | Token không có quyền truy cập nhóm được yêu cầu. | Dùng nhóm được phép, hoặc xin quyền truy cập. |
+| `该令牌无权访问模型 xxx` | Danh sách mô hình được phép của token không gồm mô hình này. | Dùng mô hình được phép, hoặc cập nhật quyền mô hình của token trong console. |
+
+## Lỗi nội dung yêu cầu
+
+Các lỗi này thường trả về `400`.
+
+| Thông báo bạn có thể thấy | Nguyên nhân thường gặp | Cách xử lý |
+| --- | --- | --- |
+| `Invalid request, ...` | Không phân tích được phần thân yêu cầu. | Kiểm tra JSON hợp lệ và `Content-Type` là `application/json`. |
+| `未指定模型名称，模型名称不能为空` | Yêu cầu thiếu trường `model`. | Thêm `model` đúng vào phần thân yêu cầu. |
+| Các thông báo như `检测到敏感词` | Đầu vào khớp quy tắc an toàn nội dung. | Điều chỉnh đầu vào rồi thử lại. |
+
+## Lỗi giới hạn tốc độ
+
+Các lỗi này thường trả về `429`.
+
+| Thông báo bạn có thể thấy | Nguyên nhân thường gặp | Cách xử lý |
+| --- | --- | --- |
+| `您已达到请求数限制：N分钟内最多请求M次` | Bạn đã đạt giới hạn số yêu cầu thành công. | Giảm tần suất yêu cầu và thử lại sau khi cửa sổ giới hạn đặt lại. |
+| `您已达到总请求数限制：...，包括失败次数...` | Đã đạt giới hạn tổng số yêu cầu, gồm cả yêu cầu thất bại. | Kiểm tra xem các yêu cầu thất bại có đang lặp vòng không, sửa nguyên nhân rồi thử lại. |
+
+## Lỗi mô hình và tuyến
+
+Các lỗi này thường trả về `404` hoặc `503`.
+
+| Thông báo bạn có thể thấy | Nguyên nhân thường gặp | Cách xử lý |
+| --- | --- | --- |
+| `模型不存在` | Tên mô hình viết sai, hoặc mô hình này chưa được bật cho token. | Xác nhận tên mô hình và quyền mô hình của token. |
+| `无可用渠道` | Mô hình hiện không có tuyến khả dụng. | Thử lại sau. Nếu vẫn không khả dụng, liên hệ hỗ trợ. |
+
+## Lỗi máy chủ
+
+Các lỗi này thường trả về `500` hoặc `503`.
+
+| Thông báo bạn có thể thấy | Nguyên nhân thường gặp | Cách xử lý |
+| --- | --- | --- |
+| Thông báo lỗi nội bộ | Sự cố máy chủ tạm thời, hoặc dịch vụ thượng nguồn tạm thời không khả dụng. | Thử lại sau. Nếu vẫn xảy ra, liên hệ hỗ trợ kèm `request id`. |
+
+## Trước khi liên hệ hỗ trợ
+
+Để chúng tôi xác định vấn đề nhanh hơn, hãy cung cấp:
+
+1. Phản hồi lỗi đầy đủ, gồm `message`, `code` và mọi `request id`.
+2. Thời điểm gần đúng khi sự cố xảy ra.
+3. Tên mô hình và URL endpoint bạn đã gọi.
+4. Một vài ký tự đầu của API key, chẳng hạn `sk-abcd...`. Đừng gửi toàn bộ khóa.

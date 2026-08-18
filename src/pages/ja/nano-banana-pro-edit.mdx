@@ -1,0 +1,144 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: NanoBanana Pro Edit
+lang: ja
+activeId: nano-banana-pro-edit
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+
+# NanoBanana Pro Edit
+
+画像編集は、[NanoBanana Pro](/docs/ja/nano-banana-pro/) の画像生成と同じ **Gemini API**（`generateContent`）を使います。リクエストに **元画像 + 編集指示** を送り、レスポンスで編集後の画像を受け取ります。詳しくは [Gemini ドキュメント: Image editing](https://ai.google.dev/gemini-api/docs/image-generation#gemini-image-editing) を参照してください。
+
+**エンドポイント**: 生成と同じです: `POST https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent`。
+
+**ポイント**: `contents` に **画像パート**（`inlineData`）と **テキストパート**（編集指示）を入れ、`generationConfig.responseModalities` を `["TEXT", "IMAGE"]` に設定して編集後の画像を取得します。結果は `candidates[0].content.parts` → `inline_data` から読み取ります。
+
+## コード例
+
+Python は snake_case、REST/cURL は camelCase を使います。意味は同じです。
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from google import genai
+from google.genai import types
+from PIL import Image
+from io import BytesIO
+
+base_url = "https://aiberm.com"
+api_key = "YOUR_API_KEY"
+model = "gemini-3-pro-image-preview"
+output_file = "edited.png"
+
+image_path = "original.png"
+edit_prompt = "Add a stylish top hat to this image, keep the rest unchanged."
+
+client = genai.Client(
+    api_key=api_key,
+    http_options=types.HttpOptions(api_version="v1beta", base_url=base_url),
+)
+image = Image.open(image_path)
+
+response = client.models.generate_content(
+    model=model,
+    contents=[edit_prompt, image],
+    config=types.GenerateContentConfig(
+        response_modalities=["TEXT", "IMAGE"],
+    ),
+)
+
+for part in response.parts:
+    if part.text is not None:
+        print(part.text)
+    elif part.inline_data is not None:
+        Image.open(BytesIO(part.inline_data.data)).save(output_file)
+        print(f"Saved edited image: {output_file}")`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `# Encode the source image to base64, then put it in contents.parts
+# e.g. IMAGE_B64=\$(base64 -w0 original.png)
+curl -X POST "https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "contents": [{
+      "parts": [
+        { "inlineData": { "mimeType": "image/png", "data": "<BASE64_IMAGE>" }},
+        { "text": "Add a stylish top hat to this image, keep the rest unchanged." }
+      ]
+    }],
+    "generationConfig": {
+      "responseModalities": ["TEXT", "IMAGE"]
+    }
+  }'`
+    }
+  ]}
+/>
+
+## 編集と生成の違い
+
+| | 生成（NanoBanana Pro） | 編集（このページ） |
+|--|---------------------------|------------------|
+| `contents` | テキストのみ（作成する画像を説明） | **画像 + テキスト**（編集方法を説明） |
+| `generationConfig.imageConfig` | 必須（アスペクト比、1K/2K/4K） | 編集では任意 |
+| `responseModalities` | `["IMAGE"]` または `["TEXT","IMAGE"]` | 通常は `["TEXT","IMAGE"]` |
+
+エンドポイントと認証は同じです。異なるのは `contents` と、`imageConfig` を渡すかどうかだけです。その他のパラメータは [NanoBanana Pro](/docs/ja/nano-banana-pro/) を参照してください。
+
+## 複数画像
+
+`contents.parts` に複数の画像パート（画像ごとに 1 つの `inlineData`）を入れ、そのあとに編集指示のテキストパートを 1 つ置きます。モデルはすべての画像と指示を使って結果を生成します（例: 「1 枚目の被写体を 2 枚目の背景に合成する」）。
+
+**Python**: `contents` に複数の画像オブジェクトと 1 つのテキストを渡します。
+
+```python
+image1 = Image.open("photo.png")
+image2 = Image.open("background.png")
+response = client.models.generate_content(
+    model=model,
+    contents=["Place the person from the first image onto the background of the second.", image1, image2],
+    config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
+)
+```
+
+**cURL**: `contents[0].parts` に画像ごとの `inlineData` を追加し、最後に `text` を 1 つ置きます。
+
+```json
+"contents": [{
+  "parts": [
+    { "inlineData": { "mimeType": "image/png", "data": "<BASE64_IMAGE1>" }},
+    { "inlineData": { "mimeType": "image/png", "data": "<BASE64_IMAGE2>" }},
+    { "text": "Place the person from the first image onto the background of the second." }
+  ]
+}]
+```
+
+## 画像 URL を使う
+
+API が受け付けるのは **inlineData**（base64）または **fileData**（File API 経由）のみで、画像 URL を直接渡すことはできません。URL 上の画像は、先にダウンロードしてからリクエストに含めてください。
+
+**Python**: URL からダウンロードし、画像を SDK に渡します（SDK が必要に応じてエンコードします）。
+
+```python
+import requests
+from io import BytesIO
+
+image_url = "https://example.com/photo.jpg"
+resp = requests.get(image_url)
+image = Image.open(BytesIO(resp.content))
+
+response = client.models.generate_content(
+    model=model,
+    contents=["Add a top hat to this image.", image],
+    config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
+)
+```
+
+**cURL**: URL から画像をダウンロードして base64 に変換し、結果を `inlineData.data` に入れます。

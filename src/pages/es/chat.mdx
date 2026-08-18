@@ -1,0 +1,155 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Completaciones de chat
+lang: es
+activeId: chat
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Completaciones de chat
+
+Crea respuestas conversacionales con distintos modelos de IA a través de una API unificada.
+
+## Crear una completación de chat
+
+`POST https://aiberm.com/v1/chat/completions`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "gpt-4",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is the capital of France?"}
+    ],
+    "temperature": 0.7
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "What is the capital of France?"}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: 'https://aiberm.com/v1'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user', content: 'What is the capital of France?' }
+  ],
+  temperature: 0.7
+});
+
+console.log(response.choices[0].message.content);`
+    }
+  ]}
+/>
+
+## Parámetros de la solicitud
+
+| Parámetro | Tipo | Obligatorio | Descripción |
+|-----------|------|----------|-------------|
+| `model` | string | Sí | ID del modelo que se usará |
+| `messages` | array | Sí | Arreglo de objetos de mensaje |
+| `temperature` | number | No | Temperatura de muestreo (0-2). Predeterminado: 1 |
+| `max_tokens` | integer | No | Máximo de tokens a generar |
+| `top_p` | number | No | Parámetro de muestreo nuclear |
+| `stream` | boolean | No | Si se deben transmitir las respuestas |
+
+## Roles de mensaje
+
+Los mensajes deben incluir un `role` y un `content`:
+
+- **system** - Define el comportamiento/personalidad del asistente
+- **user** - Mensajes del usuario final
+- **assistant** - Respuestas anteriores de la IA
+
+## Respuestas en streaming
+
+Activa el streaming para recibir las respuestas de forma incremental:
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+stream = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const stream = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Tell me a story' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || '');
+}`
+    }
+  ]}
+/>
+
+## Mejores prácticas
+
+<Callout client:load type="tip" title="Optimiza tus solicitudes">
+- Define `max_tokens` para limitar los costos
+- Usa valores de `temperature` adecuados (más bajos para hechos, más altos para creatividad)
+- Incluye mensajes de sistema para orientar el comportamiento
+- Transmite las respuestas para una mejor experiencia de usuario
+</Callout>
+
+<Callout client:load type="warning">
+Ten en cuenta los límites de tokens de cada modelo. Las conversaciones largas pueden requerir gestión del historial.
+</Callout>

@@ -1,0 +1,197 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Trae のセットアップ
+lang: ja
+activeId: trae
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Trae のセットアップ
+
+Trae は ByteDance の AI 搭載 IDE で、開発ワークフローにインテリジェントなコーディング支援を直接組み込みます。Trae を Aiberm で設定すると、コード補完、チャット支援、リファクタリング、生成にさまざまな強力なモデルを活用できます。
+
+<Callout client:load type="info">
+Trae を Aiberm で使うには、有効な Aiberm API キーが必要です。まだ取得していない場合は、[認証](/docs/ja/authentication) ページを参照してください。
+</Callout>
+
+## Trae とは
+
+Trae は、Visual Studio Code を基盤に構築された、中国初の AI ネイティブ統合開発環境（AI IDE）です。次の機能を提供します。
+
+- **内蔵 AI モデル**: Claude 3.7 Sonnet、GPT-4o、DeepSeek V3/R1、Gemini 2.5 Pro などを無料で利用できます。
+- **カスタムモデル対応**: Aiberm などの独自 API プロバイダを追加し、柔軟にモデルを選べます。
+- **フル IDE 機能**: VS Code のすべての機能に加え、AI によるコード補完、デバッグ、生成が使えます。
+- **クロスプラットフォーム**: macOS と Windows で利用できます（Linux 対応は近日公開予定）。
+
+## 設定手順
+
+次の手順で Trae を Aiberm の API を使うように設定します。
+
+### ステップ 1: モデル設定を開く
+
+モデル設定には 2 つの方法があります。
+
+**方法 A: チャット入力ボックスから**
+1. Trae IDE を開きます。
+2. チャット入力ボックスの右下を確認します。
+3. 現在のモデル名をクリックしてモデル一覧を開きます。
+4. 「Add Model」ボタンをクリックします。
+
+<Callout client:load type="tip">
+スクリーンショット 1（英語 UI）: モデルドロップダウンと「Add Model」の入口が表示されたチャット入力ボックス。
+</Callout>
+
+![](/docs/trae/en/chat-model-dropdown.png)
+
+**方法 B: 設定メニューから**
+1. 右上のアバターをクリックします。
+2. 「AI Feature Management」を選択します。
+3. 「Models」セクションへ移動します。
+4. 「Add Model」ボタンをクリックします。
+
+<Callout client:load type="tip">
+スクリーンショット 2（英語 UI）: Models ページへの設定パス。
+</Callout>
+
+![](/docs/trae/en/models-add-model.png)
+
+### ステップ 2: カスタムモデルを設定する
+
+「Add Model」ダイアログで、次のフィールドを入力します。
+
+- **Provider**: OpenAI
+- **Base URL**: `https://aiberm.com/v1`
+- **API Key**: `sk-xxxxxxxxxxxxxxxx`（Aiberm API Key）
+- **Model ID**: 対応しているモデル ID を入力します（例: `google/gemini-2.5-flash`、`anthropic/claude-3-opus`、`openai/gpt-4o`）。
+
+<Callout client:load type="info">
+**対応モデル ID（例）:**
+- `google/gemini-3-flash` - 高速で効率的
+- `google/gemini-3-pro` - 高度な推論
+- `anthropic/claude-opus-4-6` - 複雑なタスクに最適
+- `openai/gpt-5.2` - OpenAI のフラッグシップモデル
+
+対応モデルの一覧は [モデル一覧](/docs/ja/models) ページを参照してください。
+</Callout>
+
+<Callout client:load type="tip">
+スクリーンショット 3（英語 UI）: 「Add Model」ダイアログ。
+</Callout>
+
+![](/docs/trae/en/add-model-dialog.png)
+
+### ステップ 3: 設定を保存する
+
+1. 「Add Model」または「Save」ボタンをクリックして設定を確定します。
+2. Trae は Aiberm の API への接続確認を試みます。
+3. 成功すると、カスタムモデルがモデル一覧に表示されます。
+
+## 確認
+
+Trae が Aiberm で正しく設定されていることを確認するには、次を行います。
+
+1. **チャットパネルを開く**: 左サイドバーのチャットアイコンをクリックするか、コマンドパレット（`Ctrl/Cmd + Shift + P`）で「Chat」を検索します。
+2. **カスタムモデルを選択する**: チャットパネル右下のモデルドロップダウンをクリックし、追加したばかりの Aiberm モデルを選びます。
+3. **簡単なクエリでテストする**: 次のようなコーディングの質問をします。
+   ```plaintext
+   Write a Python function to calculate the Fibonacci sequence using recursion.
+   ```
+4. **応答を確認する**: Trae がカスタムモデルでコードを正常に生成できれば成功です。設定は正しく動作しています。
+
+<Callout client:load type="tip">
+**スクリーンショット**: *[スクリーンショット 4: Aiberm モデルが選択され、正常な応答が表示されたチャットパネル]*
+</Callout>
+
+## Trae で Aiberm モデルを使う
+
+設定後は、複数の方法で Aiberm モデルを使えます。
+
+### 1. チャットモード
+- チャットパネルを開き、Aiberm モデルを選びます。
+- 質問したり、コード生成を依頼したり、説明を求めたりできます。
+- `#` 記号でファイルを参照し、コンテキストを踏まえた応答を得られます。
+
+### 2. インライン補完
+- 自然にコードを入力すると、Trae が補完を提案します。
+- `Tab` を押して提案を受け入れます。
+- *注意: カスタムモデルのインライン補完対応は、Trae の実装によって制限される場合があります。*
+
+### 3. コードアクション
+- エディタでコードを選択します。
+- 右クリックし、「Explain」「Refactor」「Add Comments」などの AI アクションを選びます。
+- 求められたら Aiberm モデルを選びます。
+
+## トラブルシューティング
+
+### ❌ 接続に失敗する
+**症状**: 「Failed to connect to API」または「Network error」
+**対処法**:
+- Base URL が正確に `https://aiberm.com/v1` であること（末尾スラッシュなし）を確認します。
+- インターネット接続を確認します。
+- API キーが有効で、十分なクレジットがあることを確認します。
+- curl で API キーをテストします。
+  ```bash
+  curl https://aiberm.com/v1/models \
+    -H "Authorization: Bearer YOUR_API_KEY"
+  ```
+
+### ❌ 無効な API キー
+**症状**: 「401 Unauthorized」または「Invalid API key」
+**対処法**:
+- API キーを余分な空白なしで完全にコピーしたか再確認します。
+- キーが `sk-` で始まることを確認します。
+- Aiberm アカウントが有効で、クレジットがあることを確認します。
+- Aiberm Dashboard から新しい API キーを発行します。
+
+### ❌ モデルが見つからない
+**症状**: 「Model not available」または「Unknown model ID」
+**対処法**:
+- モデル ID の形式が正しいことを確認します（例: `google/gemini-2.5-flash`）。
+- 対応モデル ID は [モデル一覧](/docs/ja/models) ページで確認します。
+- そのモデルがご利用の Aiberm プランで利用可能であることを確認します。
+
+### ❌ レート制限超過
+**症状**: 「Too many requests」または「Rate limit reached」
+**対処法**:
+- 少し待ってから再試行します。
+- Aiberm アカウントの利用制限を確認します。
+- より高いレート制限が必要な場合は、プランのアップグレードを検討します。
+
+## 高度な設定
+
+### 複数モデルを使う
+異なる設定で複数の Aiberm モデルを追加できます。
+- モデルごとに設定手順を繰り返します。
+- 区別しやすい名前を付けます（Trae がカスタム名に対応している場合）。
+- タスクに応じてモデルを切り替えます。
+  - 高速な反復には高速モデル（`gemini-3-flash`）。
+  - 複雑な推論には高度なモデル（`claude-opus-4-6`、`gemini-3-pro`）。
+
+### Model Context Protocol（MCP）
+Trae は Model Context Protocol（MCP）に対応しており、AI モデルが外部ツールやデータソースにアクセスできます。Aiberm モデルを使う場合も、MCP で次が可能です。
+- データベースへの接続
+- ファイルシステムへのアクセス
+- 外部 API との連携
+- カスタムツールの利用
+
+詳しい MCP 設定は、Trae の公式ドキュメントを参照してください。
+
+## ベストプラクティス
+
+- **適切なモデルを選ぶ**: 日常的な作業には高速モデルを使い、複雑な問題には強力なモデルを残します。
+- **コンテキストを渡す**: チャットのクエリで `#` 記号を使い、関連ファイルを参照します。
+- **段階的に反復する**: 大きなタスクは小さなステップに分け、AI の精度を高めます。
+- **AI の出力を確認する**: コミット前に、必ず AI 生成コードをレビューしてテストします。
+- **利用量を監視する**: Aiberm API の利用量を把握し、コストを適切に管理します。
+
+## 次のステップ
+
+Trae を Aiberm で設定できたら、次のリソースもご覧ください。
+
+- [モデル一覧](/docs/ja/models) - 利用可能なすべての Aiberm モデルを確認できます。
+- [Chat API](/docs/ja/chat) - 基盤となる API について学べます。
+- [ベストプラクティス](/docs/ja/examples) - 効果的な AI 支援コーディングのヒントです。
+
+
+Aiberm を Trae に統合すると、トップクラスの AI モデルにアクセスできる、柔軟で強力なコーディング体験が得られます。

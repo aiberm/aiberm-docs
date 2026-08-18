@@ -1,0 +1,197 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cài đặt Trae
+lang: vi
+activeId: trae
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Cài đặt Trae
+
+Trae là IDE hỗ trợ AI của ByteDance, tích hợp trợ lý lập trình thông minh trực tiếp vào quy trình phát triển của bạn. Khi cấu hình Trae với Aiberm, bạn có thể tận dụng nhiều mô hình mạnh cho hoàn thiện mã, trợ giúp chat, tái cấu trúc và sinh mã.
+
+<Callout client:load type="info">
+Để dùng Trae với Aiberm, bạn cần một API key Aiberm hợp lệ. Nếu chưa có, vui lòng xem trang [Xác thực](/docs/vi/authentication).
+</Callout>
+
+## Trae là gì?
+
+Trae là Môi trường phát triển tích hợp gốc AI (AI IDE) đầu tiên của Trung Quốc, được xây trên nền tảng Visual Studio Code. Nó cung cấp:
+
+- **Mô hình AI tích hợp**: Truy cập miễn phí Claude 3.7 Sonnet, GPT-4o, DeepSeek V3/R1, Gemini 2.5 Pro và hơn thế nữa.
+- **Hỗ trợ mô hình tùy chỉnh**: Thêm nhà cung cấp API của riêng bạn như Aiberm để chọn mô hình linh hoạt.
+- **Đầy đủ tính năng IDE**: Mọi khả năng của VS Code cộng với hoàn thiện mã, gỡ lỗi và sinh mã bằng AI.
+- **Đa nền tảng**: Có trên macOS và Windows (hỗ trợ Linux sắp ra mắt).
+
+## Các bước cấu hình
+
+Làm theo các bước sau để cấu hình Trae dùng API của Aiberm:
+
+### Bước 1: Mở cài đặt mô hình
+
+Có hai cách truy cập cấu hình mô hình:
+
+**Phương pháp A: Qua hộp nhập chat**
+1. Mở Trae IDE.
+2. Nhìn góc dưới bên phải của hộp nhập chat.
+3. Nhấp tên mô hình hiện tại để mở danh sách mô hình.
+4. Nhấp nút "Add Model".
+
+<Callout client:load type="tip">
+Ảnh chụp 1 (giao diện tiếng Anh): Hộp nhập chat hiển thị menu thả mô hình và điểm vào "Add Model".
+</Callout>
+
+![](/docs/trae/en/chat-model-dropdown.png)
+
+**Phương pháp B: Qua menu Settings**
+1. Nhấp avatar ở góc trên bên phải.
+2. Chọn "AI Feature Management".
+3. Đi tới phần "Models".
+4. Nhấp nút "Add Model".
+
+<Callout client:load type="tip">
+Ảnh chụp 2 (giao diện tiếng Anh): Đường dẫn Settings tới trang Models.
+</Callout>
+
+![](/docs/trae/en/models-add-model.png)
+
+### Bước 2: Cấu hình mô hình tùy chỉnh
+
+Trong hộp thoại "Add Model", điền các trường sau:
+
+- **Provider**: OpenAI
+- **Base URL**: `https://aiberm.com/v1`
+- **API Key**: `sk-xxxxxxxxxxxxxxxx` (API Key Aiberm của bạn)
+- **Model ID**: Nhập ID mô hình được hỗ trợ (ví dụ `google/gemini-2.5-flash`, `anthropic/claude-3-opus`, `openai/gpt-4o`).
+
+<Callout client:load type="info">
+**ID mô hình được hỗ trợ (ví dụ):**
+- `google/gemini-3-flash` - Nhanh và hiệu quả
+- `google/gemini-3-pro` - Suy luận nâng cao
+- `anthropic/claude-opus-4-6` - Tốt nhất cho tác vụ phức tạp
+- `openai/gpt-5.2` - Mô hình chủ lực của OpenAI
+
+Xem trang [Danh sách mô hình](/docs/vi/models) để biết tất cả mô hình được hỗ trợ.
+</Callout>
+
+<Callout client:load type="tip">
+Ảnh chụp 3 (giao diện tiếng Anh): Hộp thoại "Add Model".
+</Callout>
+
+![](/docs/trae/en/add-model-dialog.png)
+
+### Bước 3: Lưu cấu hình
+
+1. Nhấp nút "Add Model" hoặc "Save" để xác nhận thiết lập.
+2. Trae sẽ thử xác minh kết nối tới API của Aiberm.
+3. Nếu thành công, mô hình tùy chỉnh sẽ xuất hiện trong danh sách mô hình.
+
+## Kiểm tra
+
+Để đảm bảo Trae được cấu hình đúng với Aiberm:
+
+1. **Mở bảng Chat**: Nhấp biểu tượng chat trên thanh bên trái, hoặc dùng command palette (`Ctrl/Cmd + Shift + P`) và tìm "Chat".
+2. **Chọn mô hình tùy chỉnh**: Trong bảng chat, nhấp menu thả mô hình ở góc dưới bên phải và chọn mô hình Aiberm vừa thêm.
+3. **Thử với truy vấn đơn giản**: Hỏi một câu về lập trình, chẳng hạn:
+   ```plaintext
+   Write a Python function to calculate the Fibonacci sequence using recursion.
+   ```
+4. **Xác nhận phản hồi**: Nếu Trae sinh mã thành công bằng mô hình tùy chỉnh của bạn, xin chúc mừng! Cấu hình đang hoạt động đúng.
+
+<Callout client:load type="tip">
+**Ảnh chụp**: *[Ảnh chụp 4: Bảng chat hiển thị mô hình Aiberm đã chọn và phản hồi thành công]*
+</Callout>
+
+## Dùng mô hình Aiberm trong Trae
+
+Sau khi cấu hình, bạn có thể dùng mô hình Aiberm theo nhiều cách:
+
+### 1. Chế độ Chat
+- Mở bảng chat và chọn mô hình Aiberm của bạn.
+- Đặt câu hỏi, yêu cầu sinh mã hoặc xin giải thích.
+- Tham chiếu tệp bằng ký hiệu `#` để có phản hồi theo ngữ cảnh.
+
+### 2. Hoàn thiện nội tuyến
+- Gõ mã tự nhiên, Trae sẽ gợi ý hoàn thiện.
+- Nhấn `Tab` để chấp nhận gợi ý.
+- *Lưu ý: Mô hình tùy chỉnh có thể hỗ trợ hoàn thiện nội tuyến hạn chế tùy theo cách triển khai của Trae.*
+
+### 3. Hành động mã
+- Chọn mã trong trình soạn.
+- Nhấp chuột phải và chọn các hành động AI như "Explain", "Refactor", "Add Comments".
+- Chọn mô hình Aiberm khi được nhắc.
+
+## Xử lý sự cố
+
+### ❌ Kết nối thất bại
+**Triệu chứng**: "Failed to connect to API" hoặc "Network error"
+**Cách xử lý**:
+- Xác nhận Base URL chính xác là `https://aiberm.com/v1` (không có dấu gạch chéo cuối).
+- Kiểm tra kết nối internet.
+- Đảm bảo API key hợp lệ và còn đủ credit.
+- Thử kiểm tra API key bằng curl:
+  ```bash
+  curl https://aiberm.com/v1/models \
+    -H "Authorization: Bearer YOUR_API_KEY"
+  ```
+
+### ❌ API Key không hợp lệ
+**Triệu chứng**: "401 Unauthorized" hoặc "Invalid API key"
+**Cách xử lý**:
+- Kiểm tra lại bạn đã sao chép đủ API key, không có khoảng trắng thừa.
+- Xác nhận khóa bắt đầu bằng `sk-`.
+- Đảm bảo tài khoản Aiberm đang hoạt động và còn credit.
+- Tạo API key mới từ Aiberm Dashboard.
+
+### ❌ Không tìm thấy mô hình
+**Triệu chứng**: "Model not available" hoặc "Unknown model ID"
+**Cách xử lý**:
+- Xác nhận định dạng ID mô hình đúng (ví dụ `google/gemini-2.5-flash`).
+- Xem trang [Danh sách mô hình](/docs/vi/models) để biết ID mô hình được hỗ trợ.
+- Đảm bảo mô hình có trong gói Aiberm của bạn.
+
+### ❌ Vượt giới hạn tốc độ
+**Triệu chứng**: "Too many requests" hoặc "Rate limit reached"
+**Cách xử lý**:
+- Đợi vài giây rồi thử lại.
+- Kiểm tra giới hạn sử dụng tài khoản Aiberm.
+- Cân nhắc nâng cấp gói nếu bạn cần giới hạn tốc độ cao hơn.
+
+## Cấu hình nâng cao
+
+### Dùng nhiều mô hình
+Bạn có thể thêm nhiều mô hình Aiberm với cấu hình khác nhau:
+- Lặp lại các bước cấu hình cho từng mô hình.
+- Dùng tên mô tả để phân biệt (nếu Trae cho phép đặt tên tùy chỉnh).
+- Chuyển mô hình theo tác vụ:
+  - Mô hình nhanh (`gemini-3-flash`) cho vòng lặp nhanh.
+  - Mô hình nâng cao (`claude-opus-4-6`, `gemini-3-pro`) cho suy luận phức tạp.
+
+### Model Context Protocol (MCP)
+Trae hỗ trợ Model Context Protocol (MCP), cho phép mô hình AI truy cập công cụ và nguồn dữ liệu bên ngoài. Khi dùng mô hình Aiberm, bạn có thể tận dụng MCP để:
+- Kết nối cơ sở dữ liệu.
+- Truy cập hệ thống tệp.
+- Tích hợp API bên ngoài.
+- Dùng công cụ tùy chỉnh.
+
+Tham khảo tài liệu chính thức của Trae để biết cấu hình MCP chi tiết.
+
+## Thực hành tốt nhất
+
+- **Chọn đúng mô hình**: Dùng mô hình nhanh cho tác vụ thường ngày, dành mô hình mạnh cho bài toán phức tạp.
+- **Cung cấp ngữ cảnh**: Dùng ký hiệu `#` để tham chiếu tệp liên quan trong truy vấn chat.
+- **Lặp lại theo từng bước**: Chia tác vụ lớn thành các bước nhỏ để AI hoạt động tốt hơn.
+- **Rà soát đầu ra AI**: Luôn rà soát và kiểm thử mã do AI sinh trước khi commit.
+- **Theo dõi mức sử dụng**: Theo dõi mức dùng API Aiberm để quản lý chi phí hiệu quả.
+
+## Bước tiếp theo
+
+Sau khi đã cấu hình Trae với Aiberm, hãy khám phá các tài nguyên sau:
+
+- [Danh sách mô hình](/docs/vi/models) - Khám phá mọi mô hình Aiberm có sẵn.
+- [Chat API](/docs/vi/chat) - Tìm hiểu API bên dưới.
+- [Thực hành tốt nhất](/docs/vi/examples) - Mẹo lập trình hỗ trợ AI hiệu quả.
+
+
+Bằng cách tích hợp Aiberm với Trae, bạn mở ra trải nghiệm lập trình linh hoạt và mạnh mẽ với quyền truy cập các mô hình AI hàng đầu.

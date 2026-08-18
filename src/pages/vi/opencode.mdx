@@ -1,0 +1,276 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cài đặt OpenCode CLI
+lang: vi
+activeId: opencode
+---
+
+# Cài đặt OpenCode CLI
+
+Tìm hiểu cách cấu hình OpenCode CLI để dùng API của Aiberm. Hướng dẫn này gồm cài đặt và cấu hình cho Windows, macOS và Linux.
+
+## OpenCode là gì?
+
+OpenCode là công cụ lập trình dòng lệnh (CLI) mã nguồn mở viết bằng Go, cung cấp trợ lý AI mạnh cho nhà phát triển. Nó có Terminal User Interface (TUI) trực quan và hỗ trợ nhiều nhà cung cấp LLM gồm OpenAI, Anthropic, Gemini và hơn thế nữa.
+
+Bằng cách tích hợp OpenCode với **Aiberm API**, bạn có thể truy cập mọi mô hình có trên Aiberm (gồm Claude, GPT, Gemini và hơn thế nữa) qua một giao diện thống nhất với một khóa và một base URL.
+
+## Điều kiện tiên quyết
+
+Trước khi bắt đầu, hãy đảm bảo bạn có:
+
+- Một tài khoản Aiberm ([Đăng ký tại đây](https://aiberm.com/register))
+- Một API key Aiberm ([Lấy khóa của bạn](https://aiberm.com/console/token))
+- Quyền truy cập Terminal/Command Prompt trên máy tính
+
+### Trình giả lập terminal
+
+OpenCode cần một trình giả lập terminal hiện đại. Các lựa chọn khuyến nghị:
+
+- **WezTerm** (đa nền tảng)
+- **Alacritty** (đa nền tảng)
+- **Ghostty** (Linux và macOS)
+- **Kitty** (Linux và macOS)
+
+Người dùng Windows cũng có thể dùng PowerShell hoặc Windows Terminal. Người dùng macOS có thể dùng Terminal.app tích hợp hoặc iTerm2. Người dùng Linux có thể dùng terminal tích hợp hoặc GNOME Terminal, Konsole, v.v.
+
+## Cài đặt
+
+Chọn hệ điều hành bên dưới để xem hướng dẫn cài đặt.
+
+### macOS & Linux
+
+Cách dễ nhất là qua script cài đặt:
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+Hoặc dùng Homebrew:
+
+```bash
+brew install anomalyco/tap/opencode
+```
+
+**Kiểm tra cài đặt:**
+```bash
+opencode --version
+```
+
+### Windows
+
+Người dùng Windows nên cài [Node.js](https://nodejs.org/en/download) trước, rồi cài qua NPM:
+
+```bash
+npm i -g opencode-ai@latest
+```
+
+Hoặc dùng Chocolatey:
+
+```bash
+choco install opencode
+```
+
+Hoặc dùng Scoop:
+
+```bash
+scoop bucket add extras
+scoop install extras/opencode
+```
+
+**Kiểm tra cài đặt:**
+```bash
+opencode --version
+```
+
+Nếu bạn thích giao diện đồ họa, OpenCode cũng có ứng dụng desktop tại [OpenCode Download Page](https://opencode.ai/download).
+
+## Cấu hình
+
+### Bước 1: Khởi tạo nhà cung cấp
+
+Sau khi cài đặt, chạy lệnh sau trong terminal trước khi khởi chạy OpenCode:
+
+```bash
+opencode auth login
+```
+
+1. Trong danh sách nhà cung cấp, chọn **other** (ở cuối, bạn có thể tìm kiếm)
+2. Nhập **Provider ID**: gõ `aiberm`
+3. Nhập **API Key token**: bạn có thể nhập bất kỳ giá trị nào (ví dụ `admin`), khóa thực tế được tham chiếu qua tệp cấu hình
+
+Bước này đăng ký một nhà cung cấp tùy chỉnh trong trình quản lý thông tin xác thực cục bộ của OpenCode.
+
+### Bước 2: Chỉnh tệp cấu hình
+
+Mở thư mục cấu hình OpenCode:
+
+**Windows:**
+
+Nhấn `Win + R`, dán nội dung sau, rồi nhấn Enter:
+
+```
+%userprofile%\.config\opencode
+```
+
+**macOS / Linux:**
+
+Trong terminal, chạy:
+
+```bash
+cd ~/.config/opencode
+```
+
+Hoặc truy cập `~/.config/opencode/` trong Finder/trình quản lý tệp.
+
+Tạo hoặc chỉnh `opencode.json` trong thư mục này. Dưới đây là ví dụ cấu hình với các mô hình Claude:
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "aiberm": {
+            "npm": "@ai-sdk/anthropic",
+            "name": "Aiberm",
+            "options": {
+                "baseURL": "https://aiberm.com/v1",
+                "apiKey": "sk-your-aiberm-api-key"
+            },
+            "models": {
+                "claude-opus-4-5-20251101": {
+                    "name": "Claude-4.5-Opus"
+                },
+                "claude-sonnet-4-5-20250929": {
+                    "name": "Claude-4.5-Sonnet"
+                },
+                "claude-haiku-4-5-20251001": {
+                    "name": "Claude-4.5-Haiku"
+                }
+            }
+        }
+    }
+}
+```
+
+Bạn cũng có thể thêm các mô hình khác có trên Aiberm. Ví dụ, để thêm mô hình OpenAI GPT:
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "aiberm": {
+            "npm": "@ai-sdk/openai",
+            "name": "Aiberm",
+            "options": {
+                "baseURL": "https://aiberm.com/v1",
+                "apiKey": "sk-your-aiberm-api-key"
+            },
+            "models": {
+                "openai/gpt-4.1": {
+                    "name": "GPT-4.1"
+                },
+                "openai/gpt-4.1-mini": {
+                    "name": "GPT-4.1 Mini"
+                },
+                "openai/gpt-4.1-nano": {
+                    "name": "GPT-4.1 Nano"
+                },
+                "openai/gpt-4o": {
+                    "name": "GPT-4o"
+                },
+                "openai/gpt-4o-mini": {
+                    "name": "GPT-4o Mini"
+                }
+            }
+        }
+    }
+}
+```
+
+Xem trang [Danh sách mô hình](/docs/vi/models) hoặc [Aiberm Pricing](https://aiberm.com/pricing) để biết tất cả mô hình có trên Aiberm.
+
+**Quan trọng:**
+
+- Thay `"sk-your-aiberm-api-key"` bằng API Key thực tế từ [Aiberm Console](https://aiberm.com/console/token)
+- Định dạng JSON nhạy cảm với ký hiệu
+
+## Kiểm tra cấu hình
+
+Sau khi lưu tệp cấu hình, khởi động lại terminal, rồi đi tới thư mục làm việc của bạn:
+
+```bash
+cd your-working-directory
+```
+
+Khởi chạy OpenCode:
+
+```bash
+opencode
+```
+
+Trong giao diện chat, nhập lệnh:
+
+```
+/models
+```
+
+Bạn sẽ thấy Aiberm và các mô hình của nó trong danh sách mô hình. Chọn một mô hình và sẵn sàng sử dụng!
+
+## Chuyển mô hình
+
+Trong giao diện OpenCode, nhập lệnh `/models`, rồi chọn mô hình mong muốn từ danh sách.
+
+**Ví dụ các mô hình có sẵn qua Aiberm:**
+
+- **anthropic/claude-sonnet-4-5-20250514**: Claude 4.5 Sonnet của Anthropic
+- **anthropic/claude-opus-4-20250514**: Claude 4 Opus của Anthropic
+- **openai/gpt-4.1**: GPT-4.1 của OpenAI
+- **openai/gpt-4o-mini**: GPT-4o Mini của OpenAI
+- **google/gemini-3-pro**: Gemini 3 Pro của Google
+- Và hơn thế nữa...
+
+Truy cập [Aiberm Pricing](https://aiberm.com/pricing) để xem danh sách đầy đủ các mô hình có sẵn.
+
+## Xử lý sự cố
+
+### Thay đổi cấu hình không có hiệu lực
+
+- Khởi động lại OpenCode
+- Kiểm tra cú pháp `opencode.json` (định dạng JSON)
+- Xác nhận đường dẫn tệp cấu hình đúng
+
+### Lỗi 401/403
+
+- **Lỗi 401**: API Key chưa đặt hoặc không hợp lệ
+- **Lỗi 403**: Không đủ quyền hoặc khóa đã hết hạn
+- Kiểm tra `apiKey` trong tệp cấu hình
+- Xác nhận API key tại [Aiberm Console](https://aiberm.com/console/token)
+
+### Không tìm thấy OpenCode
+
+**macOS/Linux:**
+```bash
+# Check if OpenCode is in your PATH
+which opencode
+
+# If not found, try reinstalling:
+curl -fsSL https://opencode.ai/install | bash
+```
+
+**Windows:**
+- Xác nhận Node.js đã được cài đúng
+- Thử cài lại qua npm: `npm i -g opencode-ai@latest`
+
+### Vị trí tệp cấu hình
+
+Tệp cấu hình `opencode.json` nên đặt tại:
+
+- **Windows**: `C:\Users\{username}\.config\opencode\opencode.json`
+- **macOS / Linux**: `~/.config/opencode/opencode.json`
+
+## Lưu ý
+
+- Chạy OpenCode trong thư mục dự án riêng. Tránh chạy trong thư mục nhạy cảm (như thư mục hệ thống hoặc thư mục chứa thông tin xác thực). OpenCode hoạt động bắt đầu từ thư mục làm việc hiện tại.
+- OpenCode dùng tệp cấu hình định dạng JSON. Đảm bảo cú pháp tệp cấu hình đúng. Bạn có thể dùng trình kiểm tra JSON trực tuyến để kiểm tra định dạng.
+- OpenCode chỉ đọc nội dung tệp khi bạn ủy quyền rõ ràng. Nên dùng trong thư mục dự án riêng.
+- Nhập và xuất tiếng Trung được hỗ trợ đầy đủ.

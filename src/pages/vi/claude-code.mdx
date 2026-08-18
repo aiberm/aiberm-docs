@@ -1,0 +1,233 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cài đặt Claude Code CLI
+lang: vi
+activeId: claude-code
+---
+
+# Cài đặt Claude Code CLI
+
+Tìm hiểu cách cấu hình Claude Code CLI để dùng API của Aiberm. Hướng dẫn này gồm cài đặt và cấu hình cho Windows, macOS và Linux.
+
+## Claude Code là gì?
+
+Claude Code là giao diện dòng lệnh (CLI) chính thức của Anthropic, mang trợ lý AI trực tiếp vào terminal và trình soạn mã của bạn. Khi cấu hình để dùng Aiberm, bạn có thể truy cập nhiều mô hình AI qua một giao diện quen thuộc duy nhất.
+
+## Điều kiện tiên quyết
+
+Trước khi bắt đầu, hãy đảm bảo bạn có:
+
+- Một tài khoản Aiberm ([Đăng ký tại đây](https://aiberm.com/register))
+- Một API key Aiberm ([Lấy khóa của bạn](https://aiberm.com/console/token))
+- Quyền truy cập Terminal/Command Prompt trên máy tính
+
+## Cài đặt
+
+Chọn hệ điều hành bên dưới để xem hướng dẫn cài đặt.
+
+### macOS & Linux
+
+Mở terminal và chạy:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | sh
+```
+
+Script cài đặt này tự động xử lý mọi phụ thuộc — không cần cài sẵn Node.js hay npm.
+
+**Kiểm tra cài đặt:**
+```bash
+claude --version
+```
+
+### Windows
+
+1. Mở **PowerShell với quyền Administrator** (Nhấp chuột phải PowerShell → "Run as administrator")
+
+2. Chạy lệnh cài đặt:
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+3. Sau khi cài đặt, thêm Claude Code vào PATH:
+   - Nhấn `Win + X` và chọn "System"
+   - Nhấp "Advanced system settings"
+   - Nhấp "Environment Variables"
+   - Trong "System variables", chọn "Path" rồi nhấp "Edit"
+   - Nhấp "New" và thêm: `C:\Users\YourUsername\.claude\bin`
+   - Nhấp "OK" để lưu
+
+4. **Khởi động lại terminal** và kiểm tra cài đặt:
+```powershell
+claude --version
+```
+
+## Cấu hình
+
+Để dùng Aiberm với Claude Code, bạn cần đặt hai biến môi trường:
+
+- `ANTHROPIC_AUTH_TOKEN` — API key Aiberm của bạn
+- `ANTHROPIC_BASE_URL` — Endpoint API của Aiberm (`https://aiberm.com`)
+
+Chọn một trong các phương pháp cấu hình sau:
+
+### Phương pháp 1: Cấu hình vĩnh viễn (Khuyến nghị)
+
+Phương pháp này lưu API key an toàn và giữ nguyên qua các phiên.
+
+#### macOS & Linux
+
+Thêm các dòng sau vào tệp cấu hình shell:
+
+**Với Bash** (`~/.bashrc` hoặc `~/.bash_profile`):
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+**Với Zsh** (`~/.zshrc`):
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+Áp dụng thay đổi:
+```bash
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+#### Windows
+
+**Dùng PowerShell (Bền vững):**
+
+1. Mở PowerShell với quyền Administrator
+2. Chạy các lệnh sau:
+```powershell
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_AUTH_TOKEN', 'sk-your-aiberm-api-key', 'User')
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_BASE_URL', 'https://aiberm.com', 'User')
+```
+
+3. Khởi động lại terminal để áp dụng thay đổi
+
+**Dùng Command Prompt (Bền vững):**
+```cmd
+setx ANTHROPIC_AUTH_TOKEN "sk-your-aiberm-api-key"
+setx ANTHROPIC_BASE_URL "https://aiberm.com"
+```
+
+### Phương pháp 2: Cấu hình tạm thời (Chỉ phiên hiện tại)
+
+#### macOS & Linux
+
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows PowerShell
+
+```powershell
+$env:ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+$env:ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows Command Prompt
+
+```cmd
+set ANTHROPIC_AUTH_TOKEN=sk-your-aiberm-api-key
+set ANTHROPIC_BASE_URL=https://aiberm.com
+```
+
+### Phương pháp 3: Dùng cài đặt Claude Code
+
+Tạo hoặc chỉnh `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "sk-your-aiberm-api-key",
+    "ANTHROPIC_BASE_URL": "https://aiberm.com"
+  }
+}
+```
+
+### Phương pháp 4: Dùng CC Switch (GUI)
+
+[CC Switch](https://github.com/farion1231/cc-switch) là công cụ chuyển nhà cung cấp Claude Code với giao diện đồ họa để quản lý nhiều cấu hình API provider. Xem repository để biết hướng dẫn cài đặt.
+
+**Cấu hình Aiberm Provider:**
+
+1. Chạy CC Switch để mở giao diện cấu hình
+2. **Tắt công tắc Live proxy ở phía trên** (công tắc này định tuyến yêu cầu qua proxy của chính CC Switch, không cần thiết)
+3. Thêm một provider mới với các thiết lập sau:
+   - **Provider Name**: `Aiberm`
+   - **Note**: `Aiberm`
+   - **Website URL**: `https://aiberm.com`
+   - **API Key**: API key Aiberm của bạn
+   - **Request URL**: `https://aiberm.com` (không kết thúc bằng dấu gạch chéo)
+   - **API Format**: `Anthropic Messages (Native)`
+   - **Main Model**: `claude-opus-4-6`
+   - **Thinking Model**: `claude-opus-4-6-thinking`
+   - **Haiku Default Model**: `claude-haiku-4-5-20251001`
+   - **Sonnet Default Model**: `claude-sonnet-4-5-20250929`
+   - **Opus Default Model**: `claude-opus-4-6`
+4. Nhấp "Save"
+
+## Kiểm tra cấu hình
+
+Sau khi khởi chạy Claude Code, gõ `/status` để kiểm tra cấu hình. Nếu bạn thấy nội dung sau, thiết lập đã thành công:
+
+```
+Anthropic base URL: https://aiberm.com
+```
+
+Bạn cũng có thể kiểm tra bằng cách gửi một tin nhắn:
+
+```bash
+claude "Hi"
+```
+
+Nếu cấu hình đúng, Claude Code sẽ phản hồi bằng API của Aiberm.
+
+**Kiểm tra biến môi trường:**
+
+**macOS/Linux:**
+```bash
+echo $ANTHROPIC_BASE_URL
+echo $ANTHROPIC_AUTH_TOKEN
+```
+
+**Windows PowerShell:**
+```powershell
+echo $env:ANTHROPIC_BASE_URL
+echo $env:ANTHROPIC_AUTH_TOKEN
+```
+
+## Xử lý sự cố
+
+### Lỗi "Invalid API key"
+
+- Xác nhận API key đúng: [Console → API Keys](https://aiberm.com/console/token)
+- Đảm bảo không có khoảng trắng thừa trong biến môi trường
+- Kiểm tra `ANTHROPIC_BASE_URL` được đặt thành `https://aiberm.com` (không có `/v1`)
+
+### Lỗi "Connection refused"
+
+- Kiểm tra kết nối internet
+- Kiểm tra xem bạn có truy cập được https://aiberm.com trên trình duyệt không
+- Đảm bảo tường lửa cho phép kết nối HTTPS đi ra
+
+### Không tìm thấy Claude Code
+
+**macOS/Linux:**
+```bash
+# Check if Claude Code is in your PATH
+which claude
+
+# If not found, add to PATH in ~/.zshrc or ~/.bashrc:
+export PATH="$HOME/.claude/bin:$PATH"
+```
+
+**Windows:**
+- Xác nhận biến môi trường PATH có chứa `C:\Users\YourUsername\.claude\bin`
+- Khởi động lại terminal sau khi thêm vào PATH

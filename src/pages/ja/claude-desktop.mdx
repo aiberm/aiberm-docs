@@ -1,0 +1,101 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Claude Desktop のセットアップ
+lang: ja
+activeId: claude-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Claude Desktop のセットアップ
+
+Claude Desktop は、サードパーティの推論プロバイダを使うように設定できます。Aiberm を使うと、Claude Desktop を Aiberm の Anthropic 互換エンドポイントに向け、Aiberm API キーで利用できます。
+
+<Callout client:load type="info">
+Anthropic は、Claude Desktop / Claude Cowork のサードパーティプラットフォーム設定ガイドでこの流れを説明しています。この機能には新しい Claude Desktop ビルドが必要です。古いクライアントでは必要な Developer メニューが表示されない場合があります。
+</Callout>
+
+## 前提条件
+
+開始する前に、次を用意してください。
+
+- Claude 公式のダウンロードページからインストールした最新の Claude Desktop アプリ
+- Aiberm アカウント（[登録](https://aiberm.com/register)）
+- Aiberm API キー（[コンソールで作成](https://aiberm.com/console/token)）
+
+## 設定
+
+Claude Desktop にサインインする前に、次の手順を実行します。
+
+1. 最新の Claude Desktop アプリを開きます。
+2. まだサインインしないでください。
+3. メニューバーで **Help → Troubleshooting → Enable Developer Mode** を開きます。
+
+![Enable Developer Mode in Claude Desktop](/docs/claude-desktop/enable-developer-mode.png)
+
+4. Developer Mode を有効にしたら、**Developer → Configure third-party inference** を開きます。
+
+![Open Configure third-party inference](/docs/claude-desktop/configure-inference.png)
+
+5. サードパーティ推論の設定を入力します。
+
+| フィールド | 値 |
+|-------|-------|
+| Base URL | `https://aiberm.com` |
+| API Key | Aiberm API キー。例: `sk-...` |
+| Authentication method | `x-api-key` を選択します |
+| Provider / API format | Anthropic 互換、カスタムゲートウェイ、または表示される同等のオプション |
+
+![Third-party inference settings for Aiberm](/docs/claude-desktop/third-party-inference.png)
+
+6. **Apply locally** を選び、このコンピュータに設定を保存します。
+7. 案内に従ってサインインを続けるか、Claude Desktop を起動します。
+
+## 動作確認
+
+ローカル設定を適用したあと:
+
+1. アプリから求められたら Claude Desktop を再起動します。
+2. 新しい会話を開始します。
+3. 次のような短いテストプロンプトを送ります。
+
+```text
+Reply with one sentence if this request is using Aiberm.
+```
+
+リクエストが成功すれば、Claude Desktop は設定した Aiberm プロバイダを使っています。
+
+プロバイダが接続されたら、Claude Desktop から Aiberm プラットフォーム上の利用可能なモデルを切り替えられます。これには、Aiberm アカウント経由で公開されているさまざまな Claude モデルバリアントが含まれます。最新の一覧は [モデル一覧](/docs/ja/models) を参照してください。
+
+![Switch Aiberm models in Claude Desktop](/docs/claude-desktop/switch-models.png)
+
+## トラブルシューティング
+
+### Developer メニューが表示されない
+
+- 最新の Claude Desktop アプリをインストールしたことを確認します。古いバージョンではこの設定 UI に対応していない場合があります。
+- **Help → Troubleshooting → Enable Developer Mode** から Developer Mode を有効にします。
+- Developer Mode を有効にしたあと、Claude Desktop を完全に終了して再度開きます。
+
+### サードパーティ推論のオプションがない
+
+- Web アプリではなく、デスクトップアプリを使っていることを確認します。
+- サインイン前に Claude Desktop を開いてみてください。
+- Claude Desktop を更新し、Developer Mode の手順をやり直します。
+
+### 無効な API キー
+
+- [Aiberm Console](https://aiberm.com/console/token) から API キーをすべてコピーします。
+- キーの前後に余分な空白がないか確認します。
+- キーが `sk-` で始まることを確認します。
+- 認証方法が `x-api-key` に設定されていることを確認します。
+
+### 接続またはモデルのエラー
+
+- Base URL が正確に `https://aiberm.com` であることを確認します。
+- ネットワークから `https://aiberm.com` にアクセスできることを確認します。
+- Claude Desktop のビルドでモデル設定が使える場合は、Aiberm 上の別のモデルに切り替えて再テストします。
+
+## 公式リファレンス
+
+- [Anthropic Help Center: Install and configure Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680741-install-and-configure-claude-cowork-with-third-party-platforms)

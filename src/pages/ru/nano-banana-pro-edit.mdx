@@ -1,0 +1,144 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: NanoBanana Pro Edit
+lang: ru
+activeId: nano-banana-pro-edit
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+
+# NanoBanana Pro Edit
+
+Редактирование изображений использует **тот же Gemini API** (`generateContent`), что и генерация в [NanoBanana Pro](/docs/ru/nano-banana-pro/). Вы отправляете в запросе **исходное изображение + инструкцию по правке** и получаете отредактированное изображение в ответе. См. [документацию Gemini: Image editing](https://ai.google.dev/gemini-api/docs/image-generation#gemini-image-editing).
+
+**Эндпоинт**: тот же, что и для генерации: `POST https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent`.
+
+**Главное**: поместите **часть с изображением** (`inlineData`) и **текстовую часть** (инструкцию по правке) в `contents`; задайте `generationConfig.responseModalities` как `["TEXT", "IMAGE"]`, чтобы получить отредактированное изображение; результат читайте из `candidates[0].content.parts` → `inline_data`.
+
+## Пример кода
+
+В Python используется snake_case; в REST/cURL — camelCase. Смысл тот же.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from google import genai
+from google.genai import types
+from PIL import Image
+from io import BytesIO
+
+base_url = "https://aiberm.com"
+api_key = "YOUR_API_KEY"
+model = "gemini-3-pro-image-preview"
+output_file = "edited.png"
+
+image_path = "original.png"
+edit_prompt = "Add a stylish top hat to this image, keep the rest unchanged."
+
+client = genai.Client(
+    api_key=api_key,
+    http_options=types.HttpOptions(api_version="v1beta", base_url=base_url),
+)
+image = Image.open(image_path)
+
+response = client.models.generate_content(
+    model=model,
+    contents=[edit_prompt, image],
+    config=types.GenerateContentConfig(
+        response_modalities=["TEXT", "IMAGE"],
+    ),
+)
+
+for part in response.parts:
+    if part.text is not None:
+        print(part.text)
+    elif part.inline_data is not None:
+        Image.open(BytesIO(part.inline_data.data)).save(output_file)
+        print(f"Saved edited image: {output_file}")`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `# Encode the source image to base64, then put it in contents.parts
+# e.g. IMAGE_B64=\$(base64 -w0 original.png)
+curl -X POST "https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "contents": [{
+      "parts": [
+        { "inlineData": { "mimeType": "image/png", "data": "<BASE64_IMAGE>" }},
+        { "text": "Add a stylish top hat to this image, keep the rest unchanged." }
+      ]
+    }],
+    "generationConfig": {
+      "responseModalities": ["TEXT", "IMAGE"]
+    }
+  }'`
+    }
+  ]}
+/>
+
+## Редактирование и генерация
+
+| | Генерация (NanoBanana Pro) | Редактирование (эта страница) |
+|--|---------------------------|------------------|
+| `contents` | Только текст (описание изображения, которое нужно создать) | **Изображение + текст** (как именно править) |
+| `generationConfig.imageConfig` | Обязательно (соотношение сторон, 1K/2K/4K) | Для правки необязательно |
+| `responseModalities` | `["IMAGE"]` или `["TEXT","IMAGE"]` | Обычно `["TEXT","IMAGE"]` |
+
+Эндпоинт и аутентификация те же; отличаются только `contents` и то, передаёте ли вы `imageConfig`. Остальные параметры см. в [NanoBanana Pro](/docs/ru/nano-banana-pro/).
+
+## Несколько изображений
+
+Поместите несколько частей с изображениями в `contents.parts` (по одному `inlineData` на изображение), затем одну текстовую часть с инструкцией. Модель использует все изображения и инструкцию, чтобы получить результат (например, «перенести объект с первого изображения на фон второго»).
+
+**Python**: передайте несколько объектов изображений и один текст в `contents`.
+
+```python
+image1 = Image.open("photo.png")
+image2 = Image.open("background.png")
+response = client.models.generate_content(
+    model=model,
+    contents=["Place the person from the first image onto the background of the second.", image1, image2],
+    config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
+)
+```
+
+**cURL**: в `contents[0].parts` добавьте по одному `inlineData` на изображение, затем один `text`.
+
+```json
+"contents": [{
+  "parts": [
+    { "inlineData": { "mimeType": "image/png", "data": "<BASE64_IMAGE1>" }},
+    { "inlineData": { "mimeType": "image/png", "data": "<BASE64_IMAGE2>" }},
+    { "text": "Place the person from the first image onto the background of the second." }
+  ]
+}]
+```
+
+## Использование URL изображения
+
+API принимает только **inlineData** (base64) или **fileData** (через File API); URL изображений напрямую не принимаются. Если изображение доступно по URL, сначала скачайте его, затем включите в запрос.
+
+**Python**: скачайте изображение по URL и передайте его в SDK (SDK закодирует его при необходимости).
+
+```python
+import requests
+from io import BytesIO
+
+image_url = "https://example.com/photo.jpg"
+resp = requests.get(image_url)
+image = Image.open(BytesIO(resp.content))
+
+response = client.models.generate_content(
+    model=model,
+    contents=["Add a top hat to this image.", image],
+    config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
+)
+```
+
+**cURL**: скачайте изображение по URL, преобразуйте в base64 и поместите результат в `inlineData.data`.

@@ -1,0 +1,277 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Настройка Hermes Agent
+lang: ru
+activeId: hermes
+---
+
+# Настройка Hermes Agent
+
+В этом руководстве описано, как настроить [Hermes Agent](https://hermes-agent.nousresearch.com/) на Aiberm как провайдера моделей. Hermes Agent — открытый ИИ-агент от Nous Research, который работает в терминале и интегрируется с мессенджерами, включая Telegram, Discord, Slack, WhatsApp и Signal.
+
+Поскольку Aiberm предоставляет OpenAI-совместимый API `/v1`, его можно зарегистрировать как пользовательского провайдера в Hermes Agent без установки плагинов и правок исходного кода. После настройки один API-ключ даёт доступ ко всем моделям Aiberm, включая Claude, GPT, Gemini, DeepSeek, Kimi, MiniMax, GLM и Grok.
+
+## Предварительные требования
+
+- Аккаунт Aiberm ([Регистрация](https://aiberm.com/register))
+- API-ключ Aiberm ([Получить ключ](https://aiberm.com/console/token))
+- Установленный Hermes Agent — см. [официальное руководство по установке](https://hermes-agent.nousresearch.com/docs/getting-started/)
+
+Быстрая установка (Linux / macOS / WSL2):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+## Настройка Aiberm как провайдера
+
+Hermes Agent хранит конфигурацию в `~/.hermes/config.yaml`. Откройте файл и добавьте запись `aiberm` в раздел `providers:`.
+
+> **Если вам неудобно работать с редакторами командной строки вроде Vim**, откройте файл конфигурации встроенным редактором ОС:
+>
+> - **macOS**: откройте **Finder**, нажмите `Shift + Command + G`, введите `~/.hermes` в появившемся диалоге и нажмите Return. Найдите файл `config.yaml`, щёлкните правой кнопкой и выберите **Открыть в программе → TextEdit**.
+> - **Windows**: откройте **Проводник**, введите `%USERPROFILE%\.hermes` в адресной строке и нажмите Enter. Щёлкните правой кнопкой по `config.yaml` и выберите **Открыть с помощью → Блокнот**.
+>
+> После правок не забудьте **сохранить файл** (`Command + S` на macOS, `Ctrl + S` на Windows), затем перейдите к шагу перезапуска, описанному ниже.
+
+```yaml
+model:
+  default: claude-sonnet-4-6
+  provider: aiberm
+
+providers:
+  aiberm:
+    base_url: https://aiberm.com/v1
+    api_key: sk-your-aiberm-api-key
+    type: openai
+    default_model: claude-sonnet-4-6
+    models:
+      # Claude
+      - claude-opus-4-7
+      - claude-opus-4-6
+      - claude-opus-4-6-thinking
+      - claude-opus-4-5-20251101
+      - claude-opus-4-5-20251101-thinking
+      - claude-sonnet-4-6
+      - claude-sonnet-4-6-thinking
+      - claude-sonnet-4-5-20250929
+      - claude-sonnet-4-5-20250929-thinking
+      - claude-haiku-4-5-20251001
+      - claude-haiku-4-5-20251001-thinking
+      # Claude (anthropic/ prefix)
+      - anthropic/claude-opus-4.7
+      - anthropic/claude-opus-4.6
+      - anthropic/claude-opus-4.6:thinking
+      - anthropic/claude-opus-4.5
+      - anthropic/claude-opus-4.5:thinking
+      - anthropic/claude-opus
+      - anthropic/claude-sonnet-4.6
+      - anthropic/claude-sonnet-4.6:thinking
+      - anthropic/claude-sonnet-4.5
+      - anthropic/claude-sonnet-4.5:thinking
+      - anthropic/claude-sonnet
+      - anthropic/claude-haiku-4.5
+      - anthropic/claude-haiku-4.5:thinking
+      # GPT / OpenAI
+      - gpt-5.4
+      - gpt-5.4-xhigh
+      - gpt-5.4-mini
+      - gpt-5.3-codex
+      - gpt-5.3-codex-xhigh
+      - gpt-5.2
+      - gpt-5.2-chat-latest
+      - gpt-5.2-codex
+      - gpt-5.1
+      - gpt-5.1-codex
+      - gpt-5.1-codex-max
+      - gpt-5
+      - gpt-5-mini
+      - gpt-5-nano
+      - o3-mini
+      - gpt-4.1
+      - gpt-4.1-mini
+      - gpt-4.1-nano
+      - gpt-4o
+      - gpt-4o-mini
+      # GPT / OpenAI (openai/ prefix)
+      - openai/gpt-5.4
+      - openai/gpt-5.4-mini
+      - openai/gpt-5.3-codex
+      - openai/gpt-5.2
+      - openai/gpt-5.2-chat
+      - openai/gpt-5.2-codex
+      - openai/gpt-5.1
+      - openai/gpt-5.1-codex
+      - openai/gpt-5.1-codex-max
+      - openai/gpt-5
+      - openai/gpt-5-codex
+      - openai/gpt-5-mini
+      - openai/gpt-5-nano
+      - openai/gpt-4.1
+      - openai/gpt-4.1-mini
+      - openai/gpt-4.1-nano
+      - openai/gpt-4o
+      - openai/gpt-4o-mini
+      - openai/o3-mini
+      # Gemini
+      - gemini-3.1-pro-preview
+      - gemini-3.1-pro-preview-thinking
+      - gemini-3.1-flash-lite-preview
+      - gemini-3.1-flash-image-preview
+      - gemini-3-pro-preview
+      - gemini-3-pro-preview-thinking
+      - gemini-3-pro-image-preview
+      - gemini-3-flash-preview
+      - gemini-2.5-pro
+      - gemini-2.5-flash
+      - gemini-2.5-flash-image
+      # Gemini (google/ prefix)
+      - google/gemini-3.1-pro
+      - google/gemini-3.1-flash-lite
+      - google/gemini-3-pro
+      - google/gemini-3-pro-mcpmark
+      - google/gemini-3-flash
+      - google/gemini-2.5-pro
+      - google/gemini-2.5-flash
+      # DeepSeek
+      - deepseek-v3.2
+      - deepseek-v3.2-exp
+      - deepseek-r1-0528
+      - deepseek-ocr
+      - deepseek/deepseek-v3.2
+      - deepseek/deepseek-v3.2-exp
+      - deepseek/deepseek-v3.2-exp-thinking
+      - deepseek/deepseek-r1
+      - deepseek/deepseek-r1-0528
+      # Grok (xAI)
+      - grok-code-fast-1
+      - grok-4-1-fast-reasoning
+      - grok-4-1-fast-non-reasoning
+      - grok-4.20-beta-0309-reasoning
+      - grok-4.20-beta-0309-non-reasoning
+      - x-ai/grok-4.1-fast
+      - x-ai/grok-code-fast-1
+      # Kimi / Moonshot
+      - Kimi-K2.6
+      - kimi-k2.5-thinking
+      - kimi-k2.5
+      # MiniMax
+      - MiniMax-M2.7
+      - minimax-m2.5
+      - minimax-m2.1
+      - minimax/minimax-m2.7
+      - minimax/minimax-m2.5
+      - minimax/minimax-m2.1
+      # GLM (Zhipu)
+      - glm-5.1
+      - glm-5
+      - glm-5-turbo
+      # Qwen (Alibaba)
+      - qwen3.6-plus
+      - qwen3.5-plus
+      - qwen3.5-397b-a17b
+      # MiMo (Xiaomi)
+      - mimo-v2-pro
+      - mimo-v2-omni
+      - mimo-v2-flash
+      - xiaomi/mimo-v2-flash
+```
+
+> **Совет**: список выше охватывает большинство моделей, которые сейчас предоставляет Aiberm, и он довольно длинный. Рекомендуем **оставить только те модели, которыми вы реально пользуетесь**, а остальные удалить.
+
+### Справка по полям
+
+| Поле | Обязательное | Описание |
+|-------|----------|-------------|
+| `base_url` | Да | OpenAI-совместимый эндпоинт Aiberm. Укажите `https://aiberm.com/v1`. |
+| `api_key` | Да | Ваш API-ключ Aiberm, доступен в [консоли](https://aiberm.com/console/token). |
+| `type` | Да | Тип протокола. Укажите `openai` — Aiberm соответствует спецификации OpenAI Chat Completions. |
+| `default_model` | Да | Модель, которая используется, если модель не указана явно. |
+| `models` | Рекомендуется | Список моделей в селекторе `/model`. Hermes показывает только записи из этого списка (плюс `default_model`). Если список опущен, селектор отображает одну кнопку. |
+
+Раздел верхнего уровня `model:` задаёт активного провайдера и модель по умолчанию. Если раньше вы использовали другого провайдера, установите `provider:` в `aiberm`, а `default:` — в любую модель из блока `models:`.
+
+## Использование
+
+После обновления конфигурации перезапустите Hermes (CLI: выйдите и снова запустите `hermes`; шлюз: `hermes gateway restart`).
+
+**В терминале (CLI):**
+
+```
+/model
+```
+
+Hermes откроет интерактивный селектор моделей. Выберите **Aiberm**, затем нужную модель. Можно переключиться и напрямую:
+
+```
+/model claude-opus-4-7
+/model gpt-5.4 --global
+```
+
+Флаг `--global` сохраняет изменение в `config.yaml`; без него изменение действует только в текущем сеансе.
+
+**В Telegram, Discord, Slack или WhatsApp:**
+
+Отправьте боту `/model`. Он вернёт встроенную клавиатуру со всеми провайдерами, для которых настроены учётные данные. Выберите **Aiberm**, чтобы увидеть постраничный список моделей (8 на страницу, навигация Prev / Next), затем нажмите модель для переключения.
+
+![Telegram /model picker showing Aiberm's paginated model list](/docs/hermes-model-picker.png)
+
+## Просмотр полного каталога моделей
+
+Список `models:` выше — отобранное подмножество. Чтобы увидеть все модели, которые сейчас отдаёт Aiberm, запросите API напрямую:
+
+```bash
+curl -H "Authorization: Bearer sk-your-aiberm-api-key" \
+     https://aiberm.com/v1/models | jq -r '.data[].id'
+```
+
+Добавьте нужные ID моделей в блок `models:` и перезапустите Hermes. После этого они появятся в селекторе `/model`.
+
+## Использование переменных окружения (необязательно)
+
+Если не хотите хранить API-ключ в `config.yaml`, его можно читать из переменной окружения. Задайте:
+
+```bash
+export AIBERM_API_KEY=sk-your-aiberm-api-key
+```
+
+Затем сошлитесь на неё в `config.yaml` через `key_env`:
+
+```yaml
+providers:
+  aiberm:
+    base_url: https://aiberm.com/v1
+    key_env: AIBERM_API_KEY
+    type: openai
+    default_model: claude-sonnet-4-6
+```
+
+## Устранение неполадок
+
+### `/model` показывает только одну кнопку для Aiberm
+
+В блоке `providers.aiberm` нет списка `models:`. Селектор Hermes разбивает список на страницы только если настроено больше 8 моделей. Добавьте отобранный список выше и перезапустите Hermes.
+
+### 401 Unauthorized
+
+- Проверьте API-ключ в [консоли Aiberm](https://aiberm.com/console/token).
+- Убедитесь, что ключ указан в `providers.aiberm.api_key`, а не на верхнем уровне конфигурации.
+
+### Модель не найдена
+
+Каталог моделей Aiberm со временем меняется; модель из вашего списка могла быть переименована или снята. Снова запросите `/v1/models` (см. выше) и обновите список `models:`.
+
+### Как проверить, что конфигурация загружена
+
+```bash
+hermes doctor
+```
+
+Команда выводит диагностический отчёт, включая текущего активного провайдера и модель.
+
+## Ссылки
+
+- [Документация Hermes Agent](https://hermes-agent.nousresearch.com/docs/)
+- [Hermes Agent on GitHub](https://github.com/NousResearch/hermes-agent)
+- [Консоль Aiberm](https://aiberm.com/console/token)
+- [Цены и список моделей Aiberm](https://aiberm.com/pricing)

@@ -1,0 +1,246 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Настройка Codex CLI
+lang: ru
+activeId: codex
+---
+
+# Настройка Codex CLI
+
+Узнайте, как настроить Codex CLI для работы с API Aiberm. В руководстве описаны установка и конфигурация для Windows, macOS и Linux.
+
+## Что такое Codex CLI?
+
+Codex CLI — интерфейс командной строки OpenAI для задач по коду в терминале. Он ориентирован на инженерный результат: изменения в коде более ясные и применимые, чем у обычных чат-инструментов. Настроив его на Aiberm, вы получите доступ к нескольким моделям ИИ через экономичный эндпоинт.
+
+## Предварительные требования
+
+Перед началом убедитесь, что у вас есть:
+
+- Аккаунт Aiberm ([Зарегистрироваться](https://aiberm.com/register))
+- API-ключ Aiberm ([Получить ключ](https://aiberm.com/console/token))
+- Node.js v20 или новее вместе с npm
+
+## Установка
+
+Установите Codex CLI глобально через npm:
+
+```bash
+npm install -g @openai/codex
+```
+
+**Проверка установки:**
+```bash
+codex --version
+```
+
+Должен отобразиться номер версии.
+
+## Настройка
+
+Codex CLI использует файл `config.toml`. Расположение каталога конфигурации зависит от ОС:
+
+- **Windows**: `%userprofile%\.codex`
+- **macOS/Linux**: `~/.codex`
+
+### Способ 1: ручная настройка
+
+Перейдите в каталог конфигурации и создайте или отредактируйте `config.toml`:
+
+**macOS/Linux:**
+```bash
+mkdir -p ~/.codex
+nano ~/.codex/config.toml
+```
+
+**Windows:**
+```powershell
+mkdir $env:USERPROFILE\.codex -Force
+notepad $env:USERPROFILE\.codex\config.toml
+```
+
+Добавьте следующую конфигурацию:
+
+```toml
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+wire_api = "responses"
+```
+
+**Примечание:** параметр `env_key` указывает Codex CLI, какую переменную окружения читать. API-ключ Aiberm вы зададите в этой переменной на следующем шаге.
+
+### Способ 2: настройка одной командой
+
+**macOS/Linux:**
+```bash
+mkdir -p ~/.codex && cat > ~/.codex/config.toml << 'EOF'
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+wire_api = "responses"
+EOF
+```
+
+**Windows PowerShell:**
+```powershell
+$configPath = "$env:USERPROFILE\.codex"
+New-Item -ItemType Directory -Force -Path $configPath | Out-Null
+@"
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+env_key = "OPENAI_API_KEY"
+wire_api = "responses"
+"@ | Out-File -FilePath "$configPath\config.toml" -Encoding utf8
+```
+
+**Примечание:** приведённая конфигурация заставляет Codex CLI читать API-ключ из переменной окружения `OPENAI_API_KEY`. На следующем шаге вы запишете в неё свой ключ Aiberm.
+
+## Задать API-ключ
+
+После настройки TOML-файла задайте API-ключ Aiberm как переменную окружения.
+
+**Важно:** хотя переменная называется `OPENAI_API_KEY`, используйте **API-ключ Aiberm** (не ключ OpenAI). Codex CLI использует это стандартное имя ради совместимости.
+
+### Временно (только текущий сеанс)
+
+**macOS/Linux:**
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Windows PowerShell:**
+```powershell
+$env:OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+**Windows Command Prompt:**
+```cmd
+set OPENAI_API_KEY=sk-your-aiberm-api-key
+```
+
+### Постоянная настройка
+
+**macOS/Linux (Bash):**
+
+Добавьте в `~/.bashrc` или `~/.bash_profile`:
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+Примените изменения:
+```bash
+source ~/.bashrc  # or source ~/.bash_profile
+```
+
+**macOS/Linux (Zsh):**
+
+Добавьте в `~/.zshrc`:
+```bash
+export OPENAI_API_KEY="sk-your-aiberm-api-key"
+```
+
+Примените изменения:
+```bash
+source ~/.zshrc
+```
+
+**Windows PowerShell:**
+```powershell
+[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-your-aiberm-api-key', 'User')
+```
+
+**Windows Command Prompt:**
+```cmd
+setx OPENAI_API_KEY "sk-your-aiberm-api-key"
+```
+
+## Проверка конфигурации
+
+**Проверка установки Node.js:**
+```bash
+node -v
+npm -v
+```
+
+**Проверка установки Codex CLI:**
+```bash
+codex --version
+```
+
+**Проверка подключения к API:**
+```bash
+codex "Hi"
+```
+
+**Проверка переменной окружения:**
+
+**macOS/Linux:**
+```bash
+echo $OPENAI_API_KEY
+```
+
+**Windows PowerShell:**
+```powershell
+echo $env:OPENAI_API_KEY
+```
+
+Если всё настроено правильно, Codex CLI ответит через API Aiberm.
+
+## Устранение неполадок
+
+### Ошибка 401 Unauthorized
+
+- Проверьте правильность API-ключа: [Консоль → API Keys](https://aiberm.com/console/token)
+- Убедитесь, что переменная окружения `OPENAI_API_KEY` задана корректно
+- Перезапустите терминал после установки переменных окружения
+
+### Ошибка 403 Forbidden
+
+- Проверьте действительность API-ключа
+- Проверьте баланс аккаунта на [https://aiberm.com/console](https://aiberm.com/console)
+- Убедитесь, что у ключа есть доступ к запрошенной модели
+
+### Сетевые ошибки
+
+- Проверьте подключение к интернету
+- Убедитесь, что https://aiberm.com открывается в браузере
+- Проверьте, что брандмауэр разрешает исходящие HTTPS-соединения
+- Убедитесь, что `base_url` в `config.toml` указан верно: `https://aiberm.com/v1`
+
+### Конфигурация не применяется
+
+- Перезапустите терминал после правки `config.toml`
+- Проверьте синтаксис TOML (без лишних пробелов, корректные кавычки)
+- Убедитесь, что путь к файлу конфигурации соответствует вашей ОС
+- Убедитесь, что файл сохранён как `config.toml` (не `config.toml.txt`)
+
+### Команда Codex не найдена
+
+**macOS/Linux:**
+```bash
+# Check if npm global bin is in PATH
+npm config get prefix
+
+# If needed, add to PATH in ~/.zshrc or ~/.bashrc:
+export PATH="$(npm config get prefix)/bin:$PATH"
+```
+
+**Windows:**
+- Убедитесь, что глобальный путь npm добавлен в системный PATH
+- Перезапустите терминал после установки npm

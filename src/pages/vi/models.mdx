@@ -1,0 +1,151 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Danh sách mô hình
+lang: vi
+activeId: models
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Danh sách mô hình
+
+Lấy danh sách tất cả mô hình AI mà người dùng hiện tại có thể truy cập, gồm ID mô hình, tên, nhà cung cấp và thông tin chi tiết.
+
+<Callout client:load type="info" title="Về danh sách mô hình và nhóm token">
+Các mô hình trả về trong danh sách phụ thuộc vào nhóm token mà API KEY của bạn thuộc về. Bạn có thể chọn nhóm token khi tạo hoặc chỉnh token trong Console → API Tokens.
+</Callout>
+
+## Endpoint
+
+`GET https://aiberm.com/v1/models`
+
+## Ví dụ yêu cầu
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X GET "https://aiberm.com/v1/models" \\
+  -H "Authorization: Bearer sk-your-api-token-here" \\
+  -H "Content-Type: application/json"`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+url = "https://aiberm.com/v1/models"
+headers = {
+    "Authorization": "Bearer sk-your-api-token-here",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/models', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer sk-your-api-token-here',
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## Định dạng phản hồi
+
+### Phản hồi thành công (200 OK)
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'json',
+      label: 'JSON',
+      code: `{
+  "success": true,
+  "data": [
+    {
+      "id": "gpt-4",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "gpt-3.5-turbo",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "claude-3-sonnet-20240229",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "anthropic",
+      "supported_endpoint_types": [
+        "chat"
+      ]
+    }
+  ]
+}`
+    }
+  ]}
+/>
+
+## Các trường phản hồi
+
+**Trường cấp cao nhất:**
+- `success` - Boolean, cho biết yêu cầu có thành công hay không
+- `data` - Mảng các đối tượng mô hình (chỉ trả về khi thành công)
+- `message` - Thông báo lỗi (chỉ trả về khi thất bại)
+
+**Các trường của đối tượng mô hình:**
+- `id` - Định danh duy nhất của mô hình
+- `object` - Kiểu đối tượng, cố định là "model"
+- `created` - Dấu thời gian tạo mô hình
+- `owned_by` - Nhà cung cấp mô hình (ví dụ: openai, anthropic)
+- `supported_endpoint_types` - Mảng các kiểu endpoint API được hỗ trợ
+
+## Các kiểu endpoint được hỗ trợ
+
+- `chat` - Chat Completion
+- `completion` - Text Completion
+- `embedding` - Text Embedding
+- `image` - Image Generation
+- `audio` - Audio Processing
+- `rerank` - Rerank
+
+## Lưu ý quan trọng
+
+<Callout client:load type="info" title="Bắt buộc xác thực">
+Phải cung cấp token API hợp lệ. Token quyết định người dùng có thể truy cập những mô hình nào.
+</Callout>
+
+<Callout client:load type="info" title="Kiểm soát quyền">
+Danh sách mô hình trả về được lọc theo nhóm người dùng và nhóm token, chỉ hiển thị các mô hình mà người dùng có quyền truy cập.
+</Callout>
+
+## Lỗi thường gặp
+
+- `401 Unauthorized` - Token API không hợp lệ hoặc đã hết hạn
+- `403 Forbidden` - Người dùng không có quyền truy cập
+- `500 Internal Server Error` - Lỗi máy chủ nội bộ

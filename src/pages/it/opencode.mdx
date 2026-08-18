@@ -1,0 +1,276 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Configurazione di OpenCode CLI
+lang: it
+activeId: opencode
+---
+
+# Configurazione di OpenCode CLI
+
+Scopri come configurare OpenCode CLI per usare l'API di Aiberm. Questa guida copre l'installazione e la configurazione per Windows, macOS e Linux.
+
+## Che cos'è OpenCode?
+
+OpenCode è uno strumento di programmazione a riga di comando (CLI) open source basato su Go che offre una potente assistenza IA per gli sviluppatori. Fornisce un'interfaccia utente del terminale (TUI) intuitiva e supporta più provider LLM tra cui OpenAI, Anthropic, Gemini e altri.
+
+Integrando OpenCode con **Aiberm API**, puoi accedere a qualsiasi modello disponibile su Aiberm (inclusi Claude, GPT, Gemini e altri) tramite un'interfaccia unificata con una sola chiave e un solo base URL.
+
+## Prerequisiti
+
+Prima di iniziare, assicurati di avere:
+
+- Un account Aiberm ([Registrati qui](https://aiberm.com/register))
+- Una API key Aiberm ([Ottieni la tua chiave](https://aiberm.com/console/token))
+- Accesso a Terminale/Prompt dei comandi sul computer
+
+### Emulatore di terminale
+
+OpenCode richiede un emulatore di terminale moderno. Opzioni consigliate:
+
+- **WezTerm** (multipiattaforma)
+- **Alacritty** (multipiattaforma)
+- **Ghostty** (Linux e macOS)
+- **Kitty** (Linux e macOS)
+
+Gli utenti Windows possono anche usare PowerShell o Windows Terminal. Gli utenti macOS possono usare il Terminale integrato o iTerm2. Gli utenti Linux possono usare il terminale integrato oppure GNOME Terminal, Konsole, ecc.
+
+## Installazione
+
+Scegli il sistema operativo qui sotto per le istruzioni di installazione.
+
+### macOS e Linux
+
+Il modo più semplice è tramite lo script di installazione:
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+Oppure usando Homebrew:
+
+```bash
+brew install anomalyco/tap/opencode
+```
+
+**Verifica l'installazione:**
+```bash
+opencode --version
+```
+
+### Windows
+
+Gli utenti Windows devono prima installare [Node.js](https://nodejs.org/en/download), poi installare tramite NPM:
+
+```bash
+npm i -g opencode-ai@latest
+```
+
+Oppure usando Chocolatey:
+
+```bash
+choco install opencode
+```
+
+Oppure usando Scoop:
+
+```bash
+scoop bucket add extras
+scoop install extras/opencode
+```
+
+**Verifica l'installazione:**
+```bash
+opencode --version
+```
+
+Se preferisci un'interfaccia grafica, OpenCode offre anche un'app desktop disponibile nella [pagina di download di OpenCode](https://opencode.ai/download).
+
+## Configurazione
+
+### Passaggio 1: inizializzare il provider
+
+Dopo l'installazione, esegui il seguente comando nel terminale prima di avviare OpenCode:
+
+```bash
+opencode auth login
+```
+
+1. Nell'elenco dei provider, seleziona **other** (in fondo, puoi cercarlo)
+2. Inserisci **Provider ID**: digita `aiberm`
+3. Inserisci **API Key token**: puoi inserire qualsiasi valore (ad es. `admin`); la chiave effettiva viene referenziata tramite il file di configurazione
+
+Questo passaggio registra un provider personalizzato nel gestore delle credenziali locali di OpenCode.
+
+### Passaggio 2: modificare il file di configurazione
+
+Apri la directory di configurazione di OpenCode:
+
+**Windows:**
+
+Premi `Win + R`, incolla quanto segue, poi premi Invio:
+
+```
+%userprofile%\.config\opencode
+```
+
+**macOS / Linux:**
+
+Nel terminale, esegui:
+
+```bash
+cd ~/.config/opencode
+```
+
+Oppure accedi a `~/.config/opencode/` in Finder/gestore file.
+
+Crea o modifica `opencode.json` in questa directory. Di seguito un esempio di configurazione con i modelli Claude:
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "aiberm": {
+            "npm": "@ai-sdk/anthropic",
+            "name": "Aiberm",
+            "options": {
+                "baseURL": "https://aiberm.com/v1",
+                "apiKey": "sk-your-aiberm-api-key"
+            },
+            "models": {
+                "claude-opus-4-5-20251101": {
+                    "name": "Claude-4.5-Opus"
+                },
+                "claude-sonnet-4-5-20250929": {
+                    "name": "Claude-4.5-Sonnet"
+                },
+                "claude-haiku-4-5-20251001": {
+                    "name": "Claude-4.5-Haiku"
+                }
+            }
+        }
+    }
+}
+```
+
+Puoi anche aggiungere altri modelli disponibili su Aiberm. Ad esempio, per aggiungere i modelli OpenAI GPT:
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "aiberm": {
+            "npm": "@ai-sdk/openai",
+            "name": "Aiberm",
+            "options": {
+                "baseURL": "https://aiberm.com/v1",
+                "apiKey": "sk-your-aiberm-api-key"
+            },
+            "models": {
+                "openai/gpt-4.1": {
+                    "name": "GPT-4.1"
+                },
+                "openai/gpt-4.1-mini": {
+                    "name": "GPT-4.1 Mini"
+                },
+                "openai/gpt-4.1-nano": {
+                    "name": "GPT-4.1 Nano"
+                },
+                "openai/gpt-4o": {
+                    "name": "GPT-4o"
+                },
+                "openai/gpt-4o-mini": {
+                    "name": "GPT-4o Mini"
+                }
+            }
+        }
+    }
+}
+```
+
+Consulta la pagina [Elenco modelli](/docs/it/models) o [Aiberm Pricing](https://aiberm.com/pricing) per tutti i modelli disponibili su Aiberm.
+
+**Importante:**
+
+- Sostituisci `"sk-your-aiberm-api-key"` con la tua API Key effettiva dalla [Aiberm Console](https://aiberm.com/console/token)
+- Il formato JSON è sensibile ai simboli
+
+## Verificare la configurazione
+
+Dopo aver salvato il file di configurazione, riavvia il terminale, poi vai alla directory di lavoro:
+
+```bash
+cd your-working-directory
+```
+
+Avvia OpenCode:
+
+```bash
+opencode
+```
+
+Nell'interfaccia di chat, inserisci il comando:
+
+```
+/models
+```
+
+Dovresti vedere Aiberm e i suoi modelli nell'elenco. Selezionane uno e sei pronto!
+
+## Cambiare modello
+
+Nell'interfaccia di OpenCode, inserisci il comando `/models`, poi seleziona il modello desiderato dall'elenco.
+
+**Esempi di modelli disponibili tramite Aiberm:**
+
+- **anthropic/claude-sonnet-4-5-20250514**: Claude 4.5 Sonnet di Anthropic
+- **anthropic/claude-opus-4-20250514**: Claude 4 Opus di Anthropic
+- **openai/gpt-4.1**: GPT-4.1 di OpenAI
+- **openai/gpt-4o-mini**: GPT-4o Mini di OpenAI
+- **google/gemini-3-pro**: Gemini 3 Pro di Google
+- E altri...
+
+Visita [Aiberm Pricing](https://aiberm.com/pricing) per l'elenco completo dei modelli disponibili.
+
+## Risoluzione dei problemi
+
+### Le modifiche alla configurazione non hanno effetto
+
+- Riavvia OpenCode
+- Controlla la sintassi di `opencode.json` (formato JSON)
+- Verifica che il percorso del file di configurazione sia corretto
+
+### Errori 401/403
+
+- **Errore 401**: API Key non impostata o non valida
+- **Errore 403**: Permessi insufficienti o chiave scaduta
+- Controlla `apiKey` nel file di configurazione
+- Verifica la tua API key nella [Aiberm Console](https://aiberm.com/console/token)
+
+### OpenCode non trovato
+
+**macOS/Linux:**
+```bash
+# Check if OpenCode is in your PATH
+which opencode
+
+# If not found, try reinstalling:
+curl -fsSL https://opencode.ai/install | bash
+```
+
+**Windows:**
+- Verifica che Node.js sia installato correttamente
+- Prova a reinstallare tramite npm: `npm i -g opencode-ai@latest`
+
+### Posizione del file di configurazione
+
+Il file di configurazione `opencode.json` deve essere posizionato in:
+
+- **Windows**: `C:\Users\{username}\.config\opencode\opencode.json`
+- **macOS / Linux**: `~/.config/opencode/opencode.json`
+
+## Note
+
+- Esegui OpenCode in una cartella di progetto dedicata. Evita di eseguirlo in directory sensibili (come cartelle di sistema o directory che contengono credenziali). OpenCode opera a partire dalla directory di lavoro corrente.
+- OpenCode usa file di configurazione in formato JSON. Assicurati che la sintassi del file sia corretta. Puoi usare validatori JSON online per controllare il formato.
+- OpenCode legge il contenuto dei file solo quando lo autorizzi esplicitamente. Si consiglia di usarlo in una cartella di progetto dedicata.
+- L'input e l'output in cinese sono pienamente supportati.

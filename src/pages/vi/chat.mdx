@@ -1,0 +1,155 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Chat Completions
+lang: vi
+activeId: chat
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Chat Completions
+
+Tạo phản hồi hội thoại bằng nhiều mô hình AI thông qua một API thống nhất.
+
+## Tạo Chat Completion
+
+`POST https://aiberm.com/v1/chat/completions`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "gpt-4",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is the capital of France?"}
+    ],
+    "temperature": 0.7
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "What is the capital of France?"}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: 'https://aiberm.com/v1'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user', content: 'What is the capital of France?' }
+  ],
+  temperature: 0.7
+});
+
+console.log(response.choices[0].message.content);`
+    }
+  ]}
+/>
+
+## Tham số yêu cầu
+
+| Tham số | Kiểu | Bắt buộc | Mô tả |
+|-----------|------|----------|-------------|
+| `model` | string | Có | ID của mô hình cần dùng |
+| `messages` | array | Có | Mảng các đối tượng tin nhắn |
+| `temperature` | number | Không | Nhiệt độ lấy mẫu (0-2). Mặc định: 1 |
+| `max_tokens` | integer | Không | Số token tối đa được sinh ra |
+| `top_p` | number | Không | Tham số nucleus sampling |
+| `stream` | boolean | Không | Có stream phản hồi hay không |
+
+## Vai trò tin nhắn
+
+Tin nhắn phải có `role` và `content`:
+
+- **system** - Thiết lập hành vi/tính cách của trợ lý
+- **user** - Tin nhắn từ người dùng cuối
+- **assistant** - Các phản hồi trước đó từ AI
+
+## Phản hồi streaming
+
+Bật streaming để nhận phản hồi theo từng phần:
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+stream = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const stream = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Tell me a story' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || '');
+}`
+    }
+  ]}
+/>
+
+## Thực hành tốt nhất
+
+<Callout client:load type="tip" title="Tối ưu yêu cầu của bạn">
+- Đặt `max_tokens` để giới hạn chi phí
+- Dùng giá trị `temperature` phù hợp (thấp hơn cho nội dung thực tế, cao hơn cho sáng tạo)
+- Thêm tin nhắn system để hướng dẫn hành vi
+- Stream phản hồi để UX tốt hơn
+</Callout>
+
+<Callout client:load type="warning">
+Hãy lưu ý giới hạn token của từng mô hình. Các cuộc hội thoại dài có thể cần quản lý lịch sử hội thoại.
+</Callout>

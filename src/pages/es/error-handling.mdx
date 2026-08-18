@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Manejo de errores
+lang: es
+activeId: error-handling
+---
+
+# Manejo de errores
+
+Cuando falla una solicitud a la API de Aiberm, la API devuelve un objeto de error JSON. Usa el código de estado HTTP, `error.code` y `error.message` para identificar el problema y decidir qué hacer a continuación.
+
+Si necesitas soporte, incluye la respuesta de error completa con cada `request id`.
+
+## Formato de la respuesta de error
+
+```json
+{
+  "error": {
+    "message": "用户额度不足, 剩余额度: ¥0.00 (request id: 20260622xxxxxxxx)",
+    "type": "new_api_error",
+    "code": "insufficient_user_quota"
+  }
+}
+```
+
+| Campo | Significado |
+| --- | --- |
+| `message` | Mensaje de error legible. El `(request id: ...)` al final es el ID de seguimiento de esta solicitud. Inclúyelo al contactar a soporte. |
+| `code` | Identificador de la categoría de error. Relaciónalo con los errores comunes que se indican más abajo. |
+| `type` | Marcador del origen del error. En la mayoría de los casos, no es necesario manejarlo de forma directa. |
+
+> Si `message` contiene varios valores `(request id: ...)`, es normal. Significa que la solicitud pasó por varias capas de servicio. Copia el mensaje de error completo al contactar a soporte.
+
+## Códigos de estado HTTP
+
+| Estado | Significado | Qué hacer |
+| --- | --- | --- |
+| `400` | Formato de solicitud inválido | Revisa el JSON de la solicitud, los campos obligatorios, el `Content-Type` y el nombre del modelo. |
+| `401` | Clave de API inválida | Comprueba si la clave de API es correcta, está vencida, deshabilitada o sin cuota. |
+| `403` | Sin permiso o saldo insuficiente | Revisa el saldo de la cuenta, los permisos del token, los permisos del modelo y la IP de origen. |
+| `404` | Recurso no encontrado | Revisa la URL del endpoint y la ortografía del nombre del modelo. |
+| `429` | Demasiadas solicitudes | Reduce la concurrencia o la frecuencia de solicitudes y luego reintenta más tarde. |
+| `500` | Error interno del servidor | Reintenta más tarde. Si persiste, contacta a soporte con el `request id`. |
+| `503` | Servicio no disponible temporalmente | El modelo no tiene una ruta disponible en este momento. Reintenta más tarde o contacta a soporte. |
+
+## Errores de clave de API y autenticación
+
+Estos errores suelen devolver `401`.
+
+| Mensaje que puedes ver | Causa común | Cómo solucionarlo |
+| --- | --- | --- |
+| `无效的令牌` | La clave de API es incorrecta o no existe. | Comprueba que la clave esté completa y no tenga caracteres de más o de menos. Cópiala de nuevo desde la consola. |
+| `该令牌已过期` | El token ha vencido. | Regenera el token en la consola o extiende su período de validez. |
+| `该令牌额度已用尽` | Se agotó la cuota asignada a este token. | Aumenta la cuota del token o usa otro token con cuota suficiente. |
+| `该令牌状态不可用` | El token está deshabilitado. | Habilita el token en la consola o crea uno nuevo. |
+| `未提供令牌` | La solicitud no incluyó una clave de API. | Agrega `Authorization: Bearer sk-xxxxxx` a los encabezados de la solicitud. |
+
+## Errores de permisos y saldo
+
+Estos errores suelen devolver `403`.
+
+| Mensaje que puedes ver | Causa común | Cómo solucionarlo |
+| --- | --- | --- |
+| `用户额度不足, 剩余额度: ...` | El saldo de la cuenta no alcanza para esta solicitud. | Recarga la cuenta y reintenta. |
+| `预扣费额度失败, 用户剩余额度: ...` | El saldo no alcanza para cubrir el costo estimado de la solicitud. | Recarga, o reduce `max_tokens` y acorta la entrada. |
+| `您的 IP 不在令牌允许访问的列表中` | El token tiene una lista de IP permitidas y la IP actual no está permitida. | Usa una IP permitida o actualiza la lista de permitidos en la consola. |
+| `用户已被封禁` | La cuenta ha sido suspendida. | Contacta a soporte para más detalles. |
+| `无权访问 xxx 分组` | El token no tiene acceso al grupo solicitado. | Usa un grupo permitido o solicita acceso. |
+| `该令牌无权访问模型 xxx` | La lista de modelos permitidos del token no incluye este modelo. | Usa un modelo permitido o actualiza los permisos de modelo del token en la consola. |
+
+## Errores de contenido de la solicitud
+
+Estos errores suelen devolver `400`.
+
+| Mensaje que puedes ver | Causa común | Cómo solucionarlo |
+| --- | --- | --- |
+| `Invalid request, ...` | No se puede analizar el cuerpo de la solicitud. | Comprueba que el JSON sea válido y que `Content-Type` sea `application/json`. |
+| `未指定模型名称，模型名称不能为空` | A la solicitud le falta el campo `model`. | Agrega el `model` correcto al cuerpo de la solicitud. |
+| Mensajes como `检测到敏感词` | La entrada coincidió con una regla de seguridad de contenido. | Ajusta la entrada y reintenta. |
+
+## Errores de límite de tasa
+
+Estos errores suelen devolver `429`.
+
+| Mensaje que puedes ver | Causa común | Cómo solucionarlo |
+| --- | --- | --- |
+| `您已达到请求数限制：N分钟内最多请求M次` | Alcanzaste el límite de solicitudes exitosas. | Reduce la frecuencia de solicitudes y reintenta después de que se restablezca la ventana del límite. |
+| `您已达到总请求数限制：...，包括失败次数...` | Se alcanzó el límite total de solicitudes, incluidas las fallidas. | Revisa si hay solicitudes fallidas repetidas en bucle, corrige la causa y luego reintenta. |
+
+## Errores de modelo y ruta
+
+Estos errores suelen devolver `404` o `503`.
+
+| Mensaje que puedes ver | Causa común | Cómo solucionarlo |
+| --- | --- | --- |
+| `模型不存在` | El nombre del modelo está mal escrito o este modelo no está habilitado para el token. | Confirma el nombre del modelo y los permisos de modelo del token. |
+| `无可用渠道` | El modelo no tiene una ruta disponible en este momento. | Reintenta más tarde. Si sigue no disponible, contacta a soporte. |
+
+## Errores del servidor
+
+Estos errores suelen devolver `500` o `503`.
+
+| Mensaje que puedes ver | Causa común | Cómo solucionarlo |
+| --- | --- | --- |
+| Mensajes de error interno | Problema temporal del servidor o un servicio upstream no está disponible temporalmente. | Reintenta más tarde. Si persiste, contacta a soporte con el `request id`. |
+
+## Antes de contactar a soporte
+
+Para ayudarnos a localizar el problema más rápido, proporciona:
+
+1. La respuesta de error completa, incluidos `message`, `code` y cada `request id`.
+2. La hora aproximada en que ocurrió el problema.
+3. El nombre del modelo y la URL del endpoint que llamaste.
+4. Los primeros caracteres de la clave de API, como `sk-abcd...`. No envíes la clave completa.

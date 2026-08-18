@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Autenticação
+lang: pt
+activeId: authentication
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Autenticação
+
+Todas as solicitações à API exigem autenticação. Usamos autenticação Bearer Token para garantir que suas chamadas à API sejam seguras e confiáveis.
+
+## Obter a chave de API
+
+Acesse Console → API Tokens para criar e gerenciar suas chaves de API.
+
+<Callout client:load type="info" title="Etapas para criar">
+1. Entre na sua conta Aiberm
+2. Vá para a página Console
+3. Clique em "API Tokens" no menu à esquerda
+4. Clique no botão "New Token"
+5. Defina o nome e as permissões do token
+6. Copie a chave de API gerada
+</Callout>
+
+## Exemplos de código
+
+<CodeExample
+  client:load
+  title="Exemplos de código"
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers=headers,
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [{"role": "user", "content": "Hello!"}]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch(
+    "https://aiberm.com/v1/chat/completions",
+    {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer YOUR_API_KEY",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [{ role: "user", content: "Hello!" }]
+        })
+    }
+);
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## Observações de segurança
+
+- Mantenha sua chave de API em segurança e não a exponha no código do lado do cliente
+- Rotacione as chaves de API regularmente para aumentar a segurança da conta
+- Se sua chave de API vazar, exclua-a imediatamente no console e gere uma nova
+- Use variáveis de ambiente para armazenar as chaves de API em vez de gravá-las no código
+
+## Erros comuns
+
+<Callout client:load type="error" title="401 Unauthorized">
+Chave de API inválida ou expirada
+
+**Solução:** Verifique se a chave de API está correta ou gere uma nova chave de API
+</Callout>
+
+<Callout client:load type="error" title="403 Forbidden">
+Permissões insuficientes ou conta restrita
+
+**Solução:** Verifique o status da conta e entre em contato com o administrador para obter as permissões adequadas
+</Callout>

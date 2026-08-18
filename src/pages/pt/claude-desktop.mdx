@@ -1,0 +1,101 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Configuração do Claude Desktop
+lang: pt
+activeId: claude-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Configuração do Claude Desktop
+
+O Claude Desktop pode ser configurado para usar um provedor de inferência de terceiros. Com a Aiberm, você pode apontar o Claude Desktop para o endpoint compatível com Anthropic da Aiberm e usar sua chave de API da Aiberm.
+
+<Callout client:load type="info">
+A Anthropic documenta esse fluxo no guia de configuração de plataformas de terceiros do Claude Desktop / Claude Cowork. O recurso exige uma versão recente do Claude Desktop; clientes mais antigos podem não exibir o menu Developer necessário.
+</Callout>
+
+## Pré-requisitos
+
+Antes de começar, certifique-se de ter:
+
+- O aplicativo Claude Desktop mais recente instalado na página oficial de download do Claude
+- Uma conta Aiberm ([Cadastre-se](https://aiberm.com/register))
+- Uma chave de API da Aiberm ([Crie uma no Console](https://aiberm.com/console/token))
+
+## Configuração
+
+Siga estas etapas antes de entrar no Claude Desktop.
+
+1. Abra o aplicativo Claude Desktop mais recente.
+2. Ainda não faça login.
+3. Na barra de menus, abra **Help → Troubleshooting → Enable Developer Mode**.
+
+![Ativar o Developer Mode no Claude Desktop](/docs/claude-desktop/enable-developer-mode.png)
+
+4. Depois que o Developer Mode estiver ativado, abra **Developer → Configure third-party inference**.
+
+![Abrir Configure third-party inference](/docs/claude-desktop/configure-inference.png)
+
+5. Preencha as configurações de inferência de terceiros:
+
+| Campo | Valor |
+|-------|-------|
+| Base URL | `https://aiberm.com` |
+| API Key | Sua chave de API da Aiberm, por exemplo `sk-...` |
+| Authentication method | Selecione `x-api-key` |
+| Provider / API format | Compatível com Anthropic, gateway personalizado ou a opção equivalente, se for exibida |
+
+![Configurações de inferência de terceiros para a Aiberm](/docs/claude-desktop/third-party-inference.png)
+
+6. Escolha **Apply locally** para salvar a configuração neste computador.
+7. Continue o login ou a inicialização do Claude Desktop conforme solicitado.
+
+## Verificar se está funcionando
+
+Após aplicar a configuração local:
+
+1. Reinicie o Claude Desktop se o aplicativo solicitar.
+2. Inicie uma nova conversa.
+3. Envie um prompt de teste curto, como:
+
+```text
+Reply with one sentence if this request is using Aiberm.
+```
+
+Se a solicitação for bem-sucedida, o Claude Desktop está usando o provedor Aiberm configurado.
+
+Depois que o provedor estiver conectado, você pode alternar entre os modelos disponíveis na plataforma Aiberm a partir do Claude Desktop. Isso inclui diferentes variantes de modelos Claude expostas pela sua conta Aiberm. Para a lista atual, consulte [Lista de modelos](/docs/pt/models).
+
+![Alternar modelos da Aiberm no Claude Desktop](/docs/claude-desktop/switch-models.png)
+
+## Solução de problemas
+
+### O menu Developer não aparece
+
+- Confirme se você instalou o aplicativo Claude Desktop mais recente. Versões mais antigas podem não oferecer suporte a esta interface de configuração.
+- Ative o Developer Mode em **Help → Troubleshooting → Enable Developer Mode**.
+- Encerre completamente e reabra o Claude Desktop após ativar o Developer Mode.
+
+### A opção de inferência de terceiros está ausente
+
+- Certifique-se de que está usando o aplicativo para desktop, não o aplicativo web.
+- Tente abrir o Claude Desktop antes de fazer login.
+- Atualize o Claude Desktop e repita a etapa do Developer Mode.
+
+### Chave de API inválida
+
+- Copie a chave de API completa em [Aiberm Console](https://aiberm.com/console/token).
+- Verifique se há espaços extras antes ou depois da chave.
+- Confirme se a chave começa com `sk-`.
+- Confirme se o método de autenticação está definido como `x-api-key`.
+
+### Erros de conexão ou de modelo
+
+- Confirme se a Base URL é exatamente `https://aiberm.com`.
+- Certifique-se de que sua rede consegue acessar `https://aiberm.com`.
+- Se a versão do Claude Desktop expuser configurações de modelo, alterne para outro modelo disponível na Aiberm e teste novamente.
+
+## Referência oficial
+
+- [Anthropic Help Center: Install and configure Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680741-install-and-configure-claude-cowork-with-third-party-platforms)

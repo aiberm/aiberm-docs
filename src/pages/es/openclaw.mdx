@@ -1,0 +1,188 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Configuración de OpenClaw
+lang: es
+activeId: openclaw
+---
+
+# Configuración de OpenClaw
+
+Aprende a configurar OpenClaw para usar la API de Aiberm. Esta guía cubre la instalación y la configuración en Windows, macOS y Linux.
+
+## ¿Qué es OpenClaw?
+
+OpenClaw es una plataforma de agentes de IA de código abierto que lleva la asistencia de IA directamente a tu terminal y a tus aplicaciones de mensajería. Admite varios proveedores de LLM y se puede ampliar con plugins.
+
+Al instalar el plugin **openclaw-aiberm**, puedes acceder a todos los modelos disponibles en Aiberm (incluidos GPT, Claude, Gemini, DeepSeek, Grok y más) a través de una interfaz unificada con una sola clave de API.
+
+## Requisitos previos
+
+Antes de empezar, asegúrate de tener:
+
+- Una cuenta de Aiberm ([Regístrate aquí](https://aiberm.com/register))
+- Una clave de API de Aiberm ([Obtén tu clave](https://aiberm.com/console/token))
+- Acceso a Terminal/Símbolo del sistema en tu computadora
+- Node.js 18+ instalado
+
+## Instalación
+
+### Paso 1: Instalar OpenClaw
+
+**macOS y Linux:**
+
+```bash
+curl -fsSL https://openclaw.ai/install.sh | bash
+```
+
+O usando npm:
+
+```bash
+npm i -g openclaw
+```
+
+**Windows:**
+
+```bash
+npm i -g openclaw
+```
+
+**Verificar la instalación:**
+
+```bash
+openclaw --version
+```
+
+### Paso 2: Instalar el plugin de Aiberm
+
+Instala el plugin de proveedor de Aiberm:
+
+```bash
+openclaw plugins install openclaw-aiberm
+```
+
+Activa el plugin:
+
+```bash
+openclaw plugins enable openclaw-aiberm
+```
+
+**Importante:** Después de activarlo, reinicia el gateway para que los cambios surtan efecto:
+
+```bash
+openclaw gateway restart
+```
+
+## Autenticación
+
+Después de instalar y activar el plugin, autentícate con tu clave de API de Aiberm:
+
+```bash
+openclaw models auth login --provider aiberm --set-default
+```
+
+Se te pedirá que ingreses tu clave de API de Aiberm. Obtén tu clave de API en [https://aiberm.com/console/token](https://aiberm.com/console/token).
+
+Si necesitas cambiar a otro modelo, puedes volver a ejecutar `openclaw onboard`, seleccionar **Skip for now** en Model/auth provider, seleccionar **aiberm** en Filter models by provider y luego elegir el modelo al que quieres cambiar en la lista de modelos.
+
+![](/docs/openclaw-model.png)
+
+> Si estás en un contenedor Docker donde instalar plugins es inconveniente, puedes consultar de forma directa [este archivo de configuración](https://github.com/aiberm/openclaw-aiberm/blob/main/openclaw.json) y guardarlo en `~/.openclaw/openclaw.json`.
+
+## Modelos disponibles
+
+El plugin carga los modelos de forma dinámica desde la API de Aiberm. Estos son algunos ejemplos:
+
+### OpenAI GPT
+- `aiberm/openai/gpt-5.2-codex`
+- `aiberm/openai/gpt-5.2`
+- `aiberm/openai/gpt-4.1`
+- `aiberm/openai/gpt-4o`
+- `aiberm/openai/gpt-4o-mini`
+
+### Anthropic Claude
+- `aiberm/anthropic/claude-opus-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5`
+- `aiberm/anthropic/claude-haiku-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5:thinking`
+
+### Google Gemini
+- `aiberm/google/gemini-3-pro`
+- `aiberm/google/gemini-3-flash`
+- `aiberm/google/gemini-2.5-pro`
+
+### DeepSeek
+- `aiberm/deepseek/deepseek-r1`
+- `aiberm/deepseek/deepseek-v3.2`
+
+### X.AI Grok
+- `aiberm/x-ai/grok-4.1-fast`
+- `aiberm/x-ai/grok-code-fast-1`
+
+Visita [Aiberm Pricing](https://aiberm.com/pricing) para ver la lista completa y actualizada de modelos disponibles.
+
+## Uso
+
+Después de autenticarte, puedes empezar a usar OpenClaw. Para un uso detallado, consulta la [documentación de OpenClaw](https://docs.openclaw.ai).
+
+Listar los modelos instalados:
+
+```bash
+openclaw models list | grep aiberm
+```
+
+## Variable de entorno
+
+También puedes definir la clave de API mediante una variable de entorno:
+
+```bash
+export AIBERM_API_KEY=sk-your-api-key
+```
+
+## Carga dinámica de modelos
+
+El plugin openclaw-aiberm incluye carga dinámica de modelos:
+
+1. Cuando se carga el plugin, obtiene la lista de modelos más reciente desde la API de Aiberm
+2. Si la API no está disponible, el plugin recurre a una lista de modelos integrada
+3. Durante la autenticación, se vuelven a obtener los modelos más recientes
+
+Esto significa:
+- Los modelos nuevos están disponibles de inmediato, sin actualizaciones del plugin
+- Los modelos obsoletos se eliminan de forma automática
+- Las capacidades de los modelos siempre están actualizadas
+
+## Solución de problemas
+
+### Error "No provider plugins found"
+
+Asegúrate de haber:
+1. Instalado el plugin: `openclaw plugins install openclaw-aiberm`
+2. Activado el plugin: `openclaw plugins enable openclaw-aiberm`
+3. Reiniciado el gateway: `openclaw gateway restart`
+
+### Errores 401/403
+
+- **Error 401**: La clave de API no está definida o no es válida
+- **Error 403**: Permisos insuficientes o clave vencida
+- Verifica tu clave de API en [Aiberm Console](https://aiberm.com/console/token)
+
+### El plugin no se carga
+
+Comprueba si el plugin está activado:
+
+```bash
+openclaw plugins list
+```
+
+Si no está activado, ejecuta:
+
+```bash
+openclaw plugins enable openclaw-aiberm
+openclaw gateway restart
+```
+
+## Enlaces
+
+- [openclaw-aiberm en npm](https://www.npmjs.com/package/openclaw-aiberm)
+- [openclaw-aiberm en GitHub](https://github.com/aiberm/openclaw-aiberm)
+- [Documentación de OpenClaw](https://docs.openclaw.ai)

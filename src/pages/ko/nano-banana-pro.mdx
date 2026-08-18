@@ -1,0 +1,207 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: NanoBanana Pro
+lang: ko
+activeId: nano-banana-pro
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+
+# NanoBanana Pro
+
+NanoBanana Pro는 Gemini의 이미지 생성 서비스입니다. 여러 종횡비(1:1, 16:9, 9:16 등)와 해상도(1K, 2K, 4K)를 지원합니다. 모든 해상도의 가격은 동일합니다. 4K는 생성 속도가 느려 권장하지 않습니다. [요금](/pricing?tab=gemini)을 참고하세요.
+
+**엔드포인트**: `POST https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent`
+
+**핵심 포인트**: 요청 본문 `contents`에 이미지 설명을 보내고, `generationConfig`에서 `responseModalities`, `imageConfig`(종횡비, 해상도)를 설정합니다. 생성된 이미지는 `candidates[0].content.parts`의 `inline_data`에 있습니다.
+
+## 예제 코드
+
+Python은 snake_case(예: `response_modalities`)를, REST/cURL은 camelCase(예: `responseModalities`)를 사용합니다. 의미는 같습니다.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from google import genai
+from google.genai import types
+
+base_url = "https://aiberm.com"
+api_key = "YOUR_API_KEY"
+prompt = "Generate a cute sea otter image"
+model = "gemini-3-pro-image-preview"
+output_file = "gemini_sdk_generated.png"
+
+# Image generation config
+response_modalities = ["IMAGE"]  # or ["TEXT", "IMAGE"]
+aspect_ratio = "16:9"  # "1:1","2:3","3:2","3:4","4:3","4:5","5:4","9:16","16:9","21:9"
+image_size = "2K"  # "1K", "2K", "4K" (gemini-3-pro-image-preview only)
+
+# Generation params
+temperature = 1.0
+top_p = 0.95
+max_output_tokens = 8192
+enable_google_search = False  # Enable Google Search (adds latency & cost; disable for image-only)
+
+client = genai.Client(
+    api_key=api_key,
+    http_options=types.HttpOptions(api_version="v1beta", base_url=base_url)
+)
+
+config = types.GenerateContentConfig(
+    response_modalities=response_modalities,
+    temperature=temperature,
+    top_p=top_p,
+    max_output_tokens=max_output_tokens,
+    system_instruction="You are a helpful assistant.",
+    image_config=types.ImageConfig(
+        aspect_ratio=aspect_ratio,
+        image_size=image_size if "pro-image" in model else None
+    )
+)
+if enable_google_search:
+    config.tools = [{"google_search": {}}]
+
+response = client.models.generate_content(
+    model=model,
+    contents=[prompt],
+    config=config
+)
+
+for part in response.parts:
+    if part.text is not None:
+        print(part.text)
+    elif part.inline_data is not None:
+        part.as_image().save(output_file)
+        print(f"Image saved: {output_file}")`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `// ============ Config (centralized) ============
+const baseUrl = "https://aiberm.com";
+const apiKey = "YOUR_API_KEY";
+const prompt = "Generate a cute sea otter image";
+const model = "gemini-3-pro-image-preview";
+const outputFile = "gemini_sdk_generated.png";
+const systemInstruction = "You are a helpful assistant.";
+
+const responseModalities = ["IMAGE"]; // or ["TEXT", "IMAGE"]
+const temperature = 1.0; // 0–2, higher = more random
+const topP = 0.95; // 0–1, diversity
+const maxOutputTokens = 8192; // max tokens per response
+const aspectRatio = "16:9"; // "1:1" | "2:3" | "3:2" | "3:4" | "4:3" | "4:5" | "5:4" | "9:16" | "16:9" | "21:9"
+const imageSize = "2K"; // "1K" | "2K" | "4K" (gemini-3-pro-image-preview only)
+const enableGoogleSearch = false; // Enable Google Search (adds latency & cost; disable for image-only)
+
+async function main() {
+  const res = await fetch(\`\${baseUrl}/v1beta/models/\${model}:generateContent\`, {
+    method: "POST",
+    headers: {
+      Authorization: \`Bearer \${apiKey}\`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+      generationConfig: {
+        responseModalities: [...responseModalities],
+        temperature,
+        topP,
+        maxOutputTokens,
+        imageConfig: { aspectRatio, imageSize },
+      },
+      ...(enableGoogleSearch ? { tools: [{ google_search: {} }] } : {}),
+    }),
+  });
+  const data = await res.json();
+  for (const part of data.candidates?.[0]?.content?.parts ?? []) {
+    if (part.text) console.log(part.text);
+    if (part.inlineData) {
+      const buf = Buffer.from(part.inlineData.data, "base64");
+      require("fs").writeFileSync(outputFile, buf);
+      console.log("Image saved:", outputFile);
+    }
+  }
+}
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "contents": [{"parts": [{"text": "Generate a cute sea otter image"}]}],
+    "systemInstruction": {"parts": [{"text": "You are a helpful assistant."}]},
+    "generationConfig": {
+      "responseModalities": ["IMAGE"],
+      "temperature": 1.0,
+      "topP": 0.95,
+      "maxOutputTokens": 8192,
+      "imageConfig": {"aspectRatio": "16:9", "imageSize": "2K"}
+    }
+  }'`
+    }
+  ]}
+/>
+
+### cURL 이미지 파라미터
+
+아래는 cURL용 파라미터 이름(camelCase)입니다. Python에서는 snake_case를 사용하세요(예: `aspectRatio` → `aspect_ratio`).
+
+**imageConfig** (`generationConfig.imageConfig` 또는 SDK `ImageConfig`):
+
+- **aspectRatio** `string` — `1:1`, `2:3`, `3:2`, `3:4`, `4:3`, `4:5`, `5:4`, `9:16`, `16:9`, `21:9`
+- **imageSize** `string` — `1K`, `2K`, `4K` (gemini-3-pro-image-preview만)
+
+**기타 일반적인 generationConfig 필드:**
+
+- **responseModalities** `string[]` — `["IMAGE"]` 또는 `["TEXT", "IMAGE"]`
+- **temperature** `number` — 0–2, 높을수록 더 무작위
+- **topP** `number` — 0–1, 다양성
+- **maxOutputTokens** `number` — 예: 8192
+- **systemInstruction** `object` — 예: `{"parts": [{"text": "..."}]}`
+- **tools** `array` — 예: `[{"google_search": {}}]`
+
+## Google Search 활성화
+
+Gemini 스타일 API만 Google Search를 지원합니다. 구성에 `tools`를 전달하면 모델이 필요할 때 실시간 웹 정보를 사용합니다.
+
+**기본적으로 권장하지 않습니다:** 지연 시간과 비용이 늘어나며, 이미지 전용 사용에는 필요하지 않습니다. 검색이 필요 없으면 끄세요.
+
+**Python (SDK):**
+
+```python
+config = types.GenerateContentConfig(
+    # ... other params like response_modalities, image_config
+    tools=[{"google_search": {}}]
+)
+response = client.models.generate_content(model=model, contents=[prompt], config=config)
+```
+
+**cURL (REST):**
+
+요청 본문 최상위에 `tools`를 추가합니다.
+
+```bash
+curl -X POST "https://aiberm.com/v1beta/models/gemini-3-pro-image-preview:generateContent" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [{"parts": [{"text": "Your question"}]}],
+    "generationConfig": { ... },
+    "tools": [{"google_search": {}}]
+  }'
+```
+
+## FAQ
+
+- **응답에 이미지가 없음:** 모델이 `gemini-3-pro-image-preview`인지, 프롬프트가 명확한 이미지 설명인지 확인하세요.
+- **디코드 오류:** `data:image/...;base64,` 뒤의 base64 문자열만 사용하고, 디코딩 전에 줄바꿈을 제거하세요.

@@ -1,0 +1,155 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Chat Completions
+lang: ja
+activeId: chat
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Chat Completions
+
+統一された API を通じて、さまざまな AI モデルで会話応答を生成します。
+
+## Chat Completion の作成
+
+`POST https://aiberm.com/v1/chat/completions`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "gpt-4",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is the capital of France?"}
+    ],
+    "temperature": 0.7
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "What is the capital of France?"}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: 'https://aiberm.com/v1'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user', content: 'What is the capital of France?' }
+  ],
+  temperature: 0.7
+});
+
+console.log(response.choices[0].message.content);`
+    }
+  ]}
+/>
+
+## リクエストパラメータ
+
+| パラメータ | 型 | 必須 | 説明 |
+|-----------|------|----------|-------------|
+| `model` | string | はい | 使用するモデルの ID |
+| `messages` | array | はい | メッセージオブジェクトの配列 |
+| `temperature` | number | いいえ | サンプリング温度（0〜2）。デフォルト: 1 |
+| `max_tokens` | integer | いいえ | 生成する最大トークン数 |
+| `top_p` | number | いいえ | ニュークリアスサンプリングのパラメータ |
+| `stream` | boolean | いいえ | レスポンスをストリーミングするかどうか |
+
+## メッセージのロール
+
+メッセージには `role` と `content` を含める必要があります。
+
+- **system** - アシスタントの振る舞い／人格を設定します
+- **user** - エンドユーザーからのメッセージ
+- **assistant** - AI の過去の応答
+
+## ストリーミング応答
+
+ストリーミングを有効にすると、応答を段階的に受け取れます。
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+stream = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const stream = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Tell me a story' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || '');
+}`
+    }
+  ]}
+/>
+
+## ベストプラクティス
+
+<Callout client:load type="tip" title="リクエストを最適化する">
+- コストを抑えるために `max_tokens` を設定します
+- 適切な `temperature` を使います（事実ベースなら低め、創造的なら高め）
+- 振る舞いを誘導するためにシステムメッセージを含めます
+- UX 向上のためにレスポンスをストリーミングします
+</Callout>
+
+<Callout client:load type="warning">
+各モデルのトークン上限に注意してください。長い会話では会話履歴の管理が必要になる場合があります。
+</Callout>

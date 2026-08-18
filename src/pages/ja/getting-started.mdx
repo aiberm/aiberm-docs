@@ -1,0 +1,159 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: クイックスタート
+lang: ja
+activeId: getting-started
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# クイックスタート
+
+Aiberm は、1 つのエンドポイントから数百の AI モデルにアクセスできる統合 API を提供します。シンプルな連携手順で、数分で始められます。
+
+<Callout client:load type="tip">
+無料モデルやレート制限について知りたい場合は、FAQ をご覧ください。
+</Callout>
+
+## OpenAI SDK を使う
+
+最も簡単な方法は公式の OpenAI SDK を使い、base_url を変更するだけです。
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="sk-your-api-key-here",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="google/gemini-2.5-flash",
+    messages=[
+        {"role": "user", "content": "Hello!"}
+    ]
+)
+
+print(response.choices[0].message.content)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: 'sk-your-api-key-here',
+  baseURL: 'https://aiberm.com/v1'
+});
+
+const response = await openai.chat.completions.create({
+  model: 'google/gemini-2.5-flash',
+  messages: [
+    { role: 'user', content: 'Hello!' }
+  ]
+});
+
+console.log(response.choices[0].message.content);`
+    }
+  ]}
+/>
+
+## Aiberm API を直接使う
+
+HTTP リクエストで API を直接呼び出すこともできます。
+
+<Callout client:load type="info">
+対話型の Request Builder を使って API リクエストを生成できます。
+</Callout>
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json"
+    },
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [
+            {"role": "user", "content": "Hello!"}
+        ]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    model: 'google/gemini-2.5-flash',
+    messages: [{ role: 'user', content: 'Hello!' }]
+  })
+});
+
+const data = await response.json();
+console.log(data);`
+    },
+    {
+      key: 'curl',
+      label: 'Curl',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'`
+    }
+  ]}
+/>
+
+## 次のステップ
+
+API はストリーミングやバッチ処理などの高度な機能にも対応しています。詳しくは Chat Completions API の詳細ドキュメントをご覧ください。
+
+API はストリーミングにも対応しています。
+
+## 対応モデル
+
+次のようなさまざまな AI モデルをサポートしています（一例です）。
+
+### OpenAI Models
+
+- GPT-4
+- GPT-4 Turbo
+- GPT-3.5 Turbo
+
+### Anthropic Models
+
+- Claude-3 Opus
+- Claude-3 Sonnet
+- Claude-3 Haiku
+
+### その他のモデル
+
+- Gemini Pro
+- Llama 2
+- その他...

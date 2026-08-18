@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Аутентификация
+lang: ru
+activeId: authentication
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Аутентификация
+
+Все запросы к API требуют аутентификации. Мы используем Bearer Token, чтобы ваши вызовы API были безопасными и надёжными.
+
+## Получение API-ключа
+
+Перейдите в Консоль → API Tokens, чтобы создать и управлять ключами API.
+
+<Callout client:load type="info" title="Шаги создания">
+1. Войдите в аккаунт Aiberm
+2. Откройте страницу Консоли
+3. В левом меню нажмите «API Tokens»
+4. Нажмите кнопку «New Token»
+5. Задайте имя токена и права доступа
+6. Скопируйте сгенерированный API-ключ
+</Callout>
+
+## Примеры кода
+
+<CodeExample
+  client:load
+  title="Примеры кода"
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers=headers,
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [{"role": "user", "content": "Hello!"}]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch(
+    "https://aiberm.com/v1/chat/completions",
+    {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer YOUR_API_KEY",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [{ role: "user", content: "Hello!" }]
+        })
+    }
+);
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## Замечания по безопасности
+
+- Храните API-ключ в секрете и не раскрывайте его в клиентском коде
+- Регулярно ротируйте API-ключи, чтобы повысить безопасность аккаунта
+- Если ключ утечёт, сразу удалите его в консоли и сгенерируйте новый
+- Храните API-ключи в переменных окружения, а не вшивайте их в код
+
+## Типичные ошибки
+
+<Callout client:load type="error" title="401 Unauthorized">
+Недействительный или истёкший API-ключ
+
+**Решение:** Проверьте правильность ключа или сгенерируйте новый
+</Callout>
+
+<Callout client:load type="error" title="403 Forbidden">
+Недостаточно прав или аккаунт ограничен
+
+**Решение:** Проверьте статус аккаунта и обратитесь к администратору за нужными правами
+</Callout>
