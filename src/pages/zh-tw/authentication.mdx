@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 身分驗證
+lang: zh-tw
+activeId: authentication
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 身分驗證
+
+所有 API 請求都需要進行身分驗證。我們使用 Bearer Token 方式進行驗證，確保您的 API 呼叫安全可靠。
+
+## 取得 API 金鑰
+
+請前往控制台 → API 權杖頁面建立和管理您的 API 金鑰。
+
+<Callout client:load type="info" title="建立步驟">
+1. 登入您的 Aiberm 帳戶
+2. 進入控制台頁面
+3. 點選左側選單中的「API 權杖」
+4. 點選「新增權杖」按鈕
+5. 設定權杖名稱與權限
+6. 複製產生的 API 金鑰
+</Callout>
+
+## 程式碼範例
+
+<CodeExample
+  client:load
+  title="程式碼範例"
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "google/gemini-2.5-flash",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+
+response = requests.post(
+    "https://aiberm.com/v1/chat/completions",
+    headers=headers,
+    json={
+        "model": "google/gemini-2.5-flash",
+        "messages": [{"role": "user", "content": "Hello!"}]
+    }
+)
+
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch(
+    "https://aiberm.com/v1/chat/completions",
+    {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer YOUR_API_KEY",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [{ role: "user", content: "Hello!" }]
+        })
+    }
+);
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## 安全注意事項
+
+- 請妥善保管您的 API 金鑰，不要將其暴露在用戶端程式碼中
+- 定期輪替 API 金鑰，提高帳戶安全性
+- 如果 API 金鑰外洩，請立即在控制台中刪除並重新產生
+- 建議使用環境變數儲存 API 金鑰，避免寫死在程式碼中
+
+## 常見錯誤
+
+<Callout client:load type="error" title="401 未授權">
+API 金鑰無效或已過期
+
+**解決方法：** 檢查 API 金鑰是否正確，或重新產生新的 API 金鑰
+</Callout>
+
+<Callout client:load type="error" title="403 禁止存取">
+權限不足或帳戶被限制
+
+**解決方法：** 檢查帳戶狀態，聯絡管理員取得相應權限
+</Callout>

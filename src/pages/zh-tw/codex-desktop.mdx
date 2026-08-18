@@ -1,0 +1,90 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Codex 桌面端設定
+lang: zh-tw
+activeId: codex-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Codex 桌面端設定
+
+OpenAI Codex 桌面端可以透過 API Key 登入，並在應用內開啟使用者層級 `config.toml`。設定 Aiberm 後，Codex 會透過 Aiberm 的 Responses 相容介面發起請求。
+
+<Callout client:load type="info">
+Codex 登入介面中的欄位名稱仍顯示為 OpenAI API key。這裡填寫你的 Aiberm API Key，例如 `sk-...`。
+</Callout>
+
+## 前置條件
+
+開始之前，請確認你已經準備好：
+
+- 最新版 OpenAI Codex 桌面端
+- Aiberm 帳戶（[註冊](https://aiberm.com/register)）
+- Aiberm API Key（[在控制台建立](https://aiberm.com/console/token)）
+
+## 設定步驟
+
+1. 開啟 Codex 桌面端。
+2. 在登入頁面選擇 **Sign in another way**。
+
+![Codex 桌面端選擇其他登入方式](/docs/codex-desktop/codex-signin.png)
+
+3. 在 **OpenAI API key** 輸入框中填寫你的 Aiberm API Key，然後選擇 **Continue**。
+
+![在 Codex 桌面端中填寫 API Key](/docs/codex-desktop/codex-signin-with-apikey.png)
+
+4. 進入應用後，開啟設定頁面。
+5. 在左側選擇 **Configuration**。
+6. 在 **Custom config.toml settings** 中確認選擇的是 **User config**。
+7. 選擇 **Open config.toml**，開啟使用者層級設定檔。
+
+![在 Codex 桌面端中開啟 config.toml](/docs/codex-desktop/codex-configuration.png)
+
+8. 在 `config.toml` 中寫入或替換為以下設定：
+
+```toml
+model = "gpt-5.5"
+model_provider = "aiberm"
+
+[model_providers.aiberm]
+name = "Aiberm API"
+base_url = "https://aiberm.com/v1"
+wire_api = "responses"
+```
+
+9. 儲存 `config.toml`。
+10. 完全退出並重新開啟 Codex 桌面端。
+
+## 驗證設定
+
+重新開啟 Codex 後：
+
+1. 開啟一個專案或工作區。
+2. 讓 Codex 執行一次真實的程式任務，例如解釋目前檔案、修改一段程式碼或執行專案測試。
+
+如果任務可以正常執行並回傳結果，表示設定已經生效。
+
+## 常見問題
+
+### API Key 無效
+
+- 從 [Aiberm 控制台](https://aiberm.com/console/token) 複製完整 API Key。
+- 檢查 API Key 前後是否有多餘空格。
+- 確認 API Key 以 `sk-` 開頭。
+
+### 設定沒有生效
+
+- 確認修改的是 **User config** 下開啟的 `config.toml`。
+- 儲存檔案後完全退出並重新開啟 Codex 桌面端。
+- 確認 `model_provider = "aiberm"` 和 `[model_providers.aiberm]` 的名稱一致。
+
+### 模型或連線錯誤
+
+- 確認 `base_url` 嚴格填寫為 `https://aiberm.com/v1`。
+- 確認 `wire_api` 是 `responses`。
+- 確認你的帳號可以存取 `gpt-5.5`。目前模型列表可參考 [取得模型列表](/docs/zh-tw/models)。
+
+## 官方參考
+
+- [OpenAI Codex: Configuration Reference](https://developers.openai.com/codex/config-reference/)

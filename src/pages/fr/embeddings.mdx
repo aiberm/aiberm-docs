@@ -1,0 +1,56 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Embeddings
+lang: fr
+activeId: embeddings
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Embeddings
+
+Convertissez du texte en représentations vectorielles numériques pour la recherche sémantique, le clustering et les recommandations.
+
+## Créer des embeddings
+
+`POST https://aiberm.com/v1/embeddings`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input="Your text here"
+)
+
+embedding = response.data[0].embedding
+print(f"Embedding dimension: {len(embedding)}")`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/embeddings \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "text-embedding-3-small",
+    "input": "Your text here"
+  }'`
+    }
+  ]}
+/>
+
+<Callout client:load type="tip">
+Utilisez les embeddings pour la recherche sémantique, la similarité de documents et les systèmes de recommandation.
+</Callout>

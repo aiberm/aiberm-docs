@@ -1,0 +1,101 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Claude Desktop 設定
+lang: zh-tw
+activeId: claude-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Claude Desktop 設定
+
+Claude Desktop 現在可以設定第三方推理服務。設定 Aiberm 後，Claude 客戶端會透過 Aiberm 的 Anthropic 相容介面發起請求，並使用你的 Aiberm API Key。
+
+<Callout client:load type="info">
+Anthropic 官方支援文件已經給出 Claude Desktop / Claude Cowork 的第三方平台設定方式。此功能需要較新的 Claude Desktop 客戶端，舊版本可能看不到 Developer 選單或第三方推理設定入口。
+</Callout>
+
+## 前置條件
+
+開始之前，請確認你已經準備好：
+
+- 最新版 Claude Desktop 客戶端
+- Aiberm 帳戶（[註冊](https://aiberm.com/register)）
+- Aiberm API Key（[在控制台建立](https://aiberm.com/console/token)）
+
+## 設定步驟
+
+建議在登入 Claude Desktop 之前完成以下設定。
+
+1. 開啟最新版 Claude Desktop 客戶端。
+2. 先不要登入。
+3. 在頂部選單列進入 **Help → Troubleshooting → Enable Developer Mode**，啟用開發者模式。
+
+![在 Claude Desktop 中啟用開發者模式](/docs/claude-desktop/enable-developer-mode.png)
+
+4. 啟用後，選單列會出現 **Developer** 選單，進入 **Developer → Configure third-party inference**。
+
+![開啟 Configure third-party inference](/docs/claude-desktop/configure-inference.png)
+
+5. 在第三方推理設定中填寫：
+
+| 欄位 | 填寫內容 |
+|------|----------|
+| Base URL | `https://aiberm.com` |
+| API Key | 你的 Aiberm API Key，例如 `sk-...` |
+| Authentication method | 選擇 `x-api-key` |
+| Provider / API format | 如介面出現該選項，選擇 Anthropic-compatible、custom gateway 或類似選項 |
+
+![Aiberm 第三方推理設定範例](/docs/claude-desktop/third-party-inference.png)
+
+6. 選擇 **Apply locally**，將設定儲存到目前電腦。
+7. 依客戶端提示繼續登入或啟動 Claude Desktop。
+
+## 驗證設定
+
+套用本機設定後：
+
+1. 如果客戶端提示重新啟動，先完全退出並重新開啟 Claude Desktop。
+2. 新建一個對話。
+3. 傳送一個簡單測試問題，例如：
+
+```text
+如果目前請求正在使用 Aiberm，請用一句話回覆。
+```
+
+如果可以正常回傳結果，表示 Claude Desktop 已經透過 Aiberm 進行請求。
+
+接入成功後，你可以直接在 Claude Desktop 中切換 Aiberm 平台上的可用模型，包括你帳號目前可見的不同 Claude 模型。目前模型列表可參考 [取得模型列表](/docs/zh-tw/models)。
+
+![在 Claude Desktop 中切換 Aiberm 模型](/docs/claude-desktop/switch-models.png)
+
+## 常見問題
+
+### 看不到 Developer 選單
+
+- 確認已安裝最新版 Claude Desktop，舊版本可能不支援該設定 UI。
+- 從 **Help → Troubleshooting → Enable Developer Mode** 啟用開發者模式。
+- 啟用後完全退出並重新開啟 Claude Desktop。
+
+### 找不到 Configure third-party inference
+
+- 確認使用的是 Claude Desktop 客戶端，而不是網頁端。
+- 嘗試在登入前開啟客戶端並啟用開發者模式。
+- 更新 Claude Desktop 後重新操作。
+
+### API Key 無效
+
+- 從 [Aiberm 控制台](https://aiberm.com/console/token) 複製完整 API Key。
+- 檢查 API Key 前後是否有多餘空格。
+- 確認 API Key 以 `sk-` 開頭。
+- 確認認證方式選擇的是 `x-api-key`。
+
+### 連線失敗或模型錯誤
+
+- 確認 Base URL 嚴格填寫為 `https://aiberm.com`。
+- 確認目前網路可以存取 `https://aiberm.com`。
+- 如果你的 Claude Desktop 版本提供模型選擇，可以切換到 Aiberm 上的其他可用模型再測試。
+
+## 官方參考
+
+- [Anthropic Help Center: Install and configure Claude Cowork with third-party platforms](https://support.claude.com/en/articles/14680741-install-and-configure-claude-cowork-with-third-party-platforms)

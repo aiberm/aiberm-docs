@@ -1,0 +1,197 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Trae 設定
+lang: zh-tw
+activeId: trae
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Trae 設定
+
+Trae 是字節跳動推出的 AI 原生 IDE，可將智慧程式設計輔助直接整合到你的開發工作流程中。透過設定 Trae 使用 Aiberm，你可以呼叫各種強大的模型進行程式碼補全、對話輔助、重構與產生。
+
+<Callout client:load type="info">
+使用 Trae 搭配 Aiberm 需要有效的 Aiberm API 金鑰。如果你還沒有取得，請參考 [身分驗證](/docs/zh-tw/authentication) 頁面。
+</Callout>
+
+## 什麼是 Trae？
+
+Trae 是中國首個 AI 原生整合開發環境（AI IDE），以 Visual Studio Code 為基礎打造。它提供：
+
+- **內建 AI 模型**：免費使用 Claude 3.7 Sonnet、GPT-4o、DeepSeek V3/R1、Gemini 2.5 Pro 等。
+- **自訂模型支援**：加入 Aiberm 等自訂 API 供應商，彈性選擇模型。
+- **完整 IDE 功能**：所有 VS Code 能力，外加 AI 驅動的程式碼補全、偵錯與產生。
+- **跨平台**：支援 macOS 和 Windows（Linux 支援即將推出）。
+
+## 設定步驟
+
+依照以下步驟設定 Trae 使用 Aiberm 的 API：
+
+### 步驟 1：開啟模型設定
+
+有兩種方式存取模型設定：
+
+**方法 A：透過對話輸入框**
+1. 開啟 Trae IDE。
+2. 查看對話輸入框的右下角。
+3. 點選目前模型名稱開啟模型列表。
+4. 點選「新增模型」按鈕。
+
+<Callout client:load type="tip">
+截圖 1（中文介面）：對話輸入框右下角，展示模型下拉入口與「新增模型」入口。
+</Callout>
+
+![](/docs/trae/zh/chat-model-dropdown.png)
+
+**方法 B：透過設定選單**
+1. 點選右上角的頭像。
+2. 選擇「AI 功能管理」。
+3. 進入「模型」部分。
+4. 點選「新增模型」按鈕。
+
+<Callout client:load type="tip">
+截圖 2（中文介面）：設定選單路徑與「模型」頁面入口。
+</Callout>
+
+![](/docs/trae/zh/models-add-model.png)
+
+### 步驟 2：設定自訂模型
+
+在「新增模型」對話框中，填寫以下欄位：
+
+- **供應商 (Provider)**：OpenAI
+- **基礎 URL (Base URL)**：`https://aiberm.com/v1`
+- **API 金鑰 (API Key)**：`sk-xxxxxxxxxxxxxxxx`（你的 Aiberm API Key）
+- **模型 ID (Model ID)**：輸入支援的模型 ID（例如 `google/gemini-2.5-flash`）。
+
+<Callout client:load type="info">
+**支援的模型 ID（範例）：**
+- `google/gemini-3-flash` - 快速高效
+- `google/gemini-3-pro` - 進階推理
+- `anthropic/claude-opus-4-6` - 適合複雜任務
+- `openai/gpt-5.2` - OpenAI 旗艦模型
+
+完整的可用模型列表，請造訪 [模型列表](/docs/zh-tw/models) 頁面。
+</Callout>
+
+<Callout client:load type="tip">
+截圖 3（中文介面）：「新增模型」對話框介面參考。
+</Callout>
+
+![](/docs/trae/zh/add-model-dialog.png)
+
+### 步驟 3：儲存設定
+
+1. 點選「新增模型」或「儲存」按鈕確認設定。
+2. Trae 將嘗試驗證與 Aiberm API 的連線。
+3. 如果成功，你的自訂模型將出現在模型列表中。
+
+## 驗證設定
+
+確認 Trae 已正確設定 Aiberm：
+
+1. **開啟對話面板**：點選左側邊欄的對話圖示，或使用命令面板（`Ctrl/Cmd + Shift + P`）搜尋「Chat」。
+2. **選擇自訂模型**：在對話面板中，點選右下角的模型下拉選單，選擇你剛新增的 Aiberm 模型。
+3. **測試簡單查詢**：提出一個程式設計問題，例如：
+   ```plaintext
+   用 Python 寫一個遞迴計算費氏數列的函式
+   ```
+4. **驗證回應**：如果 Trae 使用你的自訂模型成功產生了程式碼，恭喜！你的設定已正確完成。
+
+<Callout client:load type="tip">
+**截圖**: *[截圖 4: 對話面板顯示選中的 Aiberm 模型和成功回應]*
+</Callout>
+
+## 在 Trae 中使用 Aiberm 模型
+
+設定完成後，你可以透過多種方式使用 Aiberm 模型：
+
+### 1. 對話模式 (Chat Mode)
+- 開啟對話面板並選擇你的 Aiberm 模型。
+- 提問、請求程式碼產生或取得解釋。
+- 使用 `#` 符號引用檔案以獲得具備上下文感知的回應。
+
+### 2. 行內補全 (Inline Completion)
+- 自然地輸入程式碼，Trae 會提供補全建議。
+- 按 `Tab` 鍵接受建議。
+- *注意：自訂模型的行內補全支援取決於 Trae 的實作。*
+
+### 3. 程式碼操作 (Code Actions)
+- 在編輯器中選取程式碼。
+- 按右鍵選擇 AI 操作，如「解釋」、「重構」、「新增註解」。
+- 在提示時選擇你的 Aiberm 模型。
+
+## 疑難排解
+
+### ❌ 連線失敗
+**症狀**：「無法連線到 API」或「網路錯誤」
+**解決方案**：
+- 驗證基礎 URL 是否準確為 `https://aiberm.com/v1`（通常不要有結尾斜線）。
+- 檢查你的網路連線。
+- 確認你的 API 金鑰有效且有足夠額度。
+- 嘗試使用 curl 測試 API 金鑰：
+  ```bash
+  curl https://aiberm.com/v1/models \
+    -H "Authorization: Bearer YOUR_API_KEY"
+  ```
+
+### ❌ API 金鑰無效
+**症狀**：「401 未授權」或「無效的 API 金鑰」
+**解決方案**：
+- 仔細檢查你複製的完整 API 金鑰，確認沒有多餘空白。
+- 驗證金鑰以 `sk-` 開頭。
+- 確認你的 Aiberm 帳戶處於啟用狀態且有額度。
+- 從 Aiberm 控制台產生新的 API 金鑰。
+
+### ❌ 模型未找到
+**症狀**：「模型無法使用」或「未知的模型 ID」
+**解決方案**：
+- 驗證模型 ID 格式是否正確（例如：`google/gemini-3-flash`）。
+- 查看 [模型列表](/docs/zh-tw/models) 頁面確認支援的模型 ID。
+- 確認該模型在你的 Aiberm 方案中可用。
+
+### ❌ 速率限制超限
+**症狀**：「請求過多」或「達到速率限制」
+**解決方案**：
+- 稍等片刻後重試。
+- 檢查你的 Aiberm 帳戶使用限制。
+- 如需更高的速率限制，考慮升級你的方案。
+
+## 進階設定
+
+### 使用多個模型
+你可以新增多個不同設定的 Aiberm 模型：
+- 為每個模型重複設定步驟。
+- 使用描述性名稱區分它們（如果 Trae 支援自訂命名）。
+- 根據任務切換模型：
+  - 快速模型（`gemini-3-flash`）用於快速迭代。
+  - 進階模型（`claude-opus-4-6`、`gemini-3-pro`）用於複雜推理。
+
+### 模型上下文協定 (MCP)
+Trae 支援模型上下文協定（Model Context Protocol），允許 AI 模型存取外部工具與資料來源。使用 Aiberm 模型時，你可以善用 MCP 來：
+- 連線資料庫。
+- 存取檔案系統。
+- 整合外部 API。
+- 使用自訂工具。
+
+詳細的 MCP 設定請參考 Trae 官方文件。
+
+## 最佳實務
+
+- **選擇合適的模型**：日常任務使用快速模型，複雜問題保留強大模型。
+- **提供上下文**：在對話查詢中使用 `#` 符號引用相關檔案。
+- **增量迭代**：將大任務拆成小步驟，以獲得更好的 AI 表現。
+- **審查 AI 輸出**：在提交前務必審查並測試 AI 產生的程式碼。
+- **監控用量**：追蹤你的 Aiberm API 使用情況，以有效管理成本。
+
+## 下一步
+
+現在你已經設定好 Trae 與 Aiberm，探索這些資源：
+
+- [模型列表](/docs/zh-tw/models) - 探索所有可用的 Aiberm 模型。
+- [對話 API](/docs/zh-tw/chat) - 了解底層 API。
+- [最佳實務](/docs/zh-tw/examples) - AI 輔助程式設計的有效技巧。
+
+
+透過將 Aiberm 整合到 Trae，你可以獲得彈性且強大的程式設計體驗，存取頂尖 AI 模型。

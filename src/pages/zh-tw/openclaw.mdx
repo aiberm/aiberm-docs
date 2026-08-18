@@ -1,0 +1,188 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: OpenClaw 設定
+lang: zh-tw
+activeId: openclaw
+---
+
+# OpenClaw 設定
+
+了解如何設定 OpenClaw 以使用 Aiberm 的 API。本指南涵蓋 Windows、macOS 和 Linux 的安裝與設定。
+
+## 什麼是 OpenClaw？
+
+OpenClaw 是一個開源的 AI 代理平台，可以將 AI 助手直接帶到你的終端機和訊息應用中。它支援多種 LLM 供應商，並可以透過外掛進行擴充。
+
+透過安裝 **openclaw-aiberm** 外掛，你可以使用一把 API Key 存取 Aiberm 上的所有模型（包括 GPT、Claude、Gemini、DeepSeek、Grok 等）。
+
+## 前置條件
+
+開始之前，請確認你具備：
+
+- 一個 Aiberm 帳戶（[在此註冊](https://aiberm.com/register)）
+- 一個 Aiberm API 金鑰（[取得金鑰](https://aiberm.com/console/token)）
+- 電腦上的終端機／命令提示字元存取權限
+- 已安裝 Node.js 18+
+
+## 安裝
+
+### 步驟 1：安裝 OpenClaw
+
+**macOS 和 Linux：**
+
+```bash
+curl -fsSL https://openclaw.ai/install.sh | bash
+```
+
+或使用 npm：
+
+```bash
+npm i -g openclaw
+```
+
+**Windows：**
+
+```bash
+npm i -g openclaw
+```
+
+**驗證安裝：**
+
+```bash
+openclaw --version
+```
+
+### 步驟 2：安裝 Aiberm 外掛
+
+安裝 Aiberm 供應商外掛：
+
+```bash
+openclaw plugins install openclaw-aiberm
+```
+
+啟用外掛：
+
+```bash
+openclaw plugins enable openclaw-aiberm
+```
+
+**重要**：啟用後需要重新啟動 gateway 才能生效：
+
+```bash
+openclaw gateway restart
+```
+
+## 驗證
+
+安裝並啟用外掛後，使用 Aiberm API Key 進行驗證：
+
+```bash
+openclaw models auth login --provider aiberm --set-default
+```
+
+系統會提示你輸入 Aiberm API Key。在 [https://aiberm.com/console/token](https://aiberm.com/console/token) 取得你的 API Key。
+
+如果需要更換成其他模型，可以重新執行一次 `openclaw onboard`，在 Model/auth provider 中選擇 **Skip for now**，在 Filter models by provider 中選擇 **aiberm**，然後在模型列表中選擇你想切換的模型。
+
+![](/docs/openclaw-model.png)
+
+> 如果你在 docker 容器中不方便安裝外掛，可以直接參考[這份設定](https://github.com/aiberm/openclaw-aiberm/blob/main/openclaw.json)檔案，儲存在 `~/.openclaw/openclaw.json` 中。
+
+## 可用模型
+
+外掛會從 Aiberm API 動態載入模型。以下是一些範例：
+
+### OpenAI GPT
+- `aiberm/openai/gpt-5.2-codex`
+- `aiberm/openai/gpt-5.2`
+- `aiberm/openai/gpt-4.1`
+- `aiberm/openai/gpt-4o`
+- `aiberm/openai/gpt-4o-mini`
+
+### Anthropic Claude
+- `aiberm/anthropic/claude-opus-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5`
+- `aiberm/anthropic/claude-haiku-4.5`
+- `aiberm/anthropic/claude-sonnet-4.5:thinking`
+
+### Google Gemini
+- `aiberm/google/gemini-3-pro`
+- `aiberm/google/gemini-3-flash`
+- `aiberm/google/gemini-2.5-pro`
+
+### DeepSeek
+- `aiberm/deepseek/deepseek-r1`
+- `aiberm/deepseek/deepseek-v3.2`
+
+### X.AI Grok
+- `aiberm/x-ai/grok-4.1-fast`
+- `aiberm/x-ai/grok-code-fast-1`
+
+造訪 [Aiberm 價格頁面](https://aiberm.com/pricing) 查看完整的模型列表。
+
+## 使用方法
+
+驗證成功後，即可開始使用 OpenClaw。具體使用方法請參考 [OpenClaw 官方文件](https://docs.openclaw.ai)。
+
+查看已安裝的模型：
+
+```bash
+openclaw models list | grep aiberm
+```
+
+## 環境變數
+
+也可以透過環境變數設定 API Key：
+
+```bash
+export AIBERM_API_KEY=sk-your-api-key
+```
+
+## 動態模型載入
+
+openclaw-aiberm 外掛支援動態模型載入：
+
+1. 外掛載入時，從 Aiberm API 取得最新模型列表
+2. 如果 API 無法使用，外掛會使用內建的模型列表
+3. 驗證時會再次取得最新模型
+
+這表示：
+- 新模型上線後無需更新外掛即可使用
+- 下線的模型會自動移除
+- 模型資訊始終保持最新
+
+## 疑難排解
+
+### 「No provider plugins found」錯誤
+
+請確認你已經：
+1. 安裝了外掛：`openclaw plugins install openclaw-aiberm`
+2. 啟用了外掛：`openclaw plugins enable openclaw-aiberm`
+3. 重新啟動了 gateway：`openclaw gateway restart`
+
+### 401/403 錯誤
+
+- **401 錯誤**：API Key 未設定或無效
+- **403 錯誤**：權限不足或金鑰已過期
+- 在 [Aiberm 控制台](https://aiberm.com/console/token) 驗證你的 API Key
+
+### 外掛未載入
+
+檢查外掛是否已啟用：
+
+```bash
+openclaw plugins list
+```
+
+如果未啟用，執行：
+
+```bash
+openclaw plugins enable openclaw-aiberm
+openclaw gateway restart
+```
+
+## 相關連結
+
+- [openclaw-aiberm npm 頁面](https://www.npmjs.com/package/openclaw-aiberm)
+- [openclaw-aiberm GitHub](https://github.com/aiberm/openclaw-aiberm)
+- [OpenClaw 文件](https://docs.openclaw.ai)

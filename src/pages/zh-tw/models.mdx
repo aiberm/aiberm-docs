@@ -1,0 +1,151 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 模型列表
+lang: zh-tw
+activeId: models
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 取得模型列表
+
+取得目前使用者可存取的所有 AI 模型列表，包括模型 ID、名稱、供應商與詳細資訊。
+
+<Callout client:load type="info" title="關於模型列表與權杖分組">
+模型列表回傳哪些模型，取決於 API KEY（API 權杖）所在的權杖分組。您可以在控制台 → API 權杖頁面，新增權杖時選擇對應的權杖分組。
+</Callout>
+
+## API 端點
+
+`GET https://aiberm.com/v1/models`
+
+## 請求範例
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X GET "https://aiberm.com/v1/models" \\
+  -H "Authorization: Bearer sk-your-api-token-here" \\
+  -H "Content-Type: application/json"`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+url = "https://aiberm.com/v1/models"
+headers = {
+    "Authorization": "Bearer sk-your-api-token-here",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/models', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer sk-your-api-token-here',
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## 回應格式
+
+### 成功回應 (200 OK)
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'json',
+      label: 'JSON',
+      code: `{
+  "success": true,
+  "data": [
+    {
+      "id": "gpt-4",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "gpt-3.5-turbo",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "claude-3-sonnet-20240229",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "anthropic",
+      "supported_endpoint_types": [
+        "chat"
+      ]
+    }
+  ]
+}`
+    }
+  ]}
+/>
+
+## 回應欄位說明
+
+**頂層欄位：**
+- `success` - 布林值，表示請求是否成功
+- `data` - 模型列表陣列（僅在成功時回傳）
+- `message` - 錯誤訊息（僅在失敗時回傳）
+
+**模型物件欄位：**
+- `id` - 模型唯一識別碼
+- `object` - 物件類型，固定為 "model"
+- `created` - 模型建立時間戳記
+- `owned_by` - 模型所屬的服務商
+- `supported_endpoint_types` - 支援的 API 端點類型陣列
+
+## 支援的端點類型
+
+- `chat` - 聊天完成
+- `completion` - 文字完成
+- `embedding` - 文字嵌入
+- `image` - 圖像產生
+- `audio` - 音訊處理
+- `rerank` - 重新排序
+
+## 注意事項
+
+<Callout client:load type="info" title="驗證要求">
+必須提供有效的 API 權杖，權杖決定了使用者可以存取哪些模型。
+</Callout>
+
+<Callout client:load type="info" title="權限控制">
+回傳的模型列表會依使用者群組與權杖群組進行過濾，只顯示使用者有權限存取的模型。
+</Callout>
+
+## 常見錯誤
+
+- `401 Unauthorized` - API 權杖無效或已過期
+- `403 Forbidden` - 使用者沒有存取權限
+- `500 Internal Server Error` - 伺服器內部錯誤

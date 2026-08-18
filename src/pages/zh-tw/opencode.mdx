@@ -1,0 +1,278 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: OpenCode CLI 設定
+lang: zh-tw
+activeId: opencode
+---
+
+# OpenCode CLI 設定
+
+了解如何設定 OpenCode CLI 以使用 Aiberm 的 API。本指南涵蓋 Windows、macOS 和 Linux 的安裝與設定。
+
+## 什麼是 OpenCode？
+
+OpenCode 是一個以 Go 語言為基礎的開源命令列程式設計工具（CLI），為開發者提供強大的 AI 輔助功能。它提供直覺的終端機使用者介面（TUI），支援多種 LLM 供應商，包括 OpenAI、Anthropic、Gemini 等。
+
+透過將 OpenCode 與 **Aiberm API** 整合，您可以透過統一的介面、一把金鑰和一個基礎 URL，存取 Aiberm 上的任何模型（包括 Claude、GPT、Gemini 等）。
+
+## 前置條件
+
+開始之前，請確認您具備：
+
+- 一個 Aiberm 帳戶（[在此註冊](https://aiberm.com/register)）
+- 一個 Aiberm API 金鑰（[取得金鑰](https://aiberm.com/console/token)）
+- 電腦上的終端機／命令提示字元存取權限
+
+### 終端機模擬器
+
+OpenCode 需要現代終端機模擬器。建議選項：
+
+- **WezTerm**（跨平台）
+- **Alacritty**（跨平台）
+- **Ghostty**（Linux 和 macOS）
+- **Kitty**（Linux 和 macOS）
+
+Windows 使用者也可以使用 PowerShell 或 Windows Terminal。macOS 使用者可以使用內建的 Terminal.app 或 iTerm2。Linux 使用者可以使用內建終端機或 GNOME Terminal、Konsole 等。
+
+## 安裝
+
+選擇您的作業系統以查看安裝說明。
+
+### macOS 和 Linux
+
+最簡單的方式是透過安裝指令碼：
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+或使用 Homebrew：
+
+```bash
+brew install anomalyco/tap/opencode
+```
+
+**驗證安裝：**
+```bash
+opencode --version
+```
+
+### Windows
+
+Windows 使用者應先安裝 [Node.js](https://nodejs.org/en/download)，再透過 NPM 安裝：
+
+```bash
+npm i -g opencode-ai@latest
+```
+
+或使用 Chocolatey：
+
+```bash
+choco install opencode
+```
+
+或使用 Scoop：
+
+```bash
+scoop bucket add extras
+scoop install extras/opencode
+```
+
+**驗證安裝：**
+```bash
+opencode --version
+```
+
+如果您偏好圖形介面，OpenCode 也提供桌面應用程式，可在 [OpenCode 下載頁面](https://opencode.ai/download) 取得。
+
+## 設定
+
+### 步驟 1：初始化供應商
+
+安裝後，在啟動 OpenCode 之前，於終端機執行以下命令：
+
+```bash
+opencode auth login
+```
+
+1. 在供應商列表中，選擇 **other**（在底部，可以搜尋）
+2. 輸入 **Provider ID**：輸入 `aiberm`
+3. 輸入 **API Key token**：可以輸入任意值（如 `admin`），實際金鑰透過設定檔引用
+
+此步驟會在 OpenCode 的本機憑證管理器中註冊自訂供應商。
+
+### 步驟 2：編輯設定檔
+
+開啟 OpenCode 設定目錄：
+
+**Windows：**
+
+按 `Win + R`，貼上下列內容，然後按 Enter：
+
+```
+%userprofile%\.config\opencode
+```
+
+**macOS / Linux：**
+
+在終端機中執行：
+
+```bash
+cd ~/.config/opencode
+```
+
+或在 Finder／檔案總管中前往 `~/.config/opencode/`。
+
+在此目錄中建立或編輯 `opencode.json`。以下是使用 Claude 模型的設定範例：
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "aiberm": {
+            "npm": "@ai-sdk/anthropic",
+            "name": "Aiberm",
+            "options": {
+                "baseURL": "https://aiberm.com/v1",
+                "apiKey": "sk-your-aiberm-api-key"
+            },
+            "models": {
+                "claude-opus-4-5-20251101": {
+                    "name": "Claude-4.5-Opus"
+                },
+                "claude-sonnet-4-5-20250929": {
+                    "name": "Claude-4.5-Sonnet"
+                },
+                "claude-haiku-4-5-20251001": {
+                    "name": "Claude-4.5-Haiku"
+                }
+            }
+        }
+    }
+}
+```
+
+您也可以加入 Aiberm 上的其他模型。例如，加入 OpenAI GPT 模型：
+
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "aiberm": {
+            "npm": "@ai-sdk/openai",
+            "name": "Aiberm",
+            "options": {
+                "baseURL": "https://aiberm.com/v1",
+                "apiKey": "sk-your-aiberm-api-key"
+            },
+            "models": {
+                "openai/gpt-4.1": {
+                    "name": "GPT-4.1"
+                },
+                "openai/gpt-4.1-mini": {
+                    "name": "GPT-4.1 Mini"
+                },
+                "openai/gpt-4.1-nano": {
+                    "name": "GPT-4.1 Nano"
+                },
+                "openai/gpt-4o": {
+                    "name": "GPT-4o"
+                },
+                "openai/gpt-4o-mini": {
+                    "name": "GPT-4o Mini"
+                }
+            }
+        }
+    }
+}
+```
+
+查看[模型列表](/docs/zh-tw/models)頁面或 [Aiberm 價格頁面](https://aiberm.com/pricing)了解 Aiberm 上所有可用的模型。
+
+**重要提示：**
+
+- 將 `"sk-your-aiberm-api-key"` 替換為您從 [Aiberm 控制台](https://aiberm.com/console/token) 取得的實際 API 金鑰
+- JSON 格式對符號敏感
+
+## 驗證設定
+
+儲存設定檔後，重新啟動終端機，然後前往您的工作目錄：
+
+```bash
+cd your-working-directory
+```
+
+啟動 OpenCode：
+
+```bash
+opencode
+```
+
+在聊天介面中，輸入命令：
+
+```
+/models
+```
+
+您應該能在模型列表中看到 Aiberm 及其模型。選擇一個即可開始使用！
+
+## 切換模型
+
+在 OpenCode 介面中，輸入 `/models` 命令，然後從列表中選擇您想要的模型。
+
+**透過 Aiberm 可用的模型範例：**
+
+- **anthropic/claude-sonnet-4-5-20250514**：Anthropic 的 Claude 4.5 Sonnet
+- **anthropic/claude-opus-4-20250514**：Anthropic 的 Claude 4 Opus
+- **openai/gpt-4.1**：OpenAI 的 GPT-4.1
+- **openai/gpt-4o-mini**：OpenAI 的 GPT-4o Mini
+- **google/gemini-3-pro**：Google 的 Gemini 3 Pro
+- 更多...
+
+造訪 [Aiberm 價格頁面](https://aiberm.com/pricing) 查看完整的可用模型列表。
+
+造訪[模型列表](/docs/zh-tw/models)頁面查看完整的可用模型列表。
+
+## 疑難排解
+
+### 設定變更不生效
+
+- 重新啟動 OpenCode
+- 檢查 `opencode.json` 語法（JSON 格式）
+- 驗證設定檔路徑是否正確
+
+### 401/403 錯誤
+
+- **401 錯誤**：API 金鑰未設定或無效
+- **403 錯誤**：權限不足或金鑰已過期
+- 檢查設定檔中的 `apiKey`
+- 在 [Aiberm 控制台](https://aiberm.com/console/token) 驗證您的 API 金鑰
+
+### 找不到 OpenCode
+
+**macOS/Linux：**
+```bash
+# 檢查 OpenCode 是否在您的 PATH 中
+which opencode
+
+# 如果未找到，嘗試重新安裝：
+curl -fsSL https://opencode.ai/install | bash
+```
+
+**Windows：**
+- 驗證 Node.js 是否正確安裝
+- 嘗試透過 npm 重新安裝：`npm i -g opencode-ai@latest`
+
+### 設定檔位置
+
+`opencode.json` 設定檔應放在：
+
+- **Windows**：`C:\Users\{username}\.config\opencode\opencode.json`
+- **macOS / Linux**：`~/.config/opencode/opencode.json`
+
+## 注意事項
+
+- 在專用專案資料夾中執行 OpenCode。避免在敏感目錄（如系統資料夾或包含憑證的目錄）中執行。OpenCode 從目前工作目錄開始操作。
+- OpenCode 使用 JSON 格式的設定檔。請確認您的設定檔語法正確。您可以使用線上 JSON 驗證器檢查格式。
+- OpenCode 僅在您明確授權時才會讀取檔案內容。建議在專用專案資料夾中使用。
+- 完整支援中文輸入與輸出。

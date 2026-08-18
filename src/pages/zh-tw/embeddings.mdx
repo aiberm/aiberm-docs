@@ -1,0 +1,56 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 文字嵌入
+lang: zh-tw
+activeId: embeddings
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 文字嵌入
+
+將文字轉換為數值向量表示，用於語意搜尋、分群與推薦。
+
+## 建立嵌入
+
+`POST https://aiberm.com/v1/embeddings`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input="Your text here"
+)
+
+embedding = response.data[0].embedding
+print(f"Embedding dimension: {len(embedding)}")`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/embeddings \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "text-embedding-3-small",
+    "input": "Your text here"
+  }'`
+    }
+  ]}
+/>
+
+<Callout client:load type="tip" title="提示">
+使用嵌入進行語意搜尋、文件相似度與推薦系統。
+</Callout>

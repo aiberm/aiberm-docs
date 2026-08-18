@@ -32,6 +32,20 @@ const Flag: React.FC<{ locale: Locale; className?: string }> = ({ locale, classN
         <polygon points="22,20 22.5,21.6 24.2,22 22.5,22.4 22,24 21.5,22.4 19.8,22 21.5,21.6" fill="#FFDE00" />
       </svg>
     ),
+    'zh-tw': (
+      <svg className={`${className} rounded-sm shadow-sm`} viewBox="0 0 60 40" aria-hidden="true">
+        <rect width="60" height="40" rx="2" fill="#FE0000" />
+        <rect width="30" height="20" fill="#000095" />
+        <g transform="translate(15 10)" fill="#fff">
+          <circle r="3.2" />
+          {Array.from({ length: 12 }).map((_, i) => (
+            <rect key={i} x="-0.45" y="-7.4" width="0.9" height="3.2" transform={`rotate(${i * 30})`} />
+          ))}
+          <circle r="1.7" fill="#000095" />
+          <circle r="1.15" fill="#fff" />
+        </g>
+      </svg>
+    ),
     ko: (
       <svg className={`${className} rounded-sm shadow-sm`} viewBox="0 0 60 40" aria-hidden="true">
         <rect width="60" height="40" rx="2" fill="#fff" />
@@ -82,6 +96,20 @@ const Flag: React.FC<{ locale: Locale; className?: string }> = ({ locale, classN
         <rect x="20" width="20" height="40" fill="#fff" />
         <rect x="40" width="20" height="40" fill="#CE2B37" />
         <rect width="60" height="40" rx="2" fill="none" stroke="rgba(0,0,0,0.06)" />
+      </svg>
+    ),
+    fr: (
+      <svg className={`${className} rounded-sm shadow-sm`} viewBox="0 0 60 40" aria-hidden="true">
+        <rect width="20" height="40" fill="#002395" />
+        <rect x="20" width="20" height="40" fill="#fff" />
+        <rect x="40" width="20" height="40" fill="#ED2939" />
+      </svg>
+    ),
+    de: (
+      <svg className={`${className} rounded-sm shadow-sm`} viewBox="0 0 60 40" aria-hidden="true">
+        <rect width="60" height="13.34" fill="#000" />
+        <rect y="13.33" width="60" height="13.34" fill="#DD0000" />
+        <rect y="26.67" width="60" height="13.33" fill="#FFCE00" />
       </svg>
     ),
     vi: (

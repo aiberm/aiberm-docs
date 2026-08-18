@@ -1,0 +1,151 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Liste des modèles
+lang: fr
+activeId: models
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# Liste des modèles
+
+Obtenez la liste de tous les modèles d’IA accessibles à l’utilisateur actuel, y compris les identifiants, les noms, les fournisseurs et les informations détaillées.
+
+<Callout client:load type="info" title="À propos de la liste des modèles et des groupes de jetons">
+Les modèles renvoyés dans la liste dépendent du groupe de jetons auquel appartient votre API KEY. Vous pouvez sélectionner le groupe de jetons lors de la création ou de la modification des jetons dans Console → API Tokens.
+</Callout>
+
+## Point de terminaison
+
+`GET https://aiberm.com/v1/models`
+
+## Exemple de requête
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X GET "https://aiberm.com/v1/models" \\
+  -H "Authorization: Bearer sk-your-api-token-here" \\
+  -H "Content-Type: application/json"`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `import requests
+
+url = "https://aiberm.com/v1/models"
+headers = {
+    "Authorization": "Bearer sk-your-api-token-here",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const response = await fetch('https://aiberm.com/v1/models', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer sk-your-api-token-here',
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+console.log(data);`
+    }
+  ]}
+/>
+
+## Format de la réponse
+
+### Réponse de succès (200 OK)
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'json',
+      label: 'JSON',
+      code: `{
+  "success": true,
+  "data": [
+    {
+      "id": "gpt-4",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "gpt-3.5-turbo",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "openai",
+      "supported_endpoint_types": [
+        "chat",
+        "completion"
+      ]
+    },
+    {
+      "id": "claude-3-sonnet-20240229",
+      "object": "model",
+      "created": 1626777600,
+      "owned_by": "anthropic",
+      "supported_endpoint_types": [
+        "chat"
+      ]
+    }
+  ]
+}`
+    }
+  ]}
+/>
+
+## Champs de la réponse
+
+**Champs de premier niveau :**
+- `success` - Booléen, indique si la requête a réussi
+- `data` - Tableau d’objets modèle (renvoyé uniquement en cas de succès)
+- `message` - Message d’erreur (renvoyé uniquement en cas d’échec)
+
+**Champs de l’objet modèle :**
+- `id` - Identifiant unique du modèle
+- `object` - Type d’objet, fixe à "model"
+- `created` - Horodatage de création du modèle
+- `owned_by` - Fournisseur du modèle (par ex. openai, anthropic)
+- `supported_endpoint_types` - Tableau des types de points de terminaison API pris en charge
+
+## Types de points de terminaison pris en charge
+
+- `chat` - Complétion de chat
+- `completion` - Complétion de texte
+- `embedding` - Embedding de texte
+- `image` - Génération d’images
+- `audio` - Traitement audio
+- `rerank` - Reclassement
+
+## Remarques importantes
+
+<Callout client:load type="info" title="Authentification requise">
+Un jeton API valide doit être fourni. Le jeton détermine les modèles auxquels l’utilisateur peut accéder.
+</Callout>
+
+<Callout client:load type="info" title="Contrôle des autorisations">
+La liste des modèles renvoyée est filtrée selon les groupes d’utilisateurs et les groupes de jetons, et n’affiche que les modèles auxquels l’utilisateur a le droit d’accéder.
+</Callout>
+
+## Erreurs courantes
+
+- `401 Unauthorized` - Le jeton API est invalide ou expiré
+- `403 Forbidden` - L’utilisateur n’a pas l’autorisation d’accès
+- `500 Internal Server Error` - Erreur interne du serveur

@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Fehlerbehandlung
+lang: de
+activeId: error-handling
+---
+
+# Fehlerbehandlung
+
+Wenn eine Aiberm-API-Anfrage fehlschlägt, gibt die API ein JSON-Fehlerobjekt zurück. Nutzen Sie den HTTP-Statuscode, `error.code` und `error.message`, um das Problem zu erkennen und den nächsten Schritt festzulegen.
+
+Wenn Sie Support benötigen, fügen Sie die vollständige Fehlerantwort mit jeder `request id` bei.
+
+## Format der Fehlerantwort
+
+```json
+{
+  "error": {
+    "message": "用户额度不足, 剩余额度: ¥0.00 (request id: 20260622xxxxxxxx)",
+    "type": "new_api_error",
+    "code": "insufficient_user_quota"
+  }
+}
+```
+
+| Feld | Bedeutung |
+| --- | --- |
+| `message` | Lesbare Fehlermeldung. Die abschließende `(request id: ...)` ist die Trace-ID dieser Anfrage. Geben Sie sie an, wenn Sie den Support kontaktieren. |
+| `code` | Kennung der Fehlerkategorie. Vergleichen Sie sie mit den häufigen Fehlern unten. |
+| `type` | Markierung der Fehlerquelle. In den meisten Fällen müssen Sie sie nicht direkt verarbeiten. |
+
+> Wenn `message` mehrere Werte `(request id: ...)` enthält, ist das normal. Die Anfrage ist durch mehrere Dienstschichten gegangen. Kopieren Sie die vollständige Fehlermeldung, wenn Sie den Support kontaktieren.
+
+## HTTP-Statuscodes
+
+| Status | Bedeutung | Was tun |
+| --- | --- | --- |
+| `400` | Ungültiges Anfrageformat | Prüfen Sie das Anfrage-JSON, Pflichtfelder, `Content-Type` und den Modellnamen. |
+| `401` | Ungültiger API-Schlüssel | Prüfen Sie, ob der API-Schlüssel korrekt, abgelaufen, deaktiviert oder ohne Kontingent ist. |
+| `403` | Keine Berechtigung oder unzureichendes Guthaben | Prüfen Sie Kontostand, Token-Berechtigungen, Modellberechtigungen und die Quell-IP. |
+| `404` | Ressource nicht gefunden | Prüfen Sie die Endpoint-URL und die Schreibweise des Modellnamens. |
+| `429` | Zu viele Anfragen | Reduzieren Sie Parallelität oder Anfragefrequenz und versuchen Sie es später erneut. |
+| `500` | Interner Serverfehler | Versuchen Sie es später erneut. Wenn es anhält, kontaktieren Sie den Support mit der `request id`. |
+| `503` | Dienst vorübergehend nicht verfügbar | Für das Modell gibt es derzeit keine verfügbare Route. Versuchen Sie es später erneut oder kontaktieren Sie den Support. |
+
+## API-Schlüssel- und Authentifizierungsfehler
+
+Diese Fehler geben in der Regel `401` zurück.
+
+| Mögliche Meldung | Häufige Ursache | So beheben |
+| --- | --- | --- |
+| `无效的令牌` | Der API-Schlüssel ist falsch oder existiert nicht. | Prüfen Sie, dass der Schlüssel vollständig ist und keine Zeichen fehlen oder überzählig sind. Kopieren Sie ihn erneut aus der Konsole. |
+| `该令牌已过期` | Das Token ist abgelaufen. | Erzeugen Sie das Token in der Konsole neu oder verlängern Sie die Gültigkeitsdauer. |
+| `该令牌额度已用尽` | Das diesem Token zugewiesene Kontingent ist aufgebraucht. | Erhöhen Sie das Token-Kontingent oder verwenden Sie ein anderes Token mit ausreichend Kontingent. |
+| `该令牌状态不可用` | Das Token ist deaktiviert. | Aktivieren Sie das Token in der Konsole oder erstellen Sie ein neues. |
+| `未提供令牌` | Die Anfrage enthielt keinen API-Schlüssel. | Fügen Sie `Authorization: Bearer sk-xxxxxx` zu den Anfrage-Headern hinzu. |
+
+## Berechtigungs- und Guthabenfehler
+
+Diese Fehler geben in der Regel `403` zurück.
+
+| Mögliche Meldung | Häufige Ursache | So beheben |
+| --- | --- | --- |
+| `用户额度不足, 剩余额度: ...` | Das Kontoguthaben reicht für diese Anfrage nicht aus. | Laden Sie das Konto auf und versuchen Sie es erneut. |
+| `预扣费额度失败, 用户剩余额度: ...` | Das Guthaben deckt die geschätzten Anfragekosten nicht. | Laden Sie auf, oder reduzieren Sie `max_tokens` und kürzen Sie die Eingabe. |
+| `您的 IP 不在令牌允许访问的列表中` | Das Token hat eine IP-Allowlist, und die aktuelle IP ist nicht erlaubt. | Nutzen Sie eine erlaubte IP oder aktualisieren Sie die Allowlist in der Konsole. |
+| `用户已被封禁` | Das Konto wurde gesperrt. | Kontaktieren Sie den Support für Details. |
+| `无权访问 xxx 分组` | Das Token hat keinen Zugriff auf die angeforderte Gruppe. | Nutzen Sie eine erlaubte Gruppe oder beantragen Sie Zugriff. |
+| `该令牌无权访问模型 xxx` | Die erlaubte Modellliste des Tokens enthält dieses Modell nicht. | Nutzen Sie ein erlaubtes Modell oder aktualisieren Sie die Modellberechtigungen des Tokens in der Konsole. |
+
+## Fehler im Anfrageinhalt
+
+Diese Fehler geben in der Regel `400` zurück.
+
+| Mögliche Meldung | Häufige Ursache | So beheben |
+| --- | --- | --- |
+| `Invalid request, ...` | Der Anfragekörper kann nicht geparst werden. | Prüfen Sie, dass das JSON gültig ist und `Content-Type` `application/json` ist. |
+| `未指定模型名称，模型名称不能为空` | In der Anfrage fehlt das Feld `model`. | Fügen Sie das korrekte `model` zum Anfragekörper hinzu. |
+| Meldungen wie `检测到敏感词` | Die Eingabe hat eine Inhaltsicherheitsregel ausgelöst. | Passen Sie die Eingabe an und versuchen Sie es erneut. |
+
+## Ratenlimit-Fehler
+
+Diese Fehler geben in der Regel `429` zurück.
+
+| Mögliche Meldung | Häufige Ursache | So beheben |
+| --- | --- | --- |
+| `您已达到请求数限制：N分钟内最多请求M次` | Sie haben das Limit erfolgreicher Anfragen erreicht. | Senken Sie die Anfragefrequenz und versuchen Sie es nach dem Reset des Fensters erneut. |
+| `您已达到总请求数限制：...，包括失败次数...` | Das GesamtlLimit inklusive fehlgeschlagener Anfragen wurde erreicht. | Prüfen Sie, ob fehlgeschlagene Anfragen in einer Schleife laufen, beheben Sie die Ursache und versuchen Sie es erneut. |
+
+## Modell- und Routenfehler
+
+Diese Fehler geben in der Regel `404` oder `503` zurück.
+
+| Mögliche Meldung | Häufige Ursache | So beheben |
+| --- | --- | --- |
+| `模型不存在` | Der Modellname ist falsch geschrieben oder dieses Modell ist für das Token nicht aktiviert. | Bestätigen Sie den Modellnamen und die Modellberechtigungen des Tokens. |
+| `无可用渠道` | Für das Modell gibt es derzeit keine verfügbare Route. | Versuchen Sie es später erneut. Bleibt es nicht verfügbar, kontaktieren Sie den Support. |
+
+## Serverfehler
+
+Diese Fehler geben in der Regel `500` oder `503` zurück.
+
+| Mögliche Meldung | Häufige Ursache | So beheben |
+| --- | --- | --- |
+| Interne Fehlermeldungen | Vorübergehendes Serverproblem oder ein Upstream-Dienst ist vorübergehend nicht verfügbar. | Versuchen Sie es später erneut. Wenn es anhält, kontaktieren Sie den Support mit der `request id`. |
+
+## Bevor Sie den Support kontaktieren
+
+Damit wir das Problem schneller finden, geben Sie bitte an:
+
+1. Die vollständige Fehlerantwort einschließlich `message`, `code` und jeder `request id`.
+2. Die ungefähre Uhrzeit, zu der das Problem auftrat.
+3. Den Modellnamen und die Endpoint-URL, die Sie aufgerufen haben.
+4. Die ersten Zeichen des API-Schlüssels, z. B. `sk-abcd...`. Senden Sie nicht den vollständigen Schlüssel.

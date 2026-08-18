@@ -1,0 +1,155 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: 聊天完成
+lang: zh-tw
+activeId: chat
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+import Callout from '../../components/Callout.tsx';
+
+# 聊天完成
+
+透過統一 API 使用各種 AI 模型建立對話式回應。
+
+## 建立聊天完成
+
+`POST https://aiberm.com/v1/chat/completions`
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl https://aiberm.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "gpt-4",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is the capital of France?"}
+    ],
+    "temperature": 0.7
+  }'`
+    },
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "What is the capital of France?"}
+    ],
+    temperature=0.7
+)
+
+print(response.choices[0].message.content)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: 'https://aiberm.com/v1'
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user', content: 'What is the capital of France?' }
+  ],
+  temperature: 0.7
+});
+
+console.log(response.choices[0].message.content);`
+    }
+  ]}
+/>
+
+## 請求參數
+
+| 參數 | 類型 | 必填 | 說明 |
+|-----------|------|----------|-------------|
+| `model` | string | 是 | 要使用的模型 ID |
+| `messages` | array | 是 | 訊息物件陣列 |
+| `temperature` | number | 否 | 取樣溫度 (0-2)。預設值：1 |
+| `max_tokens` | integer | 否 | 產生的最大 token 數 |
+| `top_p` | number | 否 | 核取樣參數 |
+| `stream` | boolean | 否 | 是否串流傳輸回應 |
+
+## 訊息角色
+
+訊息必須包含 `role` 和 `content`：
+
+- **system** - 設定助手的行為／個性
+- **user** - 來自最終使用者的訊息
+- **assistant** - AI 的先前回應
+
+## 串流回應
+
+啟用串流傳輸以增量接收回應：
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1"
+)
+
+stream = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `const stream = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Tell me a story' }],
+  stream: true
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || '');
+}`
+    }
+  ]}
+/>
+
+## 最佳實務
+
+<Callout client:load type="tip" title="最佳化您的請求">
+- 設定 `max_tokens` 以限制成本
+- 使用適當的 `temperature` 值（較低用於事實性，較高用於創意性）
+- 包含系統訊息以引導行為
+- 串流傳輸回應以獲得更好的使用者體驗
+</Callout>
+
+<Callout client:load type="warning" title="注意">
+注意每個模型的 token 限制。較長的對話可能需要對話歷史紀錄管理。
+</Callout>

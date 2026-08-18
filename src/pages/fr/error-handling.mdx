@@ -1,0 +1,114 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Gestion des erreurs
+lang: fr
+activeId: error-handling
+---
+
+# Gestion des erreurs
+
+Lorsqu’une requête API Aiberm échoue, l’API renvoie un objet d’erreur JSON. Utilisez le code d’état HTTP, `error.code` et `error.message` pour identifier le problème et décider de la suite.
+
+Si vous avez besoin d’assistance, incluez la réponse d’erreur complète avec chaque `request id`.
+
+## Format de la réponse d’erreur
+
+```json
+{
+  "error": {
+    "message": "用户额度不足, 剩余额度: ¥0.00 (request id: 20260622xxxxxxxx)",
+    "type": "new_api_error",
+    "code": "insufficient_user_quota"
+  }
+}
+```
+
+| Champ | Signification |
+| --- | --- |
+| `message` | Message d’erreur lisible. Le suffixe `(request id: ...)` est l’identifiant de suivi de cette requête. Incluez-le lorsque vous contactez le support. |
+| `code` | Identifiant de catégorie d’erreur. Faites-le correspondre aux erreurs courantes ci-dessous. |
+| `type` | Marqueur de source d’erreur. Dans la plupart des cas, vous n’avez pas besoin de le traiter directement. |
+
+> S’il y a plusieurs valeurs `(request id: ...)` dans `message`, c’est normal. Cela signifie que la requête a traversé plusieurs couches de service. Copiez le message d’erreur complet lorsque vous contactez le support.
+
+## Codes d’état HTTP
+
+| Statut | Signification | Que faire |
+| --- | --- | --- |
+| `400` | Format de requête invalide | Vérifiez le JSON de la requête, les champs obligatoires, le `Content-Type` et le nom du modèle. |
+| `401` | Clé API invalide | Vérifiez si la clé API est correcte, expirée, désactivée ou sans quota. |
+| `403` | Pas d’autorisation ou solde insuffisant | Vérifiez le solde du compte, les autorisations du jeton, les autorisations de modèle et l’adresse IP source. |
+| `404` | Ressource introuvable | Vérifiez l’URL du point de terminaison et l’orthographe du nom du modèle. |
+| `429` | Trop de requêtes | Réduisez la concurrence ou la fréquence des requêtes, puis réessayez plus tard. |
+| `500` | Erreur interne du serveur | Réessayez plus tard. Si le problème persiste, contactez le support avec le `request id`. |
+| `503` | Aucun service temporairement disponible | Le modèle n’a actuellement aucune route disponible. Réessayez plus tard ou contactez le support. |
+
+## Erreurs de clé API et d’authentification
+
+Ces erreurs renvoient généralement `401`.
+
+| Message que vous pouvez voir | Cause courante | Comment corriger |
+| --- | --- | --- |
+| `无效的令牌` | La clé API est incorrecte ou n’existe pas. | Vérifiez que la clé est complète et qu’il n’y a pas de caractères en trop ou manquants. Copiez-la à nouveau depuis la console. |
+| `该令牌已过期` | Le jeton a expiré. | Régénérez le jeton dans la console, ou prolongez sa période de validité. |
+| `该令牌额度已用尽` | Le quota attribué à ce jeton a été épuisé. | Augmentez le quota du jeton, ou utilisez un autre jeton avec suffisamment de quota. |
+| `该令牌状态不可用` | Le jeton est désactivé. | Activez le jeton dans la console, ou créez-en un nouveau. |
+| `未提供令牌` | La requête n’incluait pas de clé API. | Ajoutez `Authorization: Bearer sk-xxxxxx` aux en-têtes de la requête. |
+
+## Erreurs d’autorisation et de solde
+
+Ces erreurs renvoient généralement `403`.
+
+| Message que vous pouvez voir | Cause courante | Comment corriger |
+| --- | --- | --- |
+| `用户额度不足, 剩余额度: ...` | Le solde du compte n’est pas suffisant pour cette requête. | Rechargez le compte et réessayez. |
+| `预扣费额度失败, 用户剩余额度: ...` | Le solde n’est pas suffisant pour couvrir le coût estimé de la requête. | Rechargez, ou réduisez `max_tokens` et raccourcissez l’entrée. |
+| `您的 IP 不在令牌允许访问的列表中` | Le jeton a une liste blanche d’IP, et l’IP actuelle n’est pas autorisée. | Utilisez une IP autorisée, ou mettez à jour la liste blanche dans la console. |
+| `用户已被封禁` | Le compte a été suspendu. | Contactez le support pour plus de détails. |
+| `无权访问 xxx 分组` | Le jeton n’a pas accès au groupe demandé. | Utilisez un groupe autorisé, ou demandez l’accès. |
+| `该令牌无权访问模型 xxx` | La liste des modèles autorisés du jeton n’inclut pas ce modèle. | Utilisez un modèle autorisé, ou mettez à jour les autorisations de modèles du jeton dans la console. |
+
+## Erreurs de contenu de requête
+
+Ces erreurs renvoient généralement `400`.
+
+| Message que vous pouvez voir | Cause courante | Comment corriger |
+| --- | --- | --- |
+| `Invalid request, ...` | Le corps de la requête ne peut pas être analysé. | Vérifiez que le JSON est valide et que `Content-Type` est `application/json`. |
+| `未指定模型名称，模型名称不能为空` | La requête ne contient pas le champ `model`. | Ajoutez le `model` correct au corps de la requête. |
+| Messages du type `检测到敏感词` | L’entrée a déclenché une règle de sécurité du contenu. | Ajustez l’entrée et réessayez. |
+
+## Erreurs de limite de débit
+
+Ces erreurs renvoient généralement `429`.
+
+| Message que vous pouvez voir | Cause courante | Comment corriger |
+| --- | --- | --- |
+| `您已达到请求数限制：N分钟内最多请求M次` | Vous avez atteint la limite de requêtes réussies. | Réduisez la fréquence des requêtes et réessayez après la réinitialisation de la fenêtre de limite. |
+| `您已达到总请求数限制：...，包括失败次数...` | La limite totale de requêtes a été atteinte, y compris les requêtes échouées. | Vérifiez si des requêtes échouées se répètent en boucle, corrigez la cause, puis réessayez. |
+
+## Erreurs de modèle et de route
+
+Ces erreurs renvoient généralement `404` ou `503`.
+
+| Message que vous pouvez voir | Cause courante | Comment corriger |
+| --- | --- | --- |
+| `模型不存在` | Le nom du modèle est mal orthographié, ou ce modèle n’est pas activé pour le jeton. | Confirmez le nom du modèle et les autorisations de modèles du jeton. |
+| `无可用渠道` | Le modèle n’a actuellement aucune route disponible. | Réessayez plus tard. S’il reste indisponible, contactez le support. |
+
+## Erreurs serveur
+
+Ces erreurs renvoient généralement `500` ou `503`.
+
+| Message que vous pouvez voir | Cause courante | Comment corriger |
+| --- | --- | --- |
+| Messages d’erreur interne | Problème temporaire du serveur, ou un service en amont est temporairement indisponible. | Réessayez plus tard. Si le problème persiste, contactez le support avec le `request id`. |
+
+## Avant de contacter le support
+
+Pour nous aider à localiser le problème plus rapidement, fournissez :
+
+1. La réponse d’erreur complète, y compris `message`, `code` et chaque `request id`.
+2. L’heure approximative à laquelle le problème s’est produit.
+3. Le nom du modèle et l’URL du point de terminaison que vous avez appelés.
+4. Les premiers caractères de la clé API, par exemple `sk-abcd...`. N’envoyez pas la clé complète.

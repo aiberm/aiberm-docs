@@ -1,0 +1,233 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Claude Code CLI 設定
+lang: zh-tw
+activeId: claude-code
+---
+
+# Claude Code CLI 設定
+
+了解如何設定 Claude Code CLI 以使用 Aiberm 的 API。本指南涵蓋 Windows、macOS 和 Linux 的安裝與設定。
+
+## 什麼是 Claude Code？
+
+Claude Code 是 Anthropic 的官方命令列介面（CLI）工具，將 AI 助手直接帶到您的終端機和程式碼編輯器中。透過設定它使用 Aiberm，您可以透過一個熟悉的介面存取多個 AI 模型。
+
+## 前置條件
+
+開始之前，請確認您具備：
+
+- 一個 Aiberm 帳戶（[在此註冊](https://aiberm.com/register)）
+- 一個 Aiberm API 金鑰（[取得金鑰](https://aiberm.com/console/token)）
+- 電腦上的終端機／命令提示字元存取權限
+
+## 安裝
+
+選擇您的作業系統以查看安裝說明。
+
+### macOS 和 Linux
+
+開啟終端機並執行：
+
+```bash
+curl -fsSL https://claude.ai/install.sh | sh
+```
+
+此安裝指令碼會自動處理所有相依套件——無需事先安裝 Node.js 或 npm。
+
+**驗證安裝：**
+```bash
+claude --version
+```
+
+### Windows
+
+1. 以**系統管理員身分開啟 PowerShell**（按右鍵 PowerShell →「以系統管理員身分執行」）
+
+2. 執行安裝命令：
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+3. 安裝後，將 Claude Code 加入您的 PATH：
+   - 按 `Win + X` 並選擇「系統」
+   - 點選「進階系統設定」
+   - 點選「環境變數」
+   - 在「系統變數」下，選擇「Path」並點選「編輯」
+   - 點選「新增」並加入：`C:\Users\YourUsername\.claude\bin`
+   - 點選「確定」儲存
+
+4. **重新啟動終端機**並驗證安裝：
+```powershell
+claude --version
+```
+
+## 設定
+
+要在 Claude Code 中使用 Aiberm，您需要設定兩個環境變數：
+
+- `ANTHROPIC_AUTH_TOKEN` — 您的 Aiberm API 金鑰
+- `ANTHROPIC_BASE_URL` — Aiberm 的 API 端點（`https://aiberm.com`）
+
+選擇以下設定方法之一：
+
+### 方法 1：永久設定（建議）
+
+此方法可以安全地儲存您的 API 金鑰，並在工作階段之間保留。
+
+#### macOS 和 Linux
+
+將這些行加入您的 shell 設定檔中：
+
+**對於 Bash**（`~/.bashrc` 或 `~/.bash_profile`）：
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+**對於 Zsh**（`~/.zshrc`）：
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+套用變更：
+```bash
+source ~/.zshrc  # 或 source ~/.bashrc
+```
+
+#### Windows
+
+**使用 PowerShell（持久性）：**
+
+1. 以系統管理員身分開啟 PowerShell
+2. 執行這些命令：
+```powershell
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_AUTH_TOKEN', 'sk-your-aiberm-api-key', 'User')
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_BASE_URL', 'https://aiberm.com', 'User')
+```
+
+3. 重新啟動終端機以套用變更
+
+**使用命令提示字元（持久性）：**
+```cmd
+setx ANTHROPIC_AUTH_TOKEN "sk-your-aiberm-api-key"
+setx ANTHROPIC_BASE_URL "https://aiberm.com"
+```
+
+### 方法 2：暫時設定（僅目前工作階段）
+
+#### macOS 和 Linux
+
+```bash
+export ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+export ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows PowerShell
+
+```powershell
+$env:ANTHROPIC_AUTH_TOKEN="sk-your-aiberm-api-key"
+$env:ANTHROPIC_BASE_URL="https://aiberm.com"
+```
+
+#### Windows 命令提示字元
+
+```cmd
+set ANTHROPIC_AUTH_TOKEN=sk-your-aiberm-api-key
+set ANTHROPIC_BASE_URL=https://aiberm.com
+```
+
+### 方法 3：使用 Claude Code 設定
+
+建立或編輯 `~/.claude/settings.json`：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "sk-your-aiberm-api-key",
+    "ANTHROPIC_BASE_URL": "https://aiberm.com"
+  }
+}
+```
+
+### 方法 4：使用 CC Switch（圖形介面）
+
+[CC Switch](https://github.com/farion1231/cc-switch) 是一個 Claude Code 供應商切換工具，提供圖形化介面來管理多個 API 供應商設定。安裝方法請參考倉庫說明。
+
+**設定 Aiberm 供應商：**
+
+1. 執行 CC Switch 開啟設定介面
+2. **關閉頂部的 Live 代理開關**（該開關會讓請求走 CC Switch 自己的代理，沒有必要開啟）
+3. 新增供應商，填寫以下資訊：
+   - **供應商名稱**：`Aiberm`
+   - **備註**：`Aiberm`
+   - **官網連結**：`https://aiberm.com`
+   - **API Key**：您的 Aiberm API 金鑰
+   - **請求位址**：`https://aiberm.com`（不要以斜線結尾）
+   - **API 格式**：`Anthropic Messages (原生)`
+   - **主模型**：`claude-opus-4-6`
+   - **推理模型 (Thinking)**：`claude-opus-4-6-thinking`
+   - **Haiku 預設模型**：`claude-haiku-4-5-20251001`
+   - **Sonnet 預設模型**：`claude-sonnet-4-5-20250929`
+   - **Opus 預設模型**：`claude-opus-4-6`
+4. 點選「儲存」按鈕
+
+## 驗證設定
+
+啟動 Claude Code 後，輸入 `/status` 命令查看設定狀態。如果看到以下資訊，表示設定成功：
+
+```
+Anthropic base URL: https://aiberm.com
+```
+
+也可以傳送訊息測試：
+
+```bash
+claude "Hi"
+```
+
+如果設定正確，Claude Code 應該使用 Aiberm 的 API 進行回應。
+
+**檢查環境變數：**
+
+**macOS/Linux：**
+```bash
+echo $ANTHROPIC_BASE_URL
+echo $ANTHROPIC_AUTH_TOKEN
+```
+
+**Windows PowerShell：**
+```powershell
+echo $env:ANTHROPIC_BASE_URL
+echo $env:ANTHROPIC_AUTH_TOKEN
+```
+
+## 疑難排解
+
+### 「無效的 API 金鑰」錯誤
+
+- 驗證您的 API 金鑰是否正確：[控制台 → API 金鑰](https://aiberm.com/console/token)
+- 確認環境變數中沒有多餘空白
+- 檢查 `ANTHROPIC_BASE_URL` 是否設定為 `https://aiberm.com`（不含 `/v1`）
+
+### 「連線被拒絕」錯誤
+
+- 驗證您的網際網路連線
+- 檢查您是否可以在瀏覽器中存取 https://aiberm.com
+- 確認您的防火牆允許對外 HTTPS 連線
+
+### 找不到 Claude Code
+
+**macOS/Linux：**
+```bash
+# 檢查 Claude Code 是否在您的 PATH 中
+which claude
+
+# 如果未找到，在 ~/.zshrc 或 ~/.bashrc 中加入 PATH：
+export PATH="$HOME/.claude/bin:$PATH"
+```
+
+**Windows：**
+- 驗證 PATH 環境變數是否包含 `C:\Users\YourUsername\.claude\bin`
+- 加入 PATH 後重新啟動終端機

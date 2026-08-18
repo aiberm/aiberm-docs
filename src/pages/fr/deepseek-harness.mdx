@@ -1,0 +1,275 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Configuration de DeepSeek Harness
+lang: fr
+activeId: deepseek-harness
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Configuration de DeepSeek Harness
+
+Ce guide montre comment exécuter [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) avec **Aiberm** comme fournisseur personnalisé compatible OpenAI. Après configuration, une seule clé API Aiberm peut atteindre Claude, GPT, Gemini, DeepSeek, Kimi, MiniMax, GLM, Grok et le reste des modèles sur Aiberm.
+
+<Callout client:load type="info">
+DeepSeek Harness est en préversion développeur et évolue rapidement. Cette page suit le [README](https://github.com/deepseek-ai/deepseek-harness/blob/master/README.md) officiel et le guide [Configure models](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md), puis applique ces étapes à Aiberm.
+</Callout>
+
+## Qu'est-ce que DeepSeek Harness ?
+
+DeepSeek Harness est un harness d'agents open source de [DeepSeek AI](https://deepseek.com). Tout est un plugin, composé par [Cordis](https://github.com/cordiverse/cordis). L'entrée habituelle est l'UI navigateur (`dsh web`) ; le même répertoire home alimente aussi les jobs headless ponctuels.
+
+Projet officiel :
+
+- Page d'accueil : [deepseek.com/harness](https://deepseek.com/harness)
+- Code source : [github.com/deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)
+- Discussions : [GitHub Discussions](https://github.com/deepseek-ai/deepseek-harness/discussions)
+
+## Prérequis
+
+- Un compte Aiberm ([S'inscrire](https://aiberm.com/register))
+- Une clé API Aiberm ([Obtenez votre clé](https://aiberm.com/console/token))
+- [Node.js](https://nodejs.org/) installé (requis par `npx`)
+- Un terminal sur macOS, Linux ou Windows
+
+## Installer et démarrer
+
+Le chemin d'installation officiel est un lancement unique avec `npx`. Depuis le répertoire du projet dans lequel vous voulez que l'agent travaille :
+
+```bash
+npx @deepseek-ai/dsh web
+```
+
+L'UI web écoute par défaut sur `http://127.0.0.1:3080`. Le répertoire de travail actuel devient la racine de l'espace de travail.
+
+Variantes utiles :
+
+```bash
+# Another port
+npx @deepseek-ai/dsh web --port 8080
+
+# One-shot headless job (same models and credentials as the Web UI)
+npx @deepseek-ai/dsh --profile headless "summarize the README"
+```
+
+Si vous avez déjà installé la CLI :
+
+```bash
+dsh web
+dsh --help
+dsh web --help
+```
+
+<Callout client:load type="tip">
+Les profils `web` et `headless` sont créés à la première utilisation sous `$DSH_HOME` (par défaut `~/.dsh`). Vous n'avez pas besoin de cloner le dépôt uniquement pour utiliser Aiberm.
+</Callout>
+
+## Configurer Aiberm (UI web, recommandé)
+
+Aiberm n'est **pas** la carte DeepSeek intégrée, et ce n'est **pas** le fournisseur catalogue OpenAI / Anthropic. Ces entrées conservent leurs endpoints officiels. Aiberm est une passerelle compatible OpenAI, donc vous l'ajoutez comme **fournisseur personnalisé**.
+
+Référence officielle : [Configure models](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md).
+
+### Étape 1 : Ouvrir Settings → Models
+
+Dans l'UI web, ouvrez **Settings → Models**.
+
+### Étape 2 : Ajouter un fournisseur personnalisé
+
+Choisissez **Add a custom provider** et renseignez :
+
+| Champ | Valeur |
+|---|---|
+| **Provider ID** | `aiberm` (minuscules, permanent — utilisé par les sessions, les valeurs par défaut et le nom de la crédential) |
+| **Display name** | `Aiberm` |
+| **Base URL** | `https://aiberm.com/v1` |
+| **API protocol** | `openai-completions` |
+| **API key** | votre clé Aiberm depuis [Console → API Tokens](https://aiberm.com/console/token) |
+
+![Add a custom provider form](/docs/deepseek-harness-provider.png)
+
+<Callout client:load type="warning">
+Le Provider ID ne peut pas être renommé ensuite. Les requêtes, les sessions enregistrées, le modèle par défaut et la crédential stockée l'utilisent. Pour le changer, ajoutez un nouveau fournisseur et supprimez l'ancien.
+</Callout>
+
+### Étape 3 : Charger ou saisir les modèles
+
+Sous **Model catalog**, choisissez **Fetch available models**. Harness appelle le `GET /v1/models` compatible OpenAI d'Aiberm avec la clé que vous venez de saisir. Sélectionnez les modèles souhaités, puis enregistrez.
+
+![Fetch available models from Aiberm](/docs/deepseek-harness-models.png)
+
+Si la découverte échoue, saisissez les ID de modèles à la main. Utilisez les ID de la [Liste des modèles](/docs/fr/models) ou de [Aiberm Pricing](https://aiberm.com/pricing). Exemples :
+
+- `claude-sonnet-4-6`
+- `claude-opus-4-6`
+- `gpt-5.4`
+- `google/gemini-3-flash`
+- `deepseek/deepseek-v4-pro`
+- `grok-4.6`
+
+<Callout client:load type="info">
+La page n'écrit jamais la clé API dans `settings.yaml`. La clé est stockée en écriture seule dans `$DSH_HOME/.credentials.yaml`. Les paramètres ne conservent qu'une référence telle que `AIBERM_API_KEY`.
+</Callout>
+
+### Étape 4 : Sélectionner un modèle
+
+Après enregistrement, Aiberm apparaît dans le sélecteur de modèles en bas du compositeur. Choisissez un modèle — cette sélection devient aussi la valeur par défaut pour les **nouvelles** sessions. Une session qui a déjà envoyé une requête conserve le modèle enregistré dans son propre journal.
+
+Le sélecteur groupe les modèles DeepSeek intégrés séparément du fournisseur personnalisé **Aiberm**. Utilisez le groupe Aiberm pour Claude, GPT, Gemini et le reste du catalogue.
+
+## Configurer Aiberm (settings.yaml)
+
+Vous pouvez déclarer le même fournisseur en éditant `$DSH_HOME/settings.yaml` (généralement `~/.dsh/settings.yaml`). Ne mettez **pas** la clé API dans ce fichier.
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      displayName: Aiberm
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: claude-opus-4-6
+        - id: claude-opus-4-6-thinking
+        - id: gpt-5.4
+        - id: google/gemini-3-flash
+        - id: deepseek/deepseek-v4-pro
+        - id: grok-4.6
+        - id: kimi-k2.6
+        - id: minimax-m2.7
+
+agent-default-model:
+  provider: aiberm
+  model: claude-sonnet-4-6
+```
+
+Puis stockez la clé à l'un de ces emplacements (la première correspondance gagne au moment de la requête) :
+
+1. Environnement de lancement : `AIBERM_API_KEY=sk-... npx @deepseek-ai/dsh web`
+2. `$DSH_HOME/.credentials.yaml` (ce que la page Models écrit) :
+
+```yaml
+AIBERM_API_KEY: sk-your-aiberm-api-key
+```
+
+3. Le `.env` du projet dans le répertoire de lancement, ou `$DSH_HOME/.env`
+
+Ordre officiel des crédentials : environnement du processus → `$DSH_HOME/.credentials.yaml` → `.env` du projet → `$DSH_HOME/.env`. Une valeur écrite sur la page Models remplace les clés `.env` plus anciennes.
+
+Sous POSIX, conservez `.credentials.yaml` en mode `600`.
+
+Une route personnalisée absente du catalogue livré de Harness **doit** définir `api`, `baseURL` et une liste `models` non vide. `models` *remplace* le catalogue pour cette route — chaque modèle que vous voulez dans le sélecteur doit y figurer. Une entrée avec seulement `id` suffit.
+
+## Modèles vision
+
+Un modèle saisi à la main est traité comme texte uniquement jusqu'à indication contraire. Si vous joignez une image à un tel modèle, Harness refuse la requête avant l'envoi.
+
+Pour les modèles vision Aiberm, ajoutez `input` dans `settings.yaml` :
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: gemini-3-pro-image-preview
+          input: [text, image]
+        - id: gpt-image-2
+          input: [text, image]
+```
+
+Si tous les modèles listés acceptent les images, définissez le fallback de la route une seule fois :
+
+```yaml
+defaultInput: [text, image]
+```
+
+`defaultInput` est un fallback, pas une surcharge. La valeur par défaut est `[text]`.
+
+## Vérifier la configuration
+
+1. Ouvrez `http://127.0.0.1:3080`.
+2. Confirmez que le sélecteur de modèles liste **Aiberm** et vos modèles.
+
+![Model picker showing the Aiberm group](/docs/deepseek-harness-ui.png)
+
+3. Envoyez un court prompt tel que `Hi`.
+4. Optionnel : lister les modèles directement via Aiberm :
+
+```bash
+curl -H "Authorization: Bearer sk-your-aiberm-api-key" \
+     https://aiberm.com/v1/models
+```
+
+Ajoutez tout ID supplémentaire à la liste `models` du fournisseur (ou relancez **Fetch available models**) s'ils manquent dans le sélecteur.
+
+## Notes headless et CLI
+
+L'UI web et `dsh --profile headless` partagent `$DSH_HOME`. Configurez Aiberm une fois, puis exécutez :
+
+```bash
+npx @deepseek-ai/dsh --profile headless "list the files in this directory"
+```
+
+Les flags du lanceur viennent en premier ; tout ce qui suit appartient au profil :
+
+```bash
+dsh --profile web --port 8080
+dsh --profile web --help
+dsh --help
+```
+
+## Dépannage
+
+### `MISSING_CREDENTIAL`
+
+La route nomme `AIBERM_API_KEY` (ou un autre `apiKeyEnv`) mais aucune valeur n'est stockée. Enregistrez la clé dans **Settings → Models**, ou exportez la même variable dans le shell qui démarre `dsh`.
+
+### `UNKNOWN_MODEL`
+
+Le modèle sélectionné n'est pas dans la liste `models` de ce fournisseur. Relancez la récupération des modèles, ou ajoutez l'ID à la main. Les ID Aiberm évoluent — confirmez-les sur la [Liste des modèles](/docs/fr/models).
+
+### 401 lors de la récupération des modèles ou du chat
+
+- Vérifiez la clé dans [Aiberm Console](https://aiberm.com/console/token).
+- La Base URL doit être `https://aiberm.com/v1` (inclure `/v1`).
+- Ne collez pas la clé dans `settings.yaml` ; placez-la dans les crédentials ou l'environnement.
+
+### Les requêtes vont encore vers DeepSeek ou OpenAI
+
+Vous avez configuré la carte DeepSeek intégrée ou un fournisseur catalogue `openai` / `anthropic`. Ceux-ci conservent les endpoints officiels. Supprimez cette ligne mal configurée et ajoutez un fournisseur **personnalisé** avec l'ID `aiberm` et la base URL `https://aiberm.com/v1`.
+
+### Image refusée avant l'envoi
+
+Le modèle n'a pas de modalité image. Ajoutez `input: [text, image]` pour ce modèle (voir [Modèles vision](#vision-models)), puis démarrez une **nouvelle** session. Une image jointe reste dans le journal de l'ancienne session.
+
+### Les modifications de config ne s'appliquent pas
+
+Les changements de fournisseur et de clé s'appliquent à la **prochaine** requête ; vous n'avez pas à redémarrer le serveur. Une session existante conserve le modèle déjà écrit dans son journal. Démarrez un nouveau chat après avoir changé la valeur par défaut.
+
+### Emplacement des fichiers
+
+| Chemin | Rôle |
+|---|---|
+| `$DSH_HOME/settings.yaml` | Fournisseurs, listes de modèles, modèle par défaut (`~/.dsh/settings.yaml`) |
+| `$DSH_HOME/.credentials.yaml` | Clés API uniquement |
+| `$DSH_HOME/profiles/web/` | Profil web créé automatiquement |
+
+## Notes
+
+- Préférez la page Models pour les clés. `settings.yaml` ne doit contenir que la référence `apiKeyEnv`.
+- N'exécutez pas l'agent dans un répertoire qui contient déjà des secrets que vous ne voulez pas qu'il lise.
+- Pour les champs hors de ce guide (timeouts, retry, compatibilité du raisonnement), voir le [`dsh-llm-pi-ai` README](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/llm/llm-pi-ai/README.md) officiel.
+
+## Liens
+
+- [DeepSeek Harness sur GitHub](https://github.com/deepseek-ai/deepseek-harness)
+- [Guide officiel de configuration des modèles](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md)
+- [Aiberm Console](https://aiberm.com/console/token)
+- [Liste des modèles Aiberm](/docs/fr/models)
+- [Aiberm Pricing](https://aiberm.com/pricing)

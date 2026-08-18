@@ -1,11 +1,11 @@
 # Aiberm API Documentation
 
-Static documentation site built with plain Astro, supporting English, Chinese (中文), Korean, Japanese, Russian, Spanish, Portuguese, Italian, and Vietnamese.
+Static documentation site built with plain Astro, supporting English, Simplified Chinese, Traditional Chinese, Korean, Japanese, Russian, Spanish, Portuguese, Italian, French, German, and Vietnamese.
 
 ## Features
 
 - ✅ **SSG** - Statically generated for fast performance
-- ✅ **i18n** - English, Chinese, Korean, Japanese, Russian, Spanish, Portuguese, Italian, and Vietnamese
+- ✅ **i18n** - English, Simplified Chinese, Traditional Chinese, Korean, Japanese, Russian, Spanish, Portuguese, Italian, French, German, and Vietnamese
 - ✅ **Light Mode** - Clean, minimal UI matching existing design
 - ✅ **Code Examples** - Syntax-highlighted code blocks with copy functionality and language tabs
 - ✅ **Fast** - ~200KB bundle size, lightweight and performant
@@ -35,13 +35,16 @@ aiberm-docs/
 ├── src/
 │   ├── pages/
 │   │   ├── en/                  # English docs (MDX)
-│   │   ├── zh/                  # Chinese docs (MDX)
+│   │   ├── zh/                  # Simplified Chinese docs (MDX)
+│   │   ├── zh-tw/               # Traditional Chinese docs (MDX)
 │   │   ├── ko/                  # Korean docs (MDX)
 │   │   ├── ja/                  # Japanese docs (MDX)
 │   │   ├── ru/                  # Russian docs (MDX)
 │   │   ├── es/                  # Spanish docs (MDX)
 │   │   ├── pt/                  # Portuguese docs (MDX)
 │   │   ├── it/                  # Italian docs (MDX)
+│   │   ├── fr/                  # French docs (MDX)
+│   │   ├── de/                  # German docs (MDX)
 │   │   └── vi/                  # Vietnamese docs (MDX)
 │   ├── layouts/
 │   │   └── DocsLayout.astro     # Main layout with 3-column structure
@@ -59,13 +62,16 @@ aiberm-docs/
 After configuring nginx with `/docs` base path:
 
 - English: `https://aiberm.com/docs/en/getting-started/`
-- Chinese: `https://aiberm.com/docs/zh/getting-started/`
+- Simplified Chinese: `https://aiberm.com/docs/zh/getting-started/`
+- Traditional Chinese: `https://aiberm.com/docs/zh-tw/getting-started/`
 - Korean: `https://aiberm.com/docs/ko/getting-started/`
 - Japanese: `https://aiberm.com/docs/ja/getting-started/`
 - Russian: `https://aiberm.com/docs/ru/getting-started/`
 - Spanish: `https://aiberm.com/docs/es/getting-started/`
 - Portuguese: `https://aiberm.com/docs/pt/getting-started/`
 - Italian: `https://aiberm.com/docs/it/getting-started/`
+- French: `https://aiberm.com/docs/fr/getting-started/`
+- German: `https://aiberm.com/docs/de/getting-started/`
 - Vietnamese: `https://aiberm.com/docs/vi/getting-started/`
 
 The default locale redirects to English (`/docs/en/`).
@@ -100,7 +106,7 @@ The default locale redirects to English (`/docs/en/`).
    ```typescript
    {
      id: 'your-page',
-     title: { en: 'Your Page', zh: '您的页面', ko: '페이지', ja: 'ページ', ru: 'Страница', es: 'Página', pt: 'Página', it: 'Pagina', vi: 'Trang' },
+     title: { en: 'Your Page', zh: '您的页面', 'zh-tw': '您的頁面', ko: '페이지', ja: 'ページ', ru: 'Страница', es: 'Página', pt: 'Página', it: 'Pagina', fr: 'Page', de: 'Seite', vi: 'Trang' },
      icon: 'file-text'
    }
    ```
@@ -196,7 +202,7 @@ npm install
 
 ### Language switching doesn't work
 Ensure every locale version exists under `src/pages/<locale>/page.mdx`
-(`en`, `zh`, `ko`, `ja`, `ru`, `es`, `pt`, `it`, `vi`).
+(`en`, `zh`, `zh-tw`, `ko`, `ja`, `ru`, `es`, `pt`, `it`, `fr`, `de`, `vi`).
 
 ### React components not rendering
 Ensure you're using `client:load` directive:

@@ -1,0 +1,275 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: DeepSeek Harness 設定
+lang: zh-tw
+activeId: deepseek-harness
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# DeepSeek Harness 設定
+
+本指南介紹如何將 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）接到 **Aiberm**，把它當作自訂的 OpenAI 相容供應方。設定完成後，一把 Aiberm API Key 即可呼叫 Claude、GPT、Gemini、DeepSeek、Kimi、MiniMax、GLM、Grok 以及平台上的其他模型。
+
+<Callout client:load type="info">
+DeepSeek Harness 目前處於開發者預覽階段，迭代很快。本頁依據官方 [README](https://github.com/deepseek-ai/deepseek-harness/blob/master/README.zh.md) 與[設定模型](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.zh.md)指南，再對應到 Aiberm。
+</Callout>
+
+## 什麼是 DeepSeek Harness？
+
+DeepSeek Harness 是 [DeepSeek AI](https://deepseek.com) 開源的 agent harness（智慧體框架）。它採用「一切皆外掛」架構，由 [Cordis](https://github.com/cordiverse/cordis) 組合。日常入口是瀏覽器介面（`dsh web`）；同一套 home 目錄也服務於一次性 headless 任務。
+
+官方專案：
+
+- 首頁：[deepseek.com/harness](https://deepseek.com/harness)
+- 原始碼：[github.com/deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)
+- 討論區：[GitHub Discussions](https://github.com/deepseek-ai/deepseek-harness/discussions)
+
+## 前置條件
+
+- Aiberm 帳戶（[註冊](https://aiberm.com/register)）
+- Aiberm API Key（[取得 Key](https://aiberm.com/console/token)）
+- 已安裝 [Node.js](https://nodejs.org/)（`npx` 需要）
+- macOS、Linux 或 Windows 上的終端機
+
+## 安裝並啟動
+
+官方建議的安裝方式是一次性 `npx` 啟動。請先進入希望智慧體工作的專案目錄：
+
+```bash
+npx @deepseek-ai/dsh web
+```
+
+Web UI 預設監聽 `http://127.0.0.1:3080`。目前工作目錄會成為 workspace 根目錄。
+
+常用變體：
+
+```bash
+# 換端口
+npx @deepseek-ai/dsh web --port 8080
+
+# 一次性 headless 任務（與 Web UI 共用模型和憑證）
+npx @deepseek-ai/dsh --profile headless "总结一下 README"
+```
+
+如果已經安裝了 CLI：
+
+```bash
+dsh web
+dsh --help
+dsh web --help
+```
+
+<Callout client:load type="tip">
+`web` 和 `headless` profile 會在首次使用時自動建立在 `$DSH_HOME`（預設 `~/.dsh`）下。只想用 Aiberm，不必複製原始碼倉庫。
+</Callout>
+
+## 設定 Aiberm（建議：Web UI）
+
+Aiberm **不是**內建的 DeepSeek 卡片，也 **不是** 目錄裡的 OpenAI / Anthropic 供應方。那些項目會繼續走官方端點。Aiberm 是 OpenAI 相容閘道，因此應新增為**自訂供應方**。
+
+官方參考：[設定模型](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.zh.md)。
+
+### 步驟 1：開啟「設定 → 模型」
+
+在 Web UI 中開啟 **設定 → 模型**。
+
+### 步驟 2：新增自訂供應方
+
+選擇 **新增自訂供應方**，填寫：
+
+| 欄位 | 值 |
+|---|---|
+| **Provider ID** | `aiberm`（小寫，永久 — 工作階段、預設模型和憑證名稱都會用到它） |
+| **顯示名稱** | `Aiberm` |
+| **基礎 URL** | `https://aiberm.com/v1` |
+| **API 協定** | `openai-completions` |
+| **API 金鑰** | 從 [控制台 → API Tokens](https://aiberm.com/console/token) 取得的 Aiberm Key |
+
+![新增自訂供應方表單](/docs/deepseek-harness-provider.png)
+
+<Callout client:load type="warning">
+Provider ID 之後不能改名。請求、已儲存工作階段、預設模型和憑證引用都會使用它。若要更換，請新增供應方並刪除舊的。
+</Callout>
+
+### 步驟 3：拉取或手填模型
+
+在 **模型目錄** 中選擇 **取得可用模型**。Harness 會用你剛填的金鑰呼叫 Aiberm 的 OpenAI 相容介面 `GET /v1/models`。勾選需要的模型後儲存。
+
+![從 Aiberm 取得可用模型](/docs/deepseek-harness-models.png)
+
+若發現失敗，請手動填寫模型 ID。ID 見[模型列表](/docs/zh-tw/models)或 [Aiberm 價格頁](https://aiberm.com/pricing)。例如：
+
+- `claude-sonnet-4-6`
+- `claude-opus-4-6`
+- `gpt-5.4`
+- `google/gemini-3-flash`
+- `deepseek/deepseek-v4-pro`
+- `grok-4.6`
+
+<Callout client:load type="info">
+頁面不會把 API 金鑰寫入 `settings.yaml`。金鑰以唯寫方式存在 `$DSH_HOME/.credentials.yaml`，設定裡只保留類似 `AIBERM_API_KEY` 的引用。
+</Callout>
+
+### 步驟 4：選擇模型
+
+儲存後，輸入框右下角的模型選擇器會出現 **Aiberm**。選中某個模型，也會把它設為**新工作階段**的預設值。已經發過請求的工作階段會保留自身日誌裡記錄的模型。
+
+選擇器會把內建 DeepSeek 模型與自訂供應方 **Aiberm** 分組顯示。Claude、GPT、Gemini 以及其餘目錄請走 Aiberm 這一組。
+
+## 設定 Aiberm（settings.yaml）
+
+也可以直接編輯 `$DSH_HOME/settings.yaml`（通常是 `~/.dsh/settings.yaml`）宣告同一供應方。**不要**把 API 金鑰寫進這個檔案。
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      displayName: Aiberm
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: claude-opus-4-6
+        - id: claude-opus-4-6-thinking
+        - id: gpt-5.4
+        - id: google/gemini-3-flash
+        - id: deepseek/deepseek-v4-pro
+        - id: grok-4.6
+        - id: kimi-k2.6
+        - id: minimax-m2.7
+
+agent-default-model:
+  provider: aiberm
+  model: claude-sonnet-4-6
+```
+
+然後把金鑰放到下面任一位置（請求時依優先順序取第一份有效值）：
+
+1. 啟動環境：`AIBERM_API_KEY=sk-... npx @deepseek-ai/dsh web`
+2. `$DSH_HOME/.credentials.yaml`（模型頁寫入的位置）：
+
+```yaml
+AIBERM_API_KEY: sk-your-aiberm-api-key
+```
+
+3. 啟動目錄下的專案 `.env`，或 `$DSH_HOME/.env`
+
+官方憑證優先順序：行程環境 → `$DSH_HOME/.credentials.yaml` → 專案 `.env` → `$DSH_HOME/.env`。在模型頁寫入的值會覆蓋舊的 `.env` 金鑰。
+
+在 POSIX 上請把 `.credentials.yaml` 權限保持為 `600`。
+
+Harness 自帶目錄裡沒有的自訂路由**必須**同時設定 `api`、`baseURL` 和非空 `models` 列表。`models` 會*取代*該路由的目錄——選擇器裡要出現的每個模型都必須寫進去。只寫 `id` 就夠。
+
+## 視覺模型
+
+手動填寫的模型在自行宣告之前一律按純文字對待。給這類模型附加圖片，會在傳送前被拒絕。
+
+對 Aiberm 上的視覺模型，在 `settings.yaml` 裡補上 `input`：
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: gemini-3-pro-image-preview
+          input: [text, image]
+        - id: gpt-image-2
+          input: [text, image]
+```
+
+如果列表裡的模型都接受圖片，可以在路由上設定一次回退：
+
+```yaml
+defaultInput: [text, image]
+```
+
+`defaultInput` 是回退值，不是覆寫值，預設是 `[text]`。
+
+## 驗證設定
+
+1. 開啟 `http://127.0.0.1:3080`。
+2. 確認模型選擇器裡有 **Aiberm** 以及你的模型。
+
+![模型選擇器中的 Aiberm 分組](/docs/deepseek-harness-ui.png)
+
+3. 傳送一句簡短提示，例如 `Hi`。
+4. 選用：直接向 Aiberm 拉取模型列表：
+
+```bash
+curl -H "Authorization: Bearer sk-your-aiberm-api-key" \
+     https://aiberm.com/v1/models
+```
+
+若選擇器裡缺少某些 ID，把它們補進該供應方的 `models` 列表（或重新執行 **取得可用模型**）。
+
+## Headless 與命令列
+
+Web UI 與 `dsh --profile headless` 共用 `$DSH_HOME`。Aiberm 只需設定一次，然後即可執行：
+
+```bash
+npx @deepseek-ai/dsh --profile headless "列出这个目录里的文件"
+```
+
+啟動器自己的 flag 必須寫在最前面，其後全部交給 profile：
+
+```bash
+dsh --profile web --port 8080
+dsh --profile web --help
+dsh --help
+```
+
+## 疑難排解
+
+### `MISSING_CREDENTIAL`
+
+路由引用了 `AIBERM_API_KEY`（或其他 `apiKeyEnv`），但沒有任何值。請到 **設定 → 模型** 儲存金鑰，或在啟動 `dsh` 的 shell 裡匯出同名環境變數。
+
+### `UNKNOWN_MODEL`
+
+所選模型不在該供應方的 `models` 列表中。請重新取得模型，或手動補上 ID。Aiberm 的模型 ID 會隨時間變化——請到[模型列表](/docs/zh-tw/models)核對。
+
+### 取得模型或對話時出現 401
+
+- 在 [Aiberm 控制台](https://aiberm.com/console/token)核對金鑰。
+- 基礎 URL 必須是 `https://aiberm.com/v1`（包含 `/v1`）。
+- 不要把金鑰貼進 `settings.yaml`；應放在憑證檔或環境變數裡。
+
+### 請求仍發往 DeepSeek 或 OpenAI
+
+你設定的是內建 DeepSeek 卡片，或目錄裡的 `openai` / `anthropic` 供應方。它們會繼續走官方端點。刪掉設錯的那一行，改用 **自訂供應方**，ID 為 `aiberm`，基礎 URL 為 `https://aiberm.com/v1`。
+
+### 圖片在傳送前被拒絕
+
+該模型未宣告圖片模態。請給它加上 `input: [text, image]`（見[視覺模型](#視覺模型)），然後開啟**新工作階段**。已附加的圖片會留在舊工作階段日誌裡。
+
+### 改了設定不生效
+
+供應方和金鑰的變更會在**下一次**請求生效，不必重新啟動伺服器。既有工作階段會保留日誌裡已經記下的模型。改完預設值後請新開對話。
+
+### 檔案位置
+
+| 路徑 | 用途 |
+|---|---|
+| `$DSH_HOME/settings.yaml` | 供應方、模型列表、預設模型（`~/.dsh/settings.yaml`） |
+| `$DSH_HOME/.credentials.yaml` | 只存 API 金鑰 |
+| `$DSH_HOME/profiles/web/` | 自動建立的 web profile |
+
+## 注意事項
+
+- 金鑰優先透過模型頁儲存。`settings.yaml` 只應保留 `apiKeyEnv` 引用。
+- 不要在已經存放敏感憑證、且你不希望智慧體讀取的目錄裡啟動它。
+- 逾時、重試、推理相容等進階欄位見官方 [`dsh-llm-pi-ai` README](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/llm/llm-pi-ai/README.zh.md)。
+
+## 相關連結
+
+- [DeepSeek Harness GitHub](https://github.com/deepseek-ai/deepseek-harness)
+- [官方設定模型指南](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.zh.md)
+- [Aiberm 控制台](https://aiberm.com/console/token)
+- [Aiberm 模型列表](/docs/zh-tw/models)
+- [Aiberm 價格](https://aiberm.com/pricing)

@@ -1,0 +1,197 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Trae einrichten
+lang: de
+activeId: trae
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Trae einrichten
+
+Trae ist eine KI-gestützte IDE von ByteDance, die intelligente Coding-Unterstützung direkt in Ihren Entwicklungsworkflow integriert. Durch die Konfiguration von Trae mit Aiberm können Sie verschiedene leistungsstarke Modelle für Codevervollständigung, Chat-Hilfe, Refactoring und Generierung nutzen.
+
+<Callout client:load type="info">
+Um Trae mit Aiberm zu nutzen, benötigen Sie einen gültigen Aiberm-API-Schlüssel. Falls Sie noch keinen haben, lesen Sie die Seite [Authentifizierung](/docs/de/authentication).
+</Callout>
+
+## Was ist Trae?
+
+Trae ist Chinas erste KI-native integrierte Entwicklungsumgebung (AI IDE) auf Basis von Visual Studio Code. Sie bietet:
+
+- **Eingebaute KI-Modelle**: Kostenloser Zugriff auf Claude 3.7 Sonnet, GPT-4o, DeepSeek V3/R1, Gemini 2.5 Pro und mehr.
+- **Unterstützung für benutzerdefinierte Modelle**: Fügen Sie eigene API-Anbieter wie Aiberm hinzu, um Modelle flexibel auszuwählen.
+- **Vollständige IDE-Funktionen**: Alle VS-Code-Funktionen plus KI-gestützte Codevervollständigung, Debugging und Generierung.
+- **Plattformübergreifend**: Verfügbar für macOS und Windows (Linux-Unterstützung folgt in Kürze).
+
+## Konfigurationsschritte
+
+Führen Sie diese Schritte aus, um Trae für die Aiberm-API zu konfigurieren:
+
+### Schritt 1: Modelleinstellungen öffnen
+
+Es gibt zwei Wege zur Modellkonfiguration:
+
+**Methode A: Über das Chat-Eingabefeld**
+1. Öffnen Sie die Trae-IDE.
+2. Schauen Sie in die untere rechte Ecke des Chat-Eingabefelds.
+3. Klicken Sie auf den aktuellen Modellnamen, um die Modellliste zu öffnen.
+4. Klicken Sie auf die Schaltfläche „Add Model“.
+
+<Callout client:load type="tip">
+Screenshot 1 (englische Benutzeroberfläche): Chat-Eingabefeld mit Modell-Dropdown und dem Einstieg „Add Model“.
+</Callout>
+
+![](/docs/trae/en/chat-model-dropdown.png)
+
+**Methode B: Über das Einstellungsmenü**
+1. Klicken Sie oben rechts auf Ihren Avatar.
+2. Wählen Sie „AI Feature Management“.
+3. Wechseln Sie zum Bereich „Models“.
+4. Klicken Sie auf die Schaltfläche „Add Model“.
+
+<Callout client:load type="tip">
+Screenshot 2 (englische Benutzeroberfläche): Einstellungspfad zur Models-Seite.
+</Callout>
+
+![](/docs/trae/en/models-add-model.png)
+
+### Schritt 2: Benutzerdefiniertes Modell konfigurieren
+
+Füllen Sie im Dialog „Add Model“ die folgenden Felder aus:
+
+- **Provider**: OpenAI
+- **Base URL**: `https://aiberm.com/v1`
+- **API Key**: `sk-xxxxxxxxxxxxxxxx` (Ihr Aiberm-API-Schlüssel)
+- **Model ID**: Geben Sie eine unterstützte Modell-ID ein (z. B. `google/gemini-2.5-flash`, `anthropic/claude-3-opus`, `openai/gpt-4o`).
+
+<Callout client:load type="info">
+**Unterstützte Modell-IDs (Beispiele):**
+- `google/gemini-3-flash` – Schnell und effizient
+- `google/gemini-3-pro` – Fortgeschrittenes Reasoning
+- `anthropic/claude-opus-4-6` – Am besten für komplexe Aufgaben
+- `openai/gpt-5.2` – Flaggschiffmodell von OpenAI
+
+Alle unterstützten Modelle finden Sie auf der Seite [Modellliste](/docs/de/models).
+</Callout>
+
+<Callout client:load type="tip">
+Screenshot 3 (englische Benutzeroberfläche): Dialog „Add Model“.
+</Callout>
+
+![](/docs/trae/en/add-model-dialog.png)
+
+### Schritt 3: Konfiguration speichern
+
+1. Klicken Sie auf „Add Model“ oder „Save“, um Ihre Einstellungen zu bestätigen.
+2. Trae versucht, die Verbindung zur Aiberm-API zu prüfen.
+3. Bei Erfolg erscheint Ihr benutzerdefiniertes Modell in der Modellliste.
+
+## Überprüfung
+
+So stellen Sie sicher, dass Trae korrekt mit Aiberm konfiguriert ist:
+
+1. **Chat-Bereich öffnen**: Klicken Sie auf das Chat-Symbol in der linken Seitenleiste oder nutzen Sie die Befehlspalette (`Ctrl/Cmd + Shift + P`) und suchen Sie nach „Chat“.
+2. **Ihr benutzerdefiniertes Modell auswählen**: Klicken Sie im Chat-Bereich unten rechts auf das Modell-Dropdown und wählen Sie das gerade hinzugefügte Aiberm-Modell.
+3. **Mit einer einfachen Anfrage testen**: Stellen Sie eine Coding-Frage, zum Beispiel:
+   ```plaintext
+   Write a Python function to calculate the Fibonacci sequence using recursion.
+   ```
+4. **Antwort prüfen**: Wenn Trae mit Ihrem benutzerdefinierten Modell erfolgreich Code erzeugt, herzlichen Glückwunsch! Ihre Konfiguration funktioniert.
+
+<Callout client:load type="tip">
+**Screenshot**: *[Screenshot 4: Chat-Bereich mit ausgewähltem Aiberm-Modell und erfolgreicher Antwort]*
+</Callout>
+
+## Aiberm-Modelle in Trae nutzen
+
+Nach der Konfiguration können Sie Aiberm-Modelle auf mehrere Arten nutzen:
+
+### 1. Chat-Modus
+- Öffnen Sie den Chat-Bereich und wählen Sie Ihr Aiberm-Modell.
+- Stellen Sie Fragen, fordern Sie Codegenerierung an oder lassen Sie sich Erklärungen geben.
+- Verweisen Sie mit dem Symbol `#` auf Dateien, um kontextbezogene Antworten zu erhalten.
+
+### 2. Inline-Vervollständigung
+- Schreiben Sie Code ganz natürlich, und Trae schlägt Vervollständigungen vor.
+- Drücken Sie `Tab`, um Vorschläge zu übernehmen.
+- *Hinweis: Benutzerdefinierte Modelle können je nach Implementierung von Trae nur eingeschränkt für die Inline-Vervollständigung unterstützt werden.*
+
+### 3. Code-Aktionen
+- Markieren Sie Code im Editor.
+- Klicken Sie mit der rechten Maustaste und wählen Sie KI-Aktionen wie „Explain“, „Refactor“, „Add Comments“.
+- Wählen Sie bei Aufforderung Ihr Aiberm-Modell.
+
+## Fehlerbehebung
+
+### ❌ Verbindung fehlgeschlagen
+**Symptome**: „Failed to connect to API“ oder „Network error“
+**Lösungen**:
+- Prüfen Sie, dass die Base URL genau `https://aiberm.com/v1` lautet (kein abschließender Schrägstrich).
+- Prüfen Sie Ihre Internetverbindung.
+- Stellen Sie sicher, dass Ihr API-Schlüssel gültig ist und ausreichend Guthaben hat.
+- Testen Sie den API-Schlüssel mit curl:
+  ```bash
+  curl https://aiberm.com/v1/models \
+    -H "Authorization: Bearer YOUR_API_KEY"
+  ```
+
+### ❌ Ungültiger API-Schlüssel
+**Symptome**: „401 Unauthorized“ oder „Invalid API key“
+**Lösungen**:
+- Prüfen Sie, dass Sie den vollständigen API-Schlüssel ohne zusätzliche Leerzeichen kopiert haben.
+- Bestätigen Sie, dass der Schlüssel mit `sk-` beginnt.
+- Stellen Sie sicher, dass Ihr Aiberm-Konto aktiv ist und Guthaben hat.
+- Erzeugen Sie einen neuen API-Schlüssel im Aiberm Dashboard.
+
+### ❌ Modell nicht gefunden
+**Symptome**: „Model not available“ oder „Unknown model ID“
+**Lösungen**:
+- Prüfen Sie, dass das Format der Modell-ID korrekt ist (z. B. `google/gemini-2.5-flash`).
+- Prüfen Sie die Seite [Modellliste](/docs/de/models) auf unterstützte Modell-IDs.
+- Stellen Sie sicher, dass das Modell in Ihrem Aiberm-Plan verfügbar ist.
+
+### ❌ Ratenlimit überschritten
+**Symptome**: „Too many requests“ oder „Rate limit reached“
+**Lösungen**:
+- Warten Sie einen Moment und versuchen Sie es erneut.
+- Prüfen Sie die Nutzungslimits Ihres Aiberm-Kontos.
+- Erwägen Sie ein Upgrade Ihres Plans, wenn Sie höhere Ratenlimits benötigen.
+
+## Erweiterte Konfiguration
+
+### Mehrere Modelle verwenden
+Sie können mehrere Aiberm-Modelle mit unterschiedlichen Konfigurationen hinzufügen:
+- Wiederholen Sie die Konfigurationsschritte für jedes Modell.
+- Verwenden Sie beschreibende Namen zur Unterscheidung (falls Trae benutzerdefinierte Namen erlaubt).
+- Wechseln Sie je nach Aufgabe zwischen Modellen:
+  - Schnelle Modelle (`gemini-3-flash`) für kurze Iterationen.
+  - Fortgeschrittene Modelle (`claude-opus-4-6`, `gemini-3-pro`) für komplexes Reasoning.
+
+### Model Context Protocol (MCP)
+Trae unterstützt das Model Context Protocol (MCP), mit dem KI-Modelle auf externe Tools und Datenquellen zugreifen können. Bei der Nutzung von Aiberm-Modellen können Sie MCP nutzen, um:
+- Datenbanken zu verbinden.
+- Auf Dateisysteme zuzugreifen.
+- Externe APIs zu integrieren.
+- Eigene Tools zu verwenden.
+
+Ausführliche MCP-Konfiguration finden Sie in der offiziellen Dokumentation von Trae.
+
+## Best Practices
+
+- **Das richtige Modell wählen**: Nutzen Sie schnellere Modelle für Routineaufgaben und reservieren Sie leistungsstarke Modelle für komplexe Probleme.
+- **Kontext bereitstellen**: Nutzen Sie das Symbol `#`, um relevante Dateien in Ihren Chat-Anfragen zu referenzieren.
+- **Schrittweise iterieren**: Teilen Sie große Aufgaben in kleinere Schritte auf, damit die KI besser arbeitet.
+- **KI-Ausgabe prüfen**: Prüfen und testen Sie KI-generierten Code immer, bevor Sie ihn committen.
+- **Nutzung überwachen**: Behalten Sie Ihre Aiberm-API-Nutzung im Blick, um Kosten effektiv zu steuern.
+
+## Nächste Schritte
+
+Nachdem Sie Trae mit Aiberm konfiguriert haben, entdecken Sie diese Ressourcen:
+
+- [Modellliste](/docs/de/models) – Alle verfügbaren Aiberm-Modelle entdecken.
+- [Chat API](/docs/de/chat) – Mehr über die zugrunde liegende API erfahren.
+- [Best Practices](/docs/de/examples) – Tipps für effektives KI-gestütztes Coding.
+
+
+Durch die Integration von Aiberm mit Trae erhalten Sie ein flexibles und leistungsstarkes Coding-Erlebnis mit Zugriff auf erstklassige KI-Modelle.

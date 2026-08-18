@@ -1,4 +1,4 @@
-export const locales = ['en', 'zh', 'ko', 'ja', 'ru', 'es', 'pt', 'it', 'vi'] as const;
+export const locales = ['en', 'zh', 'zh-tw', 'ko', 'ja', 'ru', 'es', 'pt', 'it', 'fr', 'de', 'vi'] as const;
 
 export type Locale = (typeof locales)[number];
 
@@ -9,13 +9,16 @@ export const localeMeta: Record<
   { native: string; english: string; htmlLang: string }
 > = {
   en: { native: 'English', english: 'English', htmlLang: 'en' },
-  zh: { native: '中文', english: 'Chinese', htmlLang: 'zh-CN' },
+  zh: { native: '简体中文', english: 'Chinese (Simplified)', htmlLang: 'zh-CN' },
+  'zh-tw': { native: '繁體中文', english: 'Chinese (Traditional)', htmlLang: 'zh-TW' },
   ko: { native: '한국어', english: 'Korean', htmlLang: 'ko' },
   ja: { native: '日本語', english: 'Japanese', htmlLang: 'ja' },
   ru: { native: 'Русский', english: 'Russian', htmlLang: 'ru' },
   es: { native: 'Español', english: 'Spanish', htmlLang: 'es' },
   pt: { native: 'Português', english: 'Portuguese', htmlLang: 'pt' },
   it: { native: 'Italiano', english: 'Italian', htmlLang: 'it' },
+  fr: { native: 'Français', english: 'French', htmlLang: 'fr' },
+  de: { native: 'Deutsch', english: 'German', htmlLang: 'de' },
   vi: { native: 'Tiếng Việt', english: 'Vietnamese', htmlLang: 'vi' },
 };
 
@@ -75,6 +78,22 @@ export const ui: Record<
     friends: '友情链接',
     copyPage: '复制本页',
     copied: '已复制',
+  },
+  'zh-tw': {
+    backHome: '返回首頁',
+    toc: '本頁內容',
+    editOnGitHub: '在 GitHub 上編輯此頁',
+    home: '首頁',
+    console: '控制台',
+    models: '模型',
+    docs: '文件',
+    wechat: '微信群',
+    login: '登入',
+    register: '註冊',
+    navigation: '導覽',
+    friends: '友情連結',
+    copyPage: '複製本頁',
+    copied: '已複製',
   },
   ko: {
     backHome: '홈으로 돌아가기',
@@ -171,6 +190,38 @@ export const ui: Record<
     friends: 'Link amici',
     copyPage: 'Copia pagina',
     copied: 'Copiato!',
+  },
+  fr: {
+    backHome: "Retour à l'accueil",
+    toc: 'SUR CETTE PAGE',
+    editOnGitHub: 'Modifier cette page sur GitHub',
+    home: 'Accueil',
+    console: 'Console',
+    models: 'Modèles',
+    docs: 'Documentation',
+    wechat: 'WeChat',
+    login: 'Connexion',
+    register: "S'inscrire",
+    navigation: 'Navigation',
+    friends: 'Liens',
+    copyPage: 'Copier la page',
+    copied: 'Copié !',
+  },
+  de: {
+    backHome: 'Zurück zur Startseite',
+    toc: 'AUF DIESER SEITE',
+    editOnGitHub: 'Diese Seite auf GitHub bearbeiten',
+    home: 'Startseite',
+    console: 'Konsole',
+    models: 'Modelle',
+    docs: 'Dokumentation',
+    wechat: 'WeChat',
+    login: 'Anmelden',
+    register: 'Registrieren',
+    navigation: 'Navigation',
+    friends: 'Links',
+    copyPage: 'Seite kopieren',
+    copied: 'Kopiert!',
   },
   vi: {
     backHome: 'Về trang chủ',

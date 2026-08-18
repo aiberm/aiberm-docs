@@ -1,0 +1,258 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: GPT Image 2
+lang: de
+activeId: gpt-image-2
+---
+
+import CodeExample from '../../components/CodeExample.tsx';
+
+# GPT Image 2
+
+GPT Image 2 ist das neueste GPT-Image-Modell von OpenAI zum Erzeugen und Bearbeiten von Bildern. Aiberm stellt es über OpenAI-kompatible Image-Endpunkte bereit, sodass Sie das OpenAI-SDK nutzen können, indem Sie `base_url` / `baseURL` auf `https://aiberm.com/v1` ändern.
+
+**Generierungsendpunkt**: `POST https://aiberm.com/v1/images/generations`
+
+**Bearbeitungsendpunkt**: `POST https://aiberm.com/v1/images/edits`
+
+**Modell**: `gpt-image-2`
+
+## Eine API wählen
+
+Nutzen Sie die Image API, wenn Sie mit einer Anfrage ein Bild erzeugen oder bearbeiten möchten. Das ist der empfohlene Weg für die meisten Aiberm-Integrationen.
+
+OpenAI dokumentiert die Bildgenerierung außerdem als Tool in der Responses API für gesprächsbasierte oder mehrstufige Bild-Workflows. Wenn Ihre Integration von mehrstufiger Bearbeitung abhängt, prüfen Sie zuerst, ob Ihr Aiberm-Modell und Ihr Endpunkt die Responses API unterstützen.
+
+## Ein Bild erzeugen
+
+Die Image API gibt Base64-Bilddaten in `data[0].b64_json` zurück. Dekodieren Sie sie und schreiben Sie die Bytes in eine Datei.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+import base64
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1",
+)
+
+result = client.images.generate(
+    model="gpt-image-2",
+    prompt="A clean product photo of a matte black smart desk lamp on a white background",
+    size="1024x1024",
+    quality="medium",
+)
+
+image_base64 = result.data[0].b64_json
+image_bytes = base64.b64decode(image_base64)
+
+with open("lamp.png", "wb") as f:
+    f.write(image_bytes)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import fs from "fs";
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: "https://aiberm.com/v1",
+});
+
+const result = await client.images.generate({
+  model: "gpt-image-2",
+  prompt: "A clean product photo of a matte black smart desk lamp on a white background",
+  size: "1024x1024",
+  quality: "medium",
+});
+
+const imageBase64 = result.data[0].b64_json;
+fs.writeFileSync("lamp.png", Buffer.from(imageBase64, "base64"));`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1/images/generations" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A clean product photo of a matte black smart desk lamp on a white background",
+    "size": "1024x1024",
+    "quality": "medium"
+  }' | jq -r '.data[0].b64_json' | base64 --decode > lamp.png`
+    }
+  ]}
+/>
+
+### Verifizierte Beispielausgabe
+
+Dieses Bild wurde mit dem Python-Beispiel oben erzeugt und aus `data[0].b64_json` gespeichert.
+
+![Generated matte black smart desk lamp](/docs/gpt-image-2/generated-lamp.png)
+
+## Mit Referenzbildern bearbeiten
+
+Übergeben Sie ein oder mehrere Bilder an `images.edit` und beschreiben Sie die gewünschte Ausgabe. Mehrere Eingabebilder können als Referenzen für eine neue Komposition verwendet werden.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+import base64
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1",
+)
+
+result = client.images.edit(
+    model="gpt-image-2",
+    image=[
+        open("product.png", "rb"),
+        open("background.png", "rb"),
+    ],
+    prompt="Place the product from the first image onto the desk in the second image. Keep realistic lighting.",
+    size="1536x1024",
+    quality="high",
+)
+
+image_bytes = base64.b64decode(result.data[0].b64_json)
+with open("edited-product.png", "wb") as f:
+    f.write(image_bytes)`
+    },
+    {
+      key: 'typescript',
+      label: 'TypeScript',
+      code: `import fs from "fs";
+import OpenAI, { toFile } from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.AIBERM_API_KEY,
+  baseURL: "https://aiberm.com/v1",
+});
+
+const images = await Promise.all([
+  toFile(fs.createReadStream("product.png"), null, { type: "image/png" }),
+  toFile(fs.createReadStream("background.png"), null, { type: "image/png" }),
+]);
+
+const result = await client.images.edit({
+  model: "gpt-image-2",
+  image: images,
+  prompt: "Place the product from the first image onto the desk in the second image. Keep realistic lighting.",
+  size: "1536x1024",
+  quality: "high",
+});
+
+fs.writeFileSync("edited-product.png", Buffer.from(result.data[0].b64_json, "base64"));`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1/images/edits" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F "model=gpt-image-2" \\
+  -F "image[]=@product.png" \\
+  -F "image[]=@background.png" \\
+  -F "prompt=Place the product from the first image onto the desk in the second image. Keep realistic lighting." \\
+  -F "size=1536x1024" \\
+  -F "quality=high" \\
+  | jq -r '.data[0].b64_json' | base64 --decode > edited-product.png`
+    }
+  ]}
+/>
+
+### Verifizierte Referenzbearbeitung
+
+Das Bearbeitungsbeispiel kombiniert das Produktbild mit dem Schreibtischhintergrund und gibt ein neues PNG in `1536x1024` zurück.
+
+| Produkteingabe | Hintergrundeingabe | Bearbeitete Ausgabe |
+|---------------|------------------|---------------|
+| ![Product reference image](/docs/gpt-image-2/product.png) | ![Desk background reference image](/docs/gpt-image-2/background.png) | ![Edited product placed on desk](/docs/gpt-image-2/edited-product.png) |
+
+## Mit einer Maske bearbeiten
+
+Verwenden Sie eine Maske, wenn Sie steuern möchten, welcher Bereich sich ändern soll. Quellbild und Maske müssen dieselben Abmessungen und dasselbe Format haben, und die Maske muss einen Alphakanal enthalten.
+
+<CodeExample
+  client:load
+  examples={[
+    {
+      key: 'python',
+      label: 'Python',
+      code: `from openai import OpenAI
+import base64
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://aiberm.com/v1",
+)
+
+result = client.images.edit(
+    model="gpt-image-2",
+    image=open("room.png", "rb"),
+    mask=open("mask.png", "rb"),
+    prompt="Replace the masked area with a modern walnut bookshelf.",
+)
+
+image_bytes = base64.b64decode(result.data[0].b64_json)
+with open("room-bookshelf.png", "wb") as f:
+    f.write(image_bytes)`
+    },
+    {
+      key: 'curl',
+      label: 'cURL',
+      code: `curl -X POST "https://aiberm.com/v1/images/edits" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F "model=gpt-image-2" \\
+  -F "image[]=@room.png" \\
+  -F "mask=@mask.png" \\
+  -F "prompt=Replace the masked area with a modern walnut bookshelf." \\
+  | jq -r '.data[0].b64_json' | base64 --decode > room-bookshelf.png`
+    }
+  ]}
+/>
+
+### Verifizierte Maskenbearbeitung
+
+Das Maskenbild verwendet einen Alphakanal, um den bearbeitbaren Bereich zu steuern. Das zurückgegebene Bild ist ein normales PNG.
+
+| Quellbild | Maskenbild | Bearbeitete Ausgabe |
+|--------------|------------|---------------|
+| ![Room source image](/docs/gpt-image-2/room.png) | ![Alpha mask image](/docs/gpt-image-2/mask.png) | ![Bookshelf mask edit output](/docs/gpt-image-2/mask-edit-result.png) |
+
+## Teilbilder streamen
+
+Die Upstream-API von OpenAI dokumentiert `stream` und `partial_images`, um Zwischenbilder vor dem Endergebnis zu empfangen. Bei Aiberm behandeln Sie dies als kompatibilitätsabhängig: Nutzen Sie den normalen Nicht-Streaming-Ablauf, sofern Ihr Endpunkt Streaming nicht ausdrücklich bestätigt hat.
+
+Wenn Sie `stream: true` und `partial_images` senden, kann die Antwort trotzdem eine normale endgültige JSON-Nutzlast mit `data[0].b64_json` sein.
+
+## Ausgabeoptionen
+
+| Parameter | Werte | Hinweise |
+|-----------|--------|-------|
+| `size` | `auto`, `1024x1024`, `1536x1024`, `1024x1536`, `2048x2048`, `2048x1152`, `3840x2160`, `2160x3840` oder eine andere gültige benutzerdefinierte Größe | Jede Kante muss ein Vielfaches von 16 px sein, die maximale Kante beträgt 3840 px, das Seitenverhältnis darf höchstens 3:1 sein, und die Gesamtpixelzahl muss zwischen 655.360 und 8.294.400 liegen. |
+| `quality` | `auto`, `low`, `medium`, `high` | Nutzen Sie `low` für schnelle Entwürfe und `medium` oder `high` für finale Assets. |
+| `output_format` | `png`, `jpeg`, `webp` | Standard ist `png`. `jpeg` ist in der Regel schneller, wenn keine Transparenz benötigt wird. |
+| `output_compression` | `0` bis `100` | Gilt für `jpeg` und `webp`. |
+| `background` | `auto`, undurchsichtige Hintergrundoptionen | `gpt-image-2` unterstützt derzeit kein `background: "transparent"`. |
+| `stream`, `partial_images` | Kompatibilitätsabhängig | Aiberm kann statt gestreamter Teilbild-Ereignisse eine normale endgültige JSON-Antwort zurückgeben. |
+| `moderation` | `auto`, `low` | `auto` ist die standardmäßige Filterstufe. |
+
+## Hinweise und Einschränkungen
+
+- Komplexe Prompts können länger dauern; planen Sie Timeouts und Hintergrundverarbeitung in Ihrer App ein.
+- Die Textdarstellung ist verbessert, aber weiterhin nicht garantiert exakt. Prüfen Sie bei Logos, Beschriftungen oder UI-Mockups die Ausgabe vor der Veröffentlichung.
+- Das Modell erhält wiederkehrende Charaktere, exakte Layouts oder Markendetails über separate Generierungen hinweg möglicherweise nicht perfekt.
+- Lassen Sie bei Bearbeitungen `input_fidelity` mit `gpt-image-2` weg; das Modell verarbeitet Bildeingaben automatisch mit hoher Treue.
+- Bei Maskenbearbeitungen dient die Maske als Orientierung und nicht als pixelgenaue Auswahl.
