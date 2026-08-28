@@ -263,6 +263,16 @@ export const navigation: NavGroup[] = [
     },
     items: [
       {
+        id: 'trae',
+        title: { en: 'Trae Setup', zh: 'Trae 设置' },
+        icon: 'terminal',
+      },
+      {
+        id: 'cursor',
+        title: { en: 'Cursor Setup', zh: 'Cursor 设置' },
+        icon: 'terminal',
+      },
+      {
         id: 'claude-code',
         title: {
           en: 'Claude Code Setup',

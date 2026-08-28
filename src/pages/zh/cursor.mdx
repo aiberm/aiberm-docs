@@ -1,0 +1,103 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cursor 配置
+lang: zh
+activeId: cursor
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Cursor 配置
+
+Cursor 是一款基于 VS Code 构建的 AI 原生代码编辑器，旨在通过深度集成的 AI 功能提高开发效率。通过配置 Cursor 使用 Aiberm，你可以调用 Claude 3.7、GPT-4o、Gemini 2.5 等顶级模型进行代码生成、重构和对话。
+
+<Callout client:load type="info">
+使用 Cursor 配合 Aiberm 需要有效的 Aiberm API 密钥。如果你还没有获取，请参考 [身份认证](/docs/zh/authentication) 页面。
+</Callout>
+
+## 什么是 Cursor？
+
+Cursor 是专为 AI 辅助编程设计的编辑器。它的主要特点包括：
+
+- **深度集成**：AI 能够理解你的整个代码库，不仅仅是当前文件。
+- **Cursor Tab**：强大的自动补全功能，能够预测你的下一次编辑。
+- **Composer**：支持多文件编辑和复杂任务生成的 AI 界面。
+- **隐私模式**：支持将代码仅存储在本地（配合自定义 API 使用）。
+
+## 配置步骤
+
+按照以下步骤配置 Cursor 使用 Aiberm 的 API：
+
+### 步骤 1：打开模型设置
+
+1. 打开 Cursor 编辑器。
+2. 点击右上角的 **设置 (Settings)** 图标（齿轮状），或者使用快捷键 `Ctrl + Shift + J`。
+3. 在左侧设置菜单中，选择 **Models**（模型）。
+4. 在模型页面，你可能需要点击 **"View All Models"**（查看所有模型）或向下滚动到底部，以找到完整的配置选项。
+
+### 步骤 2：配置 OpenAI Base URL
+
+Cursor 允许你添加自定义的 OpenAI 兼容接口。
+
+1. 在 Models 页面，找到 **OpenAI API Key** 部分。
+2. 确保开关已启用。
+3. **填写 API Key**：在输入框中填入你的 Aiberm API Key（以 `sk-` 开头）。
+4. 点击输入框下方的 **"Override OpenAI Base URL"**（覆盖 OpenAI 基础 URL）。
+5. **填写 Base URL**：输入 `https://aiberm.com/v1/`。
+
+<Callout client:load type="warning">
+**注意**：Base URL 结尾的 `v1` 后面 **不要** 跟 `/models`，Cursor 会自动补全路径。
+</Callout>
+
+<Callout client:load type="tip">
+截图：配置 API Key 和 Base URL。
+</Callout>
+
+![](/docs/cursor/zh/override-openai-base-url.png)
+
+### 步骤 3：添加自定义模型
+
+为了使用 Aiberm 提供的特定模型（如最新版 GPT 或 Claude），你需要手动将它们添加到 Cursor 中。
+
+1. 在 Models 页面，向下滚动找到 **"Model Names"** 列表下方。
+2. 点击 **"+ Add Custom Model"**（添加自定义模型）。
+
+<Callout client:load type="tip">
+截图：在 Cursor 中点击添加自定义模型。
+</Callout>
+
+![](/docs/cursor/zh/add-custom-model.png)
+
+3. **获取模型名称**：登录 [Aiberm 控制台](https://aiberm.com/)，进入“模型与价格”页面。
+4. 复制你想要使用的模型名称（例如 `openai/gpt-5.3-codex`）。
+
+<Callout client:load type="tip">
+截图：在 Aiberm 控制台复制模型名称。
+</Callout>
+
+![](/docs/cursor/zh/aiberm-models.png)
+
+5. 将复制的名称粘贴到 Cursor 的输入框中，并点击添加。
+6. 确保新添加的模型开关已 **开启 (ON)**。
+
+<Callout client:load type="tip">
+**推荐模型配置：**
+- **Chat**: 推荐使用 `claude-3-7-sonnet-20250219` 或 `gpt-4o` 以获得最佳的对话体验。
+- **Composer**: `claude-3-7-sonnet-20250219` 在处理多文件复杂任务时表现出色。
+</Callout>
+
+### 步骤 4：验证配置
+
+1. 关闭设置页面。
+2. 使用 `Ctrl + L` (Windows/Linux) / `Cmd + L` (macOS) 打开对话面板。
+3. 在对话框下方的模型选择器中，选择你刚刚添加的模型（例如 `claude-3-7-sonnet-20250219`）。
+4. 输入一个测试问题，例如：“你好，请用 Python 写一个快速排序算法。”
+5. 如果 Cursor 成功回复，说明配置成功！
+
+## 常见问题
+
+### Cursor Tab (自动补全) 能用吗？
+Cursor Tab (原 Copilot++) 通常依赖 Cursor 自己的模型服务。虽然你可以配置 Chat 和 Composer 使用 Aiberm，但 Tab 功能可能需要 Cursor 的 Pro 订阅或默认设置。如果你希望完全使用 Aiberm，建议主要依赖 Chat 和 Composer 功能。
+
+### 为什么模型回答很慢？
+请检查你的网络连接，并确保 Base URL 设置正确。某些复杂的推理模型（如 Claude 3 Opus）本身响应速度可能较慢，建议尝试 `claude-3-5-sonnet` 或 `gpt-4o-mini` 进行快速交互。
