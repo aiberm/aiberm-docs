@@ -34,6 +34,8 @@ Codex 登入介面中的欄位名稱仍顯示為 OpenAI API key。這裡填寫�
 
 ![在 Codex 桌面端中填寫 API Key](/docs/codex-desktop/codex-signin-with-apikey.png)
 
+> 注意：這一步只能讓你進入 Codex 桌面端，不能取代在 `config.toml` 中設定 API Key。即使你已經在登入頁面輸入過 Key，也必須完成以下設定。
+
 4. 進入應用後，開啟設定頁面。
 5. 在左側選擇 **Configuration**。
 6. 在 **Custom config.toml settings** 中確認選擇的是 **User config**。
@@ -44,14 +46,19 @@ Codex 登入介面中的欄位名稱仍顯示為 OpenAI API key。這裡填寫�
 8. 在 `config.toml` 中寫入或替換為以下設定：
 
 ```toml
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
+
+將 `sk-your-aiberm-api-key` 替換為你在 Aiberm 建立的實際 API Key。Key 會以明文儲存在你的電腦上，請不要將此檔案提交到 Git，也不要與他人分享。
 
 9. 儲存 `config.toml`。
 10. 完全退出並重新開啟 Codex 桌面端。
@@ -78,12 +85,13 @@ wire_api = "responses"
 - 確認修改的是 **User config** 下開啟的 `config.toml`。
 - 儲存檔案後完全退出並重新開啟 Codex 桌面端。
 - 確認 `model_provider = "aiberm"` 和 `[model_providers.aiberm]` 的名稱一致。
+- 確認 `experimental_bearer_token` 已替換為實際的 Aiberm API Key，且沒有原樣儲存佔位符。
 
 ### 模型或連線錯誤
 
-- 確認 `base_url` 嚴格填寫為 `https://aiberm.com/v1`。
+- 確認 `base_url` 嚴格填寫為 `https://aiberm.org/v1`。
 - 確認 `wire_api` 是 `responses`。
-- 確認你的帳號可以存取 `gpt-5.5`。目前模型列表可參考 [取得模型列表](/docs/zh-tw/models)。
+- 確認你的帳號可以存取 `gpt-5.6-sol`。目前模型列表可參考 [取得模型列表](/docs/zh-tw/models)。
 
 ## 官方參考
 

@@ -34,6 +34,8 @@ Prima di iniziare, assicurati di avere:
 
 ![Inserisci una API key in Codex Desktop](/docs/codex-desktop/codex-signin-with-apikey.png)
 
+> Nota: questo passaggio consente solo di accedere all'app desktop Codex. Non sostituisce la configurazione della API key in `config.toml`. Completa anche la configurazione seguente, anche se hai già inserito una chiave nella schermata di accesso.
+
 4. Dopo essere entrato nell'app, apri Settings.
 5. Seleziona **Configuration** nella barra laterale.
 6. In **Custom config.toml settings**, assicurati che sia selezionato **User config**.
@@ -44,14 +46,19 @@ Prima di iniziare, assicurati di avere:
 8. Aggiungi o sostituisci il contenuto di `config.toml` con:
 
 ```toml
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
+
+Sostituisci `sk-your-aiberm-api-key` con la tua vera API key Aiberm. La chiave viene salvata in testo semplice sul computer. Non eseguire il commit di questo file in Git e non condividerlo con altri.
 
 9. Salva `config.toml`.
 10. Chiudi completamente e riapri l'app desktop Codex.
@@ -78,12 +85,13 @@ Se l'attività viene eseguita e restituisce un risultato, la configurazione funz
 - Conferma di aver modificato il `config.toml` aperto da **User config**.
 - Chiudi completamente e riapri l'app desktop Codex dopo aver salvato il file.
 - Conferma che `model_provider = "aiberm"` corrisponda a `[model_providers.aiberm]`.
+- Conferma che `experimental_bearer_token` sia stato sostituito con la tua vera API key Aiberm e che il segnaposto non sia stato salvato invariato.
 
 ### Errori di modello o di connessione
 
-- Conferma che `base_url` sia esattamente `https://aiberm.com/v1`.
+- Conferma che `base_url` sia esattamente `https://aiberm.org/v1`.
 - Conferma che `wire_api` sia `responses`.
-- Conferma che il tuo account possa accedere a `gpt-5.5`. Per l'elenco attuale, vedi [Elenco modelli](/docs/it/models).
+- Conferma che il tuo account possa accedere a `gpt-5.6-sol`. Per l'elenco attuale, vedi [Elenco modelli](/docs/it/models).
 
 ## Riferimento ufficiale
 

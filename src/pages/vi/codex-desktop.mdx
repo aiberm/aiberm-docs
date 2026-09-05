@@ -34,6 +34,8 @@ Trước khi bắt đầu, hãy đảm bảo bạn có:
 
 ![Enter an API key in Codex Desktop](/docs/codex-desktop/codex-signin-with-apikey.png)
 
+> Lưu ý: bước này chỉ giúp bạn vào ứng dụng desktop Codex. Bước này không thay thế cấu hình API key trong `config.toml`. Hãy hoàn tất cấu hình bên dưới ngay cả khi bạn đã nhập key trên màn hình đăng nhập.
+
 4. Sau khi vào ứng dụng, mở Settings.
 5. Chọn **Configuration** trên thanh bên.
 6. Trong **Custom config.toml settings**, đảm bảo **User config** đã được chọn.
@@ -44,14 +46,19 @@ Trước khi bắt đầu, hãy đảm bảo bạn có:
 8. Thêm hoặc thay nội dung `config.toml` bằng:
 
 ```toml
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
+
+Thay `sk-your-aiberm-api-key` bằng API key Aiberm thật của bạn. Key được lưu dưới dạng văn bản thuần trên máy tính. Không commit tệp này vào Git và không chia sẻ tệp với người khác.
 
 9. Lưu `config.toml`.
 10. Thoát hoàn toàn rồi mở lại ứng dụng desktop Codex.
@@ -78,12 +85,13 @@ Nếu tác vụ chạy và trả về kết quả, cấu hình đang hoạt đ�
 - Xác nhận bạn đã chỉnh `config.toml` được mở từ **User config**.
 - Thoát hoàn toàn rồi mở lại ứng dụng desktop Codex sau khi lưu tệp.
 - Xác nhận `model_provider = "aiberm"` khớp với `[model_providers.aiberm]`.
+- Xác nhận `experimental_bearer_token` đã được thay bằng API key Aiberm thật và placeholder không bị lưu nguyên trạng.
 
 ### Lỗi mô hình hoặc kết nối
 
-- Xác nhận `base_url` chính xác là `https://aiberm.com/v1`.
+- Xác nhận `base_url` chính xác là `https://aiberm.org/v1`.
 - Xác nhận `wire_api` là `responses`.
-- Xác nhận tài khoản của bạn truy cập được `gpt-5.5`. Để xem danh sách hiện tại, xem [Danh sách mô hình](/docs/vi/models).
+- Xác nhận tài khoản của bạn truy cập được `gpt-5.6-sol`. Để xem danh sách hiện tại, xem [Danh sách mô hình](/docs/vi/models).
 
 ## Tham chiếu chính thức
 

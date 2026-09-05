@@ -34,6 +34,8 @@ Avant de commencer, assurez-vous de disposer :
 
 ![Enter an API key in Codex Desktop](/docs/codex-desktop/codex-signin-with-apikey.png)
 
+> Remarque : cette étape permet uniquement d’entrer dans l’application de bureau Codex. Elle ne remplace pas la configuration de la clé API dans `config.toml`. Effectuez également la configuration ci-dessous, même si vous avez déjà saisi une clé sur l’écran de connexion.
+
 4. Une fois dans l’application, ouvrez Settings.
 5. Sélectionnez **Configuration** dans la barre latérale.
 6. Sous **Custom config.toml settings**, assurez-vous que **User config** est sélectionné.
@@ -44,14 +46,19 @@ Avant de commencer, assurez-vous de disposer :
 8. Ajoutez ou remplacez le contenu de `config.toml` par :
 
 ```toml
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
+
+Remplacez `sk-your-aiberm-api-key` par votre véritable clé API Aiberm. La clé est enregistrée en clair sur votre ordinateur. Ne validez pas ce fichier dans Git et ne le partagez avec personne.
 
 9. Enregistrez `config.toml`.
 10. Quittez complètement puis rouvrez l’application de bureau Codex.
@@ -78,12 +85,13 @@ Si la tâche s’exécute et renvoie un résultat, la configuration fonctionne.
 - Confirmez que vous avez modifié le `config.toml` ouvert depuis **User config**.
 - Quittez complètement puis rouvrez l’application de bureau Codex après avoir enregistré le fichier.
 - Confirmez que `model_provider = "aiberm"` correspond à `[model_providers.aiberm]`.
+- Confirmez que `experimental_bearer_token` a été remplacé par votre véritable clé API Aiberm et que l’espace réservé n’a pas été enregistré tel quel.
 
 ### Erreurs de modèle ou de connexion
 
-- Confirmez que le `base_url` est exactement `https://aiberm.com/v1`.
+- Confirmez que le `base_url` est exactement `https://aiberm.org/v1`.
 - Confirmez que `wire_api` est `responses`.
-- Confirmez que votre compte peut accéder à `gpt-5.5`. Pour la liste actuelle, consultez [Liste des modèles](/docs/fr/models).
+- Confirmez que votre compte peut accéder à `gpt-5.6-sol`. Pour la liste actuelle, consultez [Liste des modèles](/docs/fr/models).
 
 ## Référence officielle
 

@@ -62,33 +62,35 @@ notepad $env:USERPROFILE\.codex\config.toml
 次の設定を追加します。
 
 ```toml
-model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
-env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
 
-**注意:** `env_key` は、Codex CLI が読み取る環境変数名を指定します。次のステップで、この変数に Aiberm API キーを設定します。
+**重要:** `sk-your-aiberm-api-key` を Aiberm で発行した実際の API キーに置き換えてください。キーは `config.toml` に平文で保存されます。このファイルを Git にコミットしたり、他の人と共有したりしないでください。
 
 ### 方法 2: ワンコマンドでの設定
 
 **macOS/Linux:**
 ```bash
 mkdir -p ~/.codex && cat > ~/.codex/config.toml << 'EOF'
-model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
-env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 EOF
 ```
 
@@ -97,78 +99,20 @@ EOF
 $configPath = "$env:USERPROFILE\.codex"
 New-Item -ItemType Directory -Force -Path $configPath | Out-Null
 @"
-model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
-env_key = "OPENAI_API_KEY"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 "@ | Out-File -FilePath "$configPath\config.toml" -Encoding utf8
 ```
 
-**注意:** 上記の設定では、Codex CLI が `OPENAI_API_KEY` 環境変数から API キーを読み取ります。次のステップで、この変数に Aiberm API キーを設定します。
-
-## API キーの設定
-
-TOML ファイルを設定したら、Aiberm API キーを環境変数として設定します。
-
-**重要:** 変数名は `OPENAI_API_KEY` ですが、設定するのは **Aiberm API キー**です（OpenAI のキーではありません）。Codex CLI は互換性のためにこの標準的な変数名を使います。
-
-### 一時的（現在のセッションのみ）
-
-**macOS/Linux:**
-```bash
-export OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-**Windows PowerShell:**
-```powershell
-$env:OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-**Windows コマンドプロンプト:**
-```cmd
-set OPENAI_API_KEY=sk-your-aiberm-api-key
-```
-
-### 永続的な設定
-
-**macOS/Linux（Bash）:**
-
-`~/.bashrc` または `~/.bash_profile` に追加します。
-```bash
-export OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-変更を反映します。
-```bash
-source ~/.bashrc  # or source ~/.bash_profile
-```
-
-**macOS/Linux（Zsh）:**
-
-`~/.zshrc` に追加します。
-```bash
-export OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-変更を反映します。
-```bash
-source ~/.zshrc
-```
-
-**Windows PowerShell:**
-```powershell
-[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-your-aiberm-api-key', 'User')
-```
-
-**Windows コマンドプロンプト:**
-```cmd
-setx OPENAI_API_KEY "sk-your-aiberm-api-key"
-```
+**重要:** 設定内の `sk-your-aiberm-api-key` を、Aiberm で発行した実際の API キーに置き換えてください。キーは `config.toml` に平文で保存されます。このファイルを Git にコミットしたり、他の人と共有したりしないでください。
 
 ## 設定の確認
 
@@ -188,18 +132,6 @@ codex --version
 codex "Hi"
 ```
 
-**環境変数の確認:**
-
-**macOS/Linux:**
-```bash
-echo $OPENAI_API_KEY
-```
-
-**Windows PowerShell:**
-```powershell
-echo $env:OPENAI_API_KEY
-```
-
 正しく設定されていれば、Codex CLI は Aiberm の API を使って応答します。
 
 ## トラブルシューティング
@@ -207,8 +139,7 @@ echo $env:OPENAI_API_KEY
 ### 401 Unauthorized エラー
 
 - API キーが正しいか確認します: [コンソール → API Keys](https://aiberm.com/console/token)
-- `OPENAI_API_KEY` 環境変数が正しく設定されていることを確認します
-- 環境変数を設定したあとはターミナルを再起動します
+- `experimental_bearer_token` が実際の Aiberm API キーになっており、プレースホルダーがそのまま保存されていないことを確認します
 
 ### 403 Forbidden エラー
 
@@ -221,7 +152,7 @@ echo $env:OPENAI_API_KEY
 - インターネット接続を確認します
 - ブラウザで https://aiberm.com にアクセスできるか確認します
 - ファイアウォールが送信 HTTPS 接続を許可していることを確認します
-- `config.toml` の `base_url` が正しいことを確認します: `https://aiberm.com/v1`
+- `config.toml` の `base_url` が正しいことを確認します: `https://aiberm.org/v1`
 
 ### 設定が反映されない
 

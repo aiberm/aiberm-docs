@@ -34,6 +34,8 @@ Bevor Sie beginnen, stellen Sie sicher, dass Sie Folgendes haben:
 
 ![Einen API-Schlüssel in Codex Desktop eingeben](/docs/codex-desktop/codex-signin-with-apikey.png)
 
+> Hinweis: Dieser Schritt ermöglicht nur den Zugang zur Codex-Desktop-App. Er ersetzt nicht die API-Key-Konfiguration in `config.toml`. Führen Sie die folgenden Konfigurationsschritte auch dann aus, wenn Sie auf dem Anmeldebildschirm bereits einen Schlüssel eingegeben haben.
+
 4. Öffnen Sie nach dem Einstieg in die App die Einstellungen.
 5. Wählen Sie in der Seitenleiste **Configuration**.
 6. Stellen Sie unter **Custom config.toml settings** sicher, dass **User config** ausgewählt ist.
@@ -44,14 +46,19 @@ Bevor Sie beginnen, stellen Sie sicher, dass Sie Folgendes haben:
 8. Fügen Sie den Inhalt von `config.toml` hinzu oder ersetzen Sie ihn durch:
 
 ```toml
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
+
+Ersetzen Sie `sk-your-aiberm-api-key` durch Ihren echten Aiberm-API-Schlüssel. Der Schlüssel wird im Klartext auf Ihrem Computer gespeichert. Committen Sie diese Datei nicht in Git und teilen Sie sie nicht mit anderen.
 
 9. Speichern Sie `config.toml`.
 10. Beenden Sie die Codex-Desktop-App vollständig und öffnen Sie sie erneut.
@@ -78,12 +85,13 @@ Wenn die Aufgabe ausgeführt wird und ein Ergebnis zurückgibt, funktioniert die
 - Bestätigen Sie, dass Sie die aus **User config** geöffnete `config.toml` bearbeitet haben.
 - Beenden Sie die Codex-Desktop-App nach dem Speichern vollständig und öffnen Sie sie erneut.
 - Bestätigen Sie, dass `model_provider = "aiberm"` zu `[model_providers.aiberm]` passt.
+- Bestätigen Sie, dass `experimental_bearer_token` durch Ihren echten Aiberm-API-Schlüssel ersetzt wurde und der Platzhalter nicht unverändert gespeichert ist.
 
 ### Modell- oder Verbindungsfehler
 
-- Bestätigen Sie, dass `base_url` genau `https://aiberm.com/v1` ist.
+- Bestätigen Sie, dass `base_url` genau `https://aiberm.org/v1` ist.
 - Bestätigen Sie, dass `wire_api` `responses` ist.
-- Bestätigen Sie, dass Ihr Konto auf `gpt-5.5` zugreifen kann. Die aktuelle Liste finden Sie unter [Modellliste](/docs/de/models).
+- Bestätigen Sie, dass Ihr Konto auf `gpt-5.6-sol` zugreifen kann. Die aktuelle Liste finden Sie unter [Modellliste](/docs/de/models).
 
 ## Offizielle Referenz
 

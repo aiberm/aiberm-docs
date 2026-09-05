@@ -62,33 +62,37 @@ notepad $env:USERPROFILE\.codex\config.toml
 Add the following configuration:
 
 ```toml
-model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
-env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
 
-**Note:** The `env_key` setting tells Codex CLI which environment variable to read. You'll set your Aiberm API key in this variable in the next step.
+**Important:** Replace `sk-your-aiberm-api-key` with the real API key created in Aiberm Console. Do not leave the example placeholder unchanged.
+
+The API key is stored as plain text in `config.toml` on this computer. Do not commit this file to Git, upload it publicly, or share it with anyone else.
 
 ### Method 2: One-Command Configuration
 
 **macOS/Linux:**
 ```bash
 mkdir -p ~/.codex && cat > ~/.codex/config.toml << 'EOF'
-model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
-env_key = "OPENAI_API_KEY"  # This refers to the environment variable name
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 EOF
 ```
 
@@ -97,78 +101,20 @@ EOF
 $configPath = "$env:USERPROFILE\.codex"
 New-Item -ItemType Directory -Force -Path $configPath | Out-Null
 @"
-model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
-env_key = "OPENAI_API_KEY"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 "@ | Out-File -FilePath "$configPath\config.toml" -Encoding utf8
 ```
 
-**Note:** The configuration above sets Codex CLI to read your API key from the `OPENAI_API_KEY` environment variable, which you'll configure with your Aiberm API key in the next step.
-
-## Set API Key
-
-After configuring the TOML file, set your Aiberm API key as an environment variable.
-
-**Important:** Even though the variable is named `OPENAI_API_KEY`, you should use your **Aiberm API key** (not an OpenAI key). Codex CLI uses this standard variable name for compatibility.
-
-### Temporary (Current Session Only)
-
-**macOS/Linux:**
-```bash
-export OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-**Windows PowerShell:**
-```powershell
-$env:OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-**Windows Command Prompt:**
-```cmd
-set OPENAI_API_KEY=sk-your-aiberm-api-key
-```
-
-### Permanent Configuration
-
-**macOS/Linux (Bash):**
-
-Add to `~/.bashrc` or `~/.bash_profile`:
-```bash
-export OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-Apply changes:
-```bash
-source ~/.bashrc  # or source ~/.bash_profile
-```
-
-**macOS/Linux (Zsh):**
-
-Add to `~/.zshrc`:
-```bash
-export OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-Apply changes:
-```bash
-source ~/.zshrc
-```
-
-**Windows PowerShell:**
-```powershell
-[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-your-aiberm-api-key', 'User')
-```
-
-**Windows Command Prompt:**
-```cmd
-setx OPENAI_API_KEY "sk-your-aiberm-api-key"
-```
+Before running either one-command setup, replace `sk-your-aiberm-api-key` in the command with your real API key. The generated configuration will not work if the placeholder is left unchanged.
 
 ## Verify Configuration
 
@@ -188,18 +134,6 @@ codex --version
 codex "Hi"
 ```
 
-**Check environment variable:**
-
-**macOS/Linux:**
-```bash
-echo $OPENAI_API_KEY
-```
-
-**Windows PowerShell:**
-```powershell
-echo $env:OPENAI_API_KEY
-```
-
 If configured correctly, Codex CLI should respond using Aiberm's API.
 
 ## Troubleshooting
@@ -207,8 +141,9 @@ If configured correctly, Codex CLI should respond using Aiberm's API.
 ### 401 Unauthorized Error
 
 - Verify your API key is correct: [Console → API Keys](https://aiberm.com/console/token)
-- Ensure the `OPENAI_API_KEY` environment variable is set correctly
-- Restart your terminal after setting environment variables
+- Confirm `experimental_bearer_token` contains the complete API key
+- Confirm the placeholder `sk-your-aiberm-api-key` was not saved unchanged
+- Restart Codex CLI after saving `config.toml`
 
 ### 403 Forbidden Error
 
@@ -219,14 +154,15 @@ If configured correctly, Codex CLI should respond using Aiberm's API.
 ### Network Errors
 
 - Verify your internet connection
-- Check if you can access https://aiberm.com in your browser
+- Check if you can access https://aiberm.org in your browser
 - Ensure your firewall allows outbound HTTPS connections
-- Confirm the `base_url` in `config.toml` is correct: `https://aiberm.com/v1`
+- Confirm the `base_url` in `config.toml` is correct: `https://aiberm.org/v1`
 
 ### Configuration Not Taking Effect
 
 - Restart your terminal after editing `config.toml`
 - Validate TOML syntax formatting (no extra spaces, proper quotes)
+- Make sure each setting is on its own line
 - Check the config file location is correct for your operating system
 - Ensure the file is saved as `config.toml` (not `config.toml.txt`)
 

@@ -62,33 +62,35 @@ notepad $env:USERPROFILE\.codex\config.toml
 加入以下設定：
 
 ```toml
-model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
-env_key = "OPENAI_API_KEY"  # 這是指環境變數的名稱
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
 
-**注意：** `env_key` 設定告訴 Codex CLI 要讀取哪個環境變數。您將在下一步中，在此變數裡設定您的 Aiberm API 金鑰。
+**重要提示：** 請將 `sk-your-aiberm-api-key` 替換為你在 Aiberm 建立的實際 API Key。Key 會以明文儲存在 `config.toml`，請不要將此檔案提交到 Git，也不要與他人分享。
 
 ### 方法 2：一鍵設定
 
 **macOS/Linux：**
 ```bash
 mkdir -p ~/.codex && cat > ~/.codex/config.toml << 'EOF'
-model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
-env_key = "OPENAI_API_KEY"  # 這是指環境變數的名稱
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 EOF
 ```
 
@@ -97,78 +99,20 @@ EOF
 $configPath = "$env:USERPROFILE\.codex"
 New-Item -ItemType Directory -Force -Path $configPath | Out-Null
 @"
-model = "gpt-5.4"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
-env_key = "OPENAI_API_KEY"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 "@ | Out-File -FilePath "$configPath\config.toml" -Encoding utf8
 ```
 
-**注意：** 上述設定會讓 Codex CLI 從 `OPENAI_API_KEY` 環境變數讀取您的 API 金鑰，您將在下一步中使用 Aiberm API 金鑰設定該變數。
-
-## 設定 API 金鑰
-
-設定 TOML 檔案後，將您的 Aiberm API 金鑰設為環境變數。
-
-**重要提示：** 儘管變數名為 `OPENAI_API_KEY`，您應該使用您的 **Aiberm API 金鑰**（而不是 OpenAI 金鑰）。Codex CLI 使用此標準變數名稱以維持相容性。
-
-### 暫時（僅目前工作階段）
-
-**macOS/Linux：**
-```bash
-export OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-**Windows PowerShell：**
-```powershell
-$env:OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-**Windows 命令提示字元：**
-```cmd
-set OPENAI_API_KEY=sk-your-aiberm-api-key
-```
-
-### 永久設定
-
-**macOS/Linux (Bash)：**
-
-加入 `~/.bashrc` 或 `~/.bash_profile`：
-```bash
-export OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-套用變更：
-```bash
-source ~/.bashrc  # 或 source ~/.bash_profile
-```
-
-**macOS/Linux (Zsh)：**
-
-加入 `~/.zshrc`：
-```bash
-export OPENAI_API_KEY="sk-your-aiberm-api-key"
-```
-
-套用變更：
-```bash
-source ~/.zshrc
-```
-
-**Windows PowerShell：**
-```powershell
-[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-your-aiberm-api-key', 'User')
-```
-
-**Windows 命令提示字元：**
-```cmd
-setx OPENAI_API_KEY "sk-your-aiberm-api-key"
-```
+**重要提示：** 請將設定中的 `sk-your-aiberm-api-key` 替換為你在 Aiberm 建立的實際 API Key。Key 會以明文儲存在 `config.toml`，請不要將此檔案提交到 Git，也不要與他人分享。
 
 ## 驗證設定
 
@@ -188,18 +132,6 @@ codex --version
 codex "Hi"
 ```
 
-**檢查環境變數：**
-
-**macOS/Linux：**
-```bash
-echo $OPENAI_API_KEY
-```
-
-**Windows PowerShell：**
-```powershell
-echo $env:OPENAI_API_KEY
-```
-
 如果設定正確，Codex CLI 應該使用 Aiberm 的 API 進行回應。
 
 ## 疑難排解
@@ -207,8 +139,7 @@ echo $env:OPENAI_API_KEY
 ### 401 未授權錯誤
 
 - 驗證您的 API 金鑰是否正確：[控制台 → API 金鑰](https://aiberm.com/console/token)
-- 確認 `OPENAI_API_KEY` 環境變數設定正確
-- 設定環境變數後重新啟動終端機
+- 確認 `experimental_bearer_token` 已填入實際的 Aiberm API Key，且沒有原樣儲存佔位符
 
 ### 403 禁止存取錯誤
 
@@ -221,7 +152,7 @@ echo $env:OPENAI_API_KEY
 - 驗證您的網際網路連線
 - 檢查您是否可以在瀏覽器中存取 https://aiberm.com
 - 確認您的防火牆允許對外 HTTPS 連線
-- 確認 `config.toml` 中的 `base_url` 正確：`https://aiberm.com/v1`
+- 確認 `config.toml` 中的 `base_url` 正確：`https://aiberm.org/v1`
 
 ### 設定未生效
 

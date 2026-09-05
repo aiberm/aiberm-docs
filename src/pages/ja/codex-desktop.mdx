@@ -34,6 +34,8 @@ OpenAI Codex デスクトップアプリは、API キーでサインインし、
 
 ![Enter an API key in Codex Desktop](/docs/codex-desktop/codex-signin-with-apikey.png)
 
+> 注意: この手順は Codex デスクトップアプリに入るためだけのものです。`config.toml` の API キー設定の代わりにはなりません。サインイン画面ですでにキーを入力した場合も、以下の設定を完了してください。
+
 4. アプリに入ったら Settings を開きます。
 5. サイドバーで **Configuration** を選びます。
 6. **Custom config.toml settings** の下で、**User config** が選択されていることを確認します。
@@ -44,14 +46,19 @@ OpenAI Codex デスクトップアプリは、API キーでサインインし、
 8. `config.toml` の内容を次で追加または置き換えます。
 
 ```toml
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
+
+`sk-your-aiberm-api-key` を、Aiberm で発行した実際の API キーに置き換えてください。キーはパソコン上に平文で保存されます。このファイルを Git にコミットしたり、他の人と共有したりしないでください。
 
 9. `config.toml` を保存します。
 10. Codex デスクトップアプリを完全に終了して再度開きます。
@@ -78,12 +85,13 @@ Codex を再度開いたあと:
 - **User config** から開いた `config.toml` を編集したことを確認します。
 - ファイル保存後に Codex デスクトップアプリを完全に終了して再度開きます。
 - `model_provider = "aiberm"` が `[model_providers.aiberm]` と一致することを確認します。
+- `experimental_bearer_token` が実際の Aiberm API キーに置き換わっており、プレースホルダーがそのまま保存されていないことを確認します。
 
 ### モデルまたは接続のエラー
 
-- `base_url` が正確に `https://aiberm.com/v1` であることを確認します。
+- `base_url` が正確に `https://aiberm.org/v1` であることを確認します。
 - `wire_api` が `responses` であることを確認します。
-- アカウントが `gpt-5.5` にアクセスできることを確認します。最新の一覧は [モデル一覧](/docs/ja/models) を参照してください。
+- アカウントが `gpt-5.6-sol` にアクセスできることを確認します。最新の一覧は [モデル一覧](/docs/ja/models) を参照してください。
 
 ## 公式リファレンス
 

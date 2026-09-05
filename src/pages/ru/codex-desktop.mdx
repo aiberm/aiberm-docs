@@ -34,6 +34,8 @@ import Callout from '../../components/Callout.tsx';
 
 ![Enter an API key in Codex Desktop](/docs/codex-desktop/codex-signin-with-apikey.png)
 
+> Примечание: этот шаг позволяет только войти в десктопное приложение Codex. Он не заменяет настройку API-ключа в `config.toml`. Выполните приведённую ниже настройку, даже если вы уже ввели ключ на экране входа.
+
 4. После входа в приложение откройте Settings.
 5. В боковой панели выберите **Configuration**.
 6. В разделе **Custom config.toml settings** убедитесь, что выбран **User config**.
@@ -44,14 +46,19 @@ import Callout from '../../components/Callout.tsx';
 8. Добавьте или замените содержимое `config.toml` на:
 
 ```toml
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
+
+Замените `sk-your-aiberm-api-key` на настоящий API-ключ Aiberm. Ключ хранится на компьютере в открытом виде. Не добавляйте этот файл в Git и не делитесь им с другими.
 
 9. Сохраните `config.toml`.
 10. Полностью закройте и снова откройте десктопное приложение Codex.
@@ -78,12 +85,13 @@ wire_api = "responses"
 - Убедитесь, что вы редактировали `config.toml`, открытый из **User config**.
 - Полностью закройте и снова откройте десктопное приложение Codex после сохранения файла.
 - Убедитесь, что `model_provider = "aiberm"` соответствует `[model_providers.aiberm]`.
+- Убедитесь, что `experimental_bearer_token` заменён на настоящий API-ключ Aiberm, а placeholder не сохранён без изменений.
 
 ### Ошибки модели или подключения
 
-- Убедитесь, что `base_url` точно равен `https://aiberm.com/v1`.
+- Убедитесь, что `base_url` точно равен `https://aiberm.org/v1`.
 - Убедитесь, что `wire_api` равен `responses`.
-- Убедитесь, что у аккаунта есть доступ к `gpt-5.5`. Актуальный список см. в [Списке моделей](/docs/ru/models).
+- Убедитесь, что у аккаунта есть доступ к `gpt-5.6-sol`. Актуальный список см. в [Списке моделей](/docs/ru/models).
 
 ## Официальная справка
 

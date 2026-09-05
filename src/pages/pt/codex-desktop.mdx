@@ -34,6 +34,8 @@ Antes de começar, certifique-se de ter:
 
 ![Inserir uma chave de API no Codex Desktop](/docs/codex-desktop/codex-signin-with-apikey.png)
 
+> Observação: esta etapa permite apenas entrar no aplicativo para desktop do Codex. Ela não substitui a configuração da chave de API em `config.toml`. Conclua também a configuração abaixo, mesmo que você já tenha inserido uma chave na tela de login.
+
 4. Após entrar no aplicativo, abra Settings.
 5. Selecione **Configuration** na barra lateral.
 6. Em **Custom config.toml settings**, certifique-se de que **User config** está selecionado.
@@ -44,14 +46,19 @@ Antes de começar, certifique-se de ter:
 8. Adicione ou substitua o conteúdo de `config.toml` por:
 
 ```toml
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_provider = "aiberm"
+model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.com/v1"
+base_url = "https://aiberm.org/v1"
+experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
+supports_websockets = false
 ```
+
+Substitua `sk-your-aiberm-api-key` pela sua chave de API real da Aiberm. A chave fica armazenada em texto simples no seu computador. Não faça commit desse arquivo no Git nem o compartilhe com outras pessoas.
 
 9. Salve `config.toml`.
 10. Encerre completamente e reabra o aplicativo para desktop do Codex.
@@ -78,12 +85,13 @@ Se a tarefa for executada e retornar um resultado, a configuração está funcio
 - Confirme se você editou o `config.toml` aberto a partir de **User config**.
 - Encerre completamente e reabra o aplicativo para desktop do Codex após salvar o arquivo.
 - Confirme se `model_provider = "aiberm"` corresponde a `[model_providers.aiberm]`.
+- Confirme se `experimental_bearer_token` foi substituído pela sua chave de API real da Aiberm e se o marcador de posição não foi salvo sem alteração.
 
 ### Erros de modelo ou conexão
 
-- Confirme se o `base_url` é exatamente `https://aiberm.com/v1`.
+- Confirme se o `base_url` é exatamente `https://aiberm.org/v1`.
 - Confirme se `wire_api` é `responses`.
-- Confirme se sua conta tem acesso a `gpt-5.5`. Para a lista atual, consulte [Lista de modelos](/docs/pt/models).
+- Confirme se sua conta tem acesso a `gpt-5.6-sol`. Para a lista atual, consulte [Lista de modelos](/docs/pt/models).
 
 ## Referência oficial
 
