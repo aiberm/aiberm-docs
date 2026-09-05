@@ -58,7 +58,7 @@ model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.org/v1"
+base_url = "https://aiberm.com/v1"
 experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
 supports_websockets = false
@@ -99,11 +99,11 @@ supports_websockets = false
 
 - 每一项配置单独占一行，例如 `wire_api` 和 `supports_websockets` 不能写在同一行。
 - 字符串值需要使用英文双引号，例如 `model = "gpt-5.6-sol"`。
-- `base_url` 直接填写 `https://aiberm.org/v1`，不要加 Markdown 链接格式或额外的括号。
+- `base_url` 直接填写 `https://aiberm.com/v1`，不要加 Markdown 链接格式或额外的括号。
 
 ### 模型或连接错误
 
-- 确认 `base_url` 严格填写为 `https://aiberm.org/v1`。
+- 确认 `base_url` 严格填写为 `https://aiberm.com/v1`。
 - 确认 `wire_api` 是 `responses`。
 - 确认你的账号可以访问 `gpt-5.6-sol`。当前模型列表可参考 [获取模型列表](/docs/zh/models)。
 

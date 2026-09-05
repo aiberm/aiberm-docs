@@ -58,7 +58,7 @@ model_reasoning_effort = "xhigh"
 
 [model_providers.aiberm]
 name = "Aiberm API"
-base_url = "https://aiberm.org/v1"
+base_url = "https://aiberm.com/v1"
 experimental_bearer_token = "sk-your-aiberm-api-key"
 wire_api = "responses"
 supports_websockets = false
@@ -99,11 +99,11 @@ If the task runs and returns a result, the configuration is working.
 
 - Put each setting on its own line. For example, `wire_api` and `supports_websockets` must not share one line.
 - Use straight double quotes for string values, such as `model = "gpt-5.6-sol"`.
-- Set `base_url` directly to `https://aiberm.org/v1`; do not use Markdown link syntax or add extra brackets.
+- Set `base_url` directly to `https://aiberm.com/v1`; do not use Markdown link syntax or add extra brackets.
 
 ### Model or Connection Errors
 
-- Confirm the `base_url` is exactly `https://aiberm.org/v1`.
+- Confirm the `base_url` is exactly `https://aiberm.com/v1`.
 - Confirm `wire_api` is `responses`.
 - Confirm your account can access `gpt-5.6-sol`. For the current list, see [Models List](/docs/en/models).
 
