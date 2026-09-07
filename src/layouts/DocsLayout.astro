@@ -2,7 +2,7 @@
 import { navigation } from '../config/navigation';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import CopyPageButton from '../components/CopyPageButton';
-import { isLocale, localeMeta, ui, type Locale } from '../i18n';
+import { locales, defaultLocale, isLocale, localeMeta, ui, type Locale } from '../i18n';
 
 interface Props {
   title: string;
@@ -35,6 +35,10 @@ const backHomeText = t.backHome;
 const tocTitle = t.toc;
 const editOnGitHubText = t.editOnGitHub;
 const githubEditUrl = `https://github.com/aiberm/aiberm-docs/edit/main/src/pages/${lang}/${activeId}.mdx`;
+
+const SITE_URL = 'https://aiberm.com';
+const description = frontmatter?.description || t.description;
+const pageUrl = `${SITE_URL}/docs/${lang}/${activeId}/`;
 ---
 
 <!DOCTYPE html>
@@ -43,6 +47,17 @@ const githubEditUrl = `https://github.com/aiberm/aiberm-docs/edit/main/src/pages
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title} | Aiberm API Documentation</title>
+  <meta name="description" content={description}>
+  <link rel="canonical" href={pageUrl}>
+  {locales.map(l => (
+    <link rel="alternate" hreflang={localeMeta[l].htmlLang} href={`${SITE_URL}/docs/${l}/${activeId}/`} />
+  ))}
+  <link rel="alternate" hreflang="x-default" href={`${SITE_URL}/docs/${defaultLocale}/${activeId}/`} />
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Aiberm">
+  <meta property="og:title" content={`${title} | Aiberm API Documentation`}>
+  <meta property="og:description" content={description}>
+  <meta property="og:url" content={pageUrl}>
   <link rel="icon" type="image/svg+xml" href="/docs/favicon.ico">
 </head>
 <body class="bg-white text-gray-900 overflow-x-hidden">

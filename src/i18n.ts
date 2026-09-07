@@ -45,6 +45,7 @@ export const ui: Record<
     friends: string;
     copyPage: string;
     copied: string;
+    description: string;
   }
 > = {
   en: {
@@ -62,6 +63,7 @@ export const ui: Record<
     friends: 'Friends',
     copyPage: 'Copy page',
     copied: 'Copied!',
+    description: "Aiberm API documentation: unified access to 30+ AI models through an OpenAI-compatible API.",
   },
   zh: {
     backHome: '返回首页',
@@ -78,6 +80,7 @@ export const ui: Record<
     friends: '友情链接',
     copyPage: '复制本页',
     copied: '已复制',
+    description: "Aiberm API 文档：通过 OpenAI 兼容接口统一访问 30+ AI 模型。",
   },
   'zh-tw': {
     backHome: '返回首頁',
@@ -94,6 +97,7 @@ export const ui: Record<
     friends: '友情連結',
     copyPage: '複製本頁',
     copied: '已複製',
+    description: "Aiberm API 文件：透過 OpenAI 相容介面統一存取 30+ AI 模型。",
   },
   ko: {
     backHome: '홈으로 돌아가기',
@@ -110,6 +114,7 @@ export const ui: Record<
     friends: '친구 링크',
     copyPage: '페이지 복사',
     copied: '복사됨!',
+    description: "Aiberm API 문서: OpenAI 호환 API로 30개 이상의 AI 모델에 통합 액세스하세요.",
   },
   ja: {
     backHome: 'ホームに戻る',
@@ -126,6 +131,7 @@ export const ui: Record<
     friends: 'フレンドリンク',
     copyPage: 'ページをコピー',
     copied: 'コピーしました',
+    description: "Aiberm API ドキュメント：OpenAI 互換 API で 30 以上の AI モデルに統一アクセス。",
   },
   ru: {
     backHome: 'На главную',
@@ -142,6 +148,7 @@ export const ui: Record<
     friends: 'Партнёры',
     copyPage: 'Копировать страницу',
     copied: 'Скопировано!',
+    description: "Документация API Aiberm: единый доступ к 30+ моделям ИИ через OpenAI-совместимый API.",
   },
   es: {
     backHome: 'Volver al inicio',
@@ -158,6 +165,7 @@ export const ui: Record<
     friends: 'Enlaces',
     copyPage: 'Copiar página',
     copied: '¡Copiado!',
+    description: "Documentación de la API de Aiberm: acceso unificado a más de 30 modelos de IA mediante una API compatible con OpenAI.",
   },
   pt: {
     backHome: 'Voltar ao início',
@@ -174,6 +182,7 @@ export const ui: Record<
     friends: 'Links',
     copyPage: 'Copiar página',
     copied: 'Copiado!',
+    description: "Documentação da API Aiberm: acesso unificado a mais de 30 modelos de IA por meio de uma API compatível com OpenAI.",
   },
   it: {
     backHome: 'Torna alla home',
@@ -190,6 +199,7 @@ export const ui: Record<
     friends: 'Link amici',
     copyPage: 'Copia pagina',
     copied: 'Copiato!',
+    description: "Documentazione API di Aiberm: accesso unificato a oltre 30 modelli di IA tramite un'API compatibile con OpenAI.",
   },
   fr: {
     backHome: "Retour à l'accueil",
@@ -206,6 +216,7 @@ export const ui: Record<
     friends: 'Liens',
     copyPage: 'Copier la page',
     copied: 'Copié !',
+    description: "Documentation de l'API Aiberm : accès unifié à plus de 30 modèles d'IA via une API compatible OpenAI.",
   },
   de: {
     backHome: 'Zurück zur Startseite',
@@ -222,6 +233,7 @@ export const ui: Record<
     friends: 'Links',
     copyPage: 'Seite kopieren',
     copied: 'Kopiert!',
+    description: "Aiberm-API-Dokumentation: einheitlicher Zugriff auf über 30 KI-Modelle über eine OpenAI-kompatible API.",
   },
   vi: {
     backHome: 'Về trang chủ',
@@ -238,5 +250,6 @@ export const ui: Record<
     friends: 'Liên kết',
     copyPage: 'Sao chép trang',
     copied: 'Đã sao chép!',
+    description: "Tài liệu API Aiberm: truy cập thống nhất hơn 30 mô hình AI qua API tương thích OpenAI.",
   },
 };
