@@ -26,6 +26,8 @@ Trae 是中国首个 AI 原生集成开发环境（AI IDE），基于 Visual Stu
 
 ## 配置步骤
 
+注意Trae版本最低为3.5.51,否则无法配置base_url
+
 按照以下步骤配置 Trae 使用 Aiberm 的 API：
 
 ### 步骤 1：打开模型设置
@@ -61,7 +63,7 @@ Trae 是中国首个 AI 原生集成开发环境（AI IDE），基于 Visual Stu
 在“添加模型”对话框中，填写以下字段：
 
 - **供应商 (Provider)**：OpenAI
-- **基础 URL (Base URL)**：`https://aiberm.com/v1`
+- **基础 URL (Base URL)**：`https://aiberm.com/v1/chat/completions`
 - **API 密钥 (API Key)**：`sk-xxxxxxxxxxxxxxxx`（你的 Aiberm API Key）
 - **模型 ID (Model ID)**：输入支持的模型 ID（例如 `google/gemini-2.5-flash`）。
 
