@@ -1,0 +1,103 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cursor Setup
+lang: en
+activeId: cursor
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Cursor Setup
+
+Cursor is an AI-native code editor built on VS Code, designed to increase developer productivity through deeply integrated AI features. By configuring Cursor to use Aiberm, you can access top-tier models like Claude 3.7, GPT-4o, and Gemini 2.5 for code generation, refactoring, and chat.
+
+<Callout client:load type="info">
+To use Cursor with Aiberm, you need a valid Aiberm API key. If you haven't obtained one yet, please refer to the [Authentication](/docs/en/authentication) page.
+</Callout>
+
+## What is Cursor?
+
+Cursor is an editor designed specifically for AI-assisted programming. Its key features include:
+
+- **Deep Integration**: AI understands your entire codebase, not just the current file.
+- **Cursor Tab**: Powerful autocomplete that predicts your next edit.
+- **Composer**: An AI interface supporting multi-file editing and complex task generation.
+- **Privacy Mode**: Supports local code storage (when used with custom APIs).
+
+## Configuration Steps
+
+Follow these steps to configure Cursor to use Aiberm's API:
+
+### Step 1: Open Model Settings
+
+1. Open Cursor editor.
+2. Click the **Settings** icon (gear) in the top-right corner, or use the shortcut `Ctrl + Shift + J`.
+3. In the left settings menu, select **Models**.
+4. On the Models page, you may need to click **"View All Models"** or scroll down to the bottom to see all configuration options.
+
+### Step 2: Configure OpenAI Base URL
+
+Cursor allows you to add a custom OpenAI-compatible interface.
+
+1. On the Models page, find the **OpenAI API Key** section.
+2. Ensure the toggle is enabled.
+3. **Enter API Key**: Fill in your Aiberm API Key (starting with `sk-`).
+4. Click **"Override OpenAI Base URL"** below the input box.
+5. **Enter Base URL**: Input `https://aiberm.com/v1/`.
+
+<Callout client:load type="warning">
+**Note**: Do **not** append `/models` after `v1` in the Base URL. Cursor will autocomplete it.
+</Callout>
+
+<Callout client:load type="tip">
+Screenshot: Configure API Key and Base URL.
+</Callout>
+
+![](/docs/cursor/en/override-openai-base-url.png)
+
+### Step 3: Add Custom Models
+
+To use specific models provided by Aiberm (such as the latest GPT or Claude versions), you need to manually add them to Cursor.
+
+1. On the Models page, scroll down to the bottom of the **"Model Names"** list.
+2. Click **"+ Add Custom Model"**.
+
+<Callout client:load type="tip">
+Screenshot: Click "Add Custom Model" in Cursor.
+</Callout>
+
+![](/docs/cursor/en/add-custom-model.png)
+
+3. **Get Model Names**: Log in to the [Aiberm Console](https://aiberm.com/) and go to the "Models & Pricing" page.
+4. Copy the model name you want to use (e.g., `openai/gpt-5.3-codex`).
+
+<Callout client:load type="tip">
+Screenshot: Copy the model name from Aiberm Console.
+</Callout>
+
+![](/docs/cursor/en/aiberm-models.png)
+
+5. Paste the copied name into the input box in Cursor and click Add.
+6. Ensure the toggle next to your newly added model is **ON**.
+
+<Callout client:load type="tip">
+**Recommended Model Configuration:**
+- **Chat**: Use `claude-3-7-sonnet-20250219` or `gpt-4o` for the best chat experience.
+- **Composer**: `claude-3-7-sonnet-20250219` excels at handling multi-file complex tasks.
+</Callout>
+
+### Step 4: Verification
+
+1. Close the settings page.
+2. Use `Ctrl + L` (Windows/Linux) / `Cmd + L` (macOS) to open the chat panel.
+3. In the model selector at the bottom of the chat, choose the model you just added (e.g., `claude-3-7-sonnet-20250219`).
+4. Enter a test query, such as: "Hello, please write a Quick Sort algorithm in Python."
+5. If Cursor responds successfully, your configuration is working!
+
+## FAQ
+
+### Can I use Cursor Tab (Autocomplete)?
+Cursor Tab (formerly Copilot++) typically relies on Cursor's own model services. While you can configure Chat and Composer to use Aiberm, the Tab feature might require a Cursor Pro subscription or default settings. If you wish to use Aiberm exclusively, we recommend relying primarily on Chat and Composer features.
+
+### Why are model responses slow?
+Please check your network connection and ensure the Base URL is set correctly. Some complex reasoning models (like Claude 3 Opus) may inherently have slower response times. We recommend trying `claude-3-5-sonnet` or `gpt-4o-mini` for faster interactions.
