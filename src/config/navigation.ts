@@ -407,6 +407,24 @@ export const navigation: NavGroup[] = [
         icon: 'terminal',
       },
       {
+        id: 'deepseek-harness-desktop',
+        title: {
+          en: 'DeepSeek Harness Desktop Setup',
+          zh: 'DeepSeek Harness 桌面端设置',
+          'zh-tw': 'DeepSeek Harness 桌面端設定',
+          ko: 'DeepSeek Harness Desktop 설정',
+          ja: 'DeepSeek Harness Desktop セットアップ',
+          ru: 'Настройка DeepSeek Harness Desktop',
+          es: 'Configuración de DeepSeek Harness Desktop',
+          pt: 'Configuração do DeepSeek Harness Desktop',
+          it: 'Configurazione di DeepSeek Harness Desktop',
+          fr: 'Configuration de DeepSeek Harness Desktop',
+          de: 'DeepSeek Harness Desktop einrichten',
+          vi: 'Cài đặt DeepSeek Harness Desktop',
+        },
+        icon: 'terminal',
+      },
+      {
         id: 'trae',
         title: {
           en: 'Trae Setup',

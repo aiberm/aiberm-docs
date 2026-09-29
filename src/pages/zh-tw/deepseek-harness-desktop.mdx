@@ -1,0 +1,162 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: DeepSeek Harness 桌面端設定
+lang: zh-tw
+activeId: deepseek-harness-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# DeepSeek Harness 桌面端設定
+
+[DeepSeek Harness](https://www.deepseek.com/zh/harness/) 現已提供桌面端。它是套在與 `dsh web` 同一套 Web UI 外面的 Electron 應用，因此設定 **Aiberm** 的方式相同：新增自訂的 OpenAI 相容供應方。完成後，一把 Aiberm API Key 即可呼叫 Claude、GPT、Gemini、DeepSeek、Kimi、MiniMax、GLM、Grok 以及平台上的其他模型。
+
+<Callout client:load type="info">
+桌面端目前是面向全球的公開預覽，仍在持續迭代。請從官方 [Harness](https://www.deepseek.com/zh/harness/) 或[下載頁](https://www.deepseek.com/zh/download/)安裝。模型設定與 Web UI 的[設定模型](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.zh.md)流程相同。
+</Callout>
+
+如果已經在用 `npx @deepseek-ai/dsh web`，CLI 路徑見 [DeepSeek Harness 設定](/docs/zh-tw/deepseek-harness)。桌面端與 Web 共用 `$DSH_HOME`（預設 `~/.dsh`），在一端新增的供應方會出現在另一端。
+
+## 什麼是 DeepSeek Harness 桌面端？
+
+桌面端支援背景執行、讀寫本機檔案，並更方便地處理長時間、複雜任務。關閉視窗後 Host 仍會繼續跑（Windows 從系統匣重新開啟，macOS 點 Dock 圖示）。
+
+官方頁面：
+
+- 產品頁：[deepseek.com/zh/harness](https://www.deepseek.com/zh/harness/)
+- 下載頁：[deepseek.com/zh/download](https://www.deepseek.com/zh/download/)
+- 原始碼：[github.com/deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)
+
+## 前置條件
+
+- Apple 晶片、macOS 13 或更高版本，或 Windows x64
+- Aiberm 帳戶（[註冊](https://aiberm.com/register)）
+- Aiberm API Key（[取得 Key](https://aiberm.com/console/token)）
+
+**不需要**本機安裝 Node.js。桌面端自帶執行環境。
+
+## 安裝桌面端
+
+1. 開啟官方[下載頁](https://www.deepseek.com/zh/download/)。
+2. 依系統下載桌面端。目前官方提供 **macOS**（Apple 晶片，macOS 13+）和 **Windows**（x64）。請一律從該頁面取得安裝包，避免直連過期。
+3. 安裝並啟動 **DeepSeek Harness**。
+
+<Callout client:load type="tip">
+關閉視窗只會隱藏介面，任務繼續跑。Windows 從系統匣開啟，macOS 點 Dock 圖示。要真正結束 Host，請用 **結束 DeepSeek Harness**。
+</Callout>
+
+可選：應用程式選單裡的 **Manage dsh Command…** 可以安裝使用桌面端執行環境的 `dsh` 指令。安裝後新開一個終端機，執行 `dsh --version`。
+
+## 設定 Aiberm
+
+Aiberm **不是**內建的 DeepSeek 卡片。那張卡片仍走官方 DeepSeek 端點。請把 Aiberm 新增為**自訂供應方**。
+
+### 步驟 1：開啟「設定 → 模型」
+
+在桌面端中開啟 **設定 → 模型**。
+
+### 步驟 2：新增自訂供應方
+
+選擇 **新增自訂供應方**，填寫：
+
+| 欄位 | 值 |
+|---|---|
+| **Provider ID** | `aiberm`（小寫，永久） |
+| **顯示名稱** | `Aiberm` |
+| **基礎 URL** | `https://aiberm.com/v1` |
+| **API 協定** | `openai-completions` |
+| **API 金鑰** | 從 [控制台 → API Tokens](https://aiberm.com/console/token) 取得的 Aiberm Key |
+
+![新增自訂供應方表單](/docs/deepseek-harness-provider.png)
+
+<Callout client:load type="warning">
+Provider ID 之後不能改名。請求、已儲存工作階段、預設模型和憑證引用都會使用它。若要更換，請新增供應方並刪除舊的。
+</Callout>
+
+### 步驟 3：拉取或手填模型
+
+在 **模型目錄** 中選擇 **取得可用模型**。勾選需要的模型後儲存。
+
+![從 Aiberm 取得可用模型](/docs/deepseek-harness-models.png)
+
+若發現失敗，請從[模型列表](/docs/zh-tw/models)手工填寫 ID。例如：`claude-sonnet-4-6`、`gpt-5.4`、`google/gemini-3-flash`、`deepseek/deepseek-v4-pro`、`grok-4.6`。
+
+頁面不會把 API 金鑰寫入 `settings.yaml`。金鑰以只寫方式存在 `$DSH_HOME/.credentials.yaml`。
+
+### 步驟 4：選擇模型
+
+儲存後，輸入框的模型選擇器會把 **Aiberm** 與內建 DeepSeek 模型分組顯示。Claude、GPT、Gemini 以及其餘目錄請走 Aiberm 這一組。
+
+## 驗證設定
+
+1. 在桌面端新開一個工作階段。
+2. 確認模型選擇器裡有 **Aiberm** 以及你的模型。
+
+![模型選擇器中的 Aiberm 分組](/docs/deepseek-harness-ui.png)
+
+3. 傳送一句簡短提示，例如 `Hi`。
+
+若能正常回覆，說明桌面端正在呼叫 Aiberm。
+
+## settings.yaml（可選）
+
+桌面端讀取與 Web UI 相同的 `$DSH_HOME/settings.yaml`。也可以不走表單，直接手寫供應方：
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      displayName: Aiberm
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: gpt-5.4
+        - id: google/gemini-3-flash
+        - id: grok-4.6
+
+agent-default-model:
+  provider: aiberm
+  model: claude-sonnet-4-6
+```
+
+把金鑰放到 `$DSH_HOME/.credentials.yaml`：
+
+```yaml
+AIBERM_API_KEY: sk-your-aiberm-api-key
+```
+
+**不要**把金鑰寫進 `settings.yaml`。欄位說明、視覺模型 `input`、憑證優先級見 [DeepSeek Harness 設定](/docs/zh-tw/deepseek-harness)。
+
+## 疑難排解
+
+### `MISSING_CREDENTIAL`
+
+到 **設定 → 模型** 儲存金鑰，或在啟動桌面端的環境裡設定 `AIBERM_API_KEY`。
+
+### 取得模型或對話時出現 401
+
+- 在 [Aiberm 控制台](https://aiberm.com/console/token)核對金鑰。
+- 基礎 URL 必須是 `https://aiberm.com/v1`（包含 `/v1`）。
+
+### 請求仍發往 DeepSeek
+
+你填的是內建 DeepSeek 卡片。請改用 **自訂供應方**，ID 為 `aiberm`。
+
+### Web UI 裡配好的供應方桌面端看不到
+
+桌面端和 `dsh web` 都用 `$DSH_HOME`（通常是 `~/.dsh`）。如果 CLI 啟動時設定了別的 `DSH_HOME`，檔案就不會對上。解除安裝 Windows 應用程式**不會**刪除 `~/.dsh`。
+
+### 圖片在傳送前被拒絕
+
+手工填寫的模型預設按純文字對待，需要在 `settings.yaml` 裡設定 `input: [text, image]`（或路由級 `defaultInput`）。見[視覺模型](/docs/zh-tw/deepseek-harness#視覺模型)。改完後請新開工作階段。
+
+## 相關連結
+
+- [DeepSeek Harness 產品頁](https://www.deepseek.com/zh/harness/)
+- [官方桌面端下載](https://www.deepseek.com/zh/download/)
+- [DeepSeek Harness CLI / Web 設定](/docs/zh-tw/deepseek-harness)
+- [Aiberm 控制台](https://aiberm.com/console/token)
+- [Aiberm 模型列表](/docs/zh-tw/models)
+- [Aiberm 價格](https://aiberm.com/pricing)

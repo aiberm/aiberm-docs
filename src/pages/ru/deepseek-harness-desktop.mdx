@@ -1,0 +1,162 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Настройка DeepSeek Harness Desktop
+lang: ru
+activeId: deepseek-harness-desktop
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Настройка DeepSeek Harness Desktop
+
+[DeepSeek Harness](https://www.deepseek.com/en/harness/) now ships a desktop app. It is an Electron shell around the same Web UI as `dsh web`, so you configure **Aiberm** the same way: add a custom OpenAI-compatible provider. After that, one Aiberm API key can reach Claude, GPT, Gemini, DeepSeek, Kimi, MiniMax, GLM, Grok, and the rest of the models on Aiberm.
+
+<Callout client:load type="info">
+Desktop is in public preview and still iterating. Download it from the official [Harness](https://www.deepseek.com/en/harness/) or [Download](https://www.deepseek.com/en/download/) page. Model setup follows the same [Configure models](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/providers.md) flow as the Web UI.
+</Callout>
+
+If you already use `npx @deepseek-ai/dsh web`, see [DeepSeek Harness Setup](/docs/ru/deepseek-harness) for the CLI path. Desktop and Web share `$DSH_HOME` (default `~/.dsh`), so a provider you add in one appears in the other.
+
+## What is DeepSeek Harness Desktop?
+
+The desktop app can run in the background, edit local files, and keep long tasks going after you close the window (the Host keeps running). Official product copy: *Work in the background, edit local files, and handle long, complex tasks with ease.*
+
+Official pages:
+
+- Product: [deepseek.com/en/harness](https://www.deepseek.com/en/harness/)
+- Downloads: [deepseek.com/en/download](https://www.deepseek.com/en/download/)
+- Source: [github.com/deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)
+
+## Prerequisites
+
+- macOS 13 or later on Apple silicon, or Windows x64
+- An Aiberm account ([Sign up](https://aiberm.com/register))
+- An Aiberm API key ([Get your key](https://aiberm.com/console/token))
+
+You do **not** need a system Node.js install. Desktop bundles its own runtime.
+
+## Install the desktop app
+
+1. Open the official [download page](https://www.deepseek.com/en/download/).
+2. Download the desktop app for your platform. Current official builds are **macOS** (Apple silicon, macOS 13+) and **Windows** (x64). Always take the installer from that page so the link stays current.
+3. Install and launch **DeepSeek Harness**.
+
+<Callout client:load type="tip">
+Closing the window hides it; tasks keep running. On Windows, reopen from the tray. On macOS, click the Dock icon. Use **Quit DeepSeek Harness** when you want the Host to stop.
+</Callout>
+
+Optional: in the application menu, **Manage dsh Command…** can install a `dsh` CLI that uses the desktop runtime. Open a new terminal afterward and run `dsh --version`.
+
+## Configure Aiberm
+
+Aiberm is **not** the built-in DeepSeek card. That card keeps the official DeepSeek endpoint. Add Aiberm as a **custom provider**.
+
+### Step 1: Open Settings → Models
+
+In the desktop app, open **Settings → Models**.
+
+### Step 2: Add a custom provider
+
+Choose **Add a custom provider** and fill in:
+
+| Field | Value |
+|---|---|
+| **Provider ID** | `aiberm` (lowercase, permanent) |
+| **Display name** | `Aiberm` |
+| **Base URL** | `https://aiberm.com/v1` |
+| **API protocol** | `openai-completions` |
+| **API key** | your Aiberm key from [Console → API Tokens](https://aiberm.com/console/token) |
+
+![Add a custom provider form](/docs/deepseek-harness-provider.png)
+
+<Callout client:load type="warning">
+The Provider ID cannot be renamed later. Requests, saved sessions, the default model, and the stored credential all use it. To change it, add a new provider and delete the old one.
+</Callout>
+
+### Step 3: Load or enter models
+
+Under **Model catalog**, choose **Fetch available models**. Select the models you want, then save.
+
+![Fetch available models from Aiberm](/docs/deepseek-harness-models.png)
+
+If discovery fails, enter model IDs by hand from the [Models List](/docs/ru/models). Examples: `claude-sonnet-4-6`, `gpt-5.4`, `google/gemini-3-flash`, `deepseek/deepseek-v4-pro`, `grok-4.6`.
+
+The page never writes the API key into `settings.yaml`. The key is stored write-only in `$DSH_HOME/.credentials.yaml`.
+
+### Step 4: Select a model
+
+After saving, the composer model picker lists **Aiberm** separately from built-in DeepSeek models. Use the Aiberm group for Claude, GPT, Gemini, and the rest of the catalog.
+
+## Verify the setup
+
+1. Open a new session in the desktop app.
+2. Confirm the model picker lists **Aiberm** and your models.
+
+![Model picker showing the Aiberm group](/docs/deepseek-harness-ui.png)
+
+3. Send a short prompt such as `Hi`.
+
+If the reply succeeds, Desktop is calling Aiberm.
+
+## settings.yaml (optional)
+
+Desktop reads the same `$DSH_HOME/settings.yaml` as the Web UI. You can declare the provider by hand instead of using the form:
+
+```yaml
+llm-pi-ai:
+  providers:
+    aiberm:
+      displayName: Aiberm
+      apiKeyEnv: AIBERM_API_KEY
+      api: openai-completions
+      baseURL: https://aiberm.com/v1
+      models:
+        - id: claude-sonnet-4-6
+        - id: gpt-5.4
+        - id: google/gemini-3-flash
+        - id: grok-4.6
+
+agent-default-model:
+  provider: aiberm
+  model: claude-sonnet-4-6
+```
+
+Store the key in `$DSH_HOME/.credentials.yaml`:
+
+```yaml
+AIBERM_API_KEY: sk-your-aiberm-api-key
+```
+
+Do **not** put the key in `settings.yaml`. Full field notes, vision `input`, and credential order are in [DeepSeek Harness Setup](/docs/ru/deepseek-harness).
+
+## Troubleshooting
+
+### `MISSING_CREDENTIAL`
+
+Save the key on **Settings → Models**, or set `AIBERM_API_KEY` in the environment that launches Desktop.
+
+### 401 when fetching models or chatting
+
+- Check the key at [Aiberm Console](https://aiberm.com/console/token).
+- Base URL must be `https://aiberm.com/v1` (include `/v1`).
+
+### Requests still go to DeepSeek
+
+You filled the built-in DeepSeek card. Add a **custom** provider with ID `aiberm` instead.
+
+### Config from the Web UI does not show up
+
+Desktop and `dsh web` both use `$DSH_HOME` (usually `~/.dsh`). If you launched CLI with a different `DSH_HOME`, the files will not match. Uninstalling the Windows app does **not** delete `~/.dsh`.
+
+### Image refused before sending
+
+Hand-entered models are text-only until you set `input: [text, image]` (or route `defaultInput`) in `settings.yaml`. See [Vision models](/docs/ru/deepseek-harness#vision-models). Start a new session after changing it.
+
+## Links
+
+- [DeepSeek Harness product page](https://www.deepseek.com/en/harness/)
+- [Official desktop download](https://www.deepseek.com/en/download/)
+- [DeepSeek Harness CLI / Web setup](/docs/ru/deepseek-harness)
+- [Aiberm Console](https://aiberm.com/console/token)
+- [Aiberm Models List](/docs/ru/models)
+- [Aiberm Pricing](https://aiberm.com/pricing)
