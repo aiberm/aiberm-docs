@@ -125,16 +125,16 @@ Create or edit `models.json`:
       "api": "openai-completions",
       "apiKey": "$AIBERM_API_KEY",
       "models": [
-        { "id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6", "reasoning": true, "input": ["text", "image"] },
-        { "id": "claude-opus-4-6", "name": "Claude Opus 4.6", "reasoning": true, "input": ["text", "image"] },
-        { "id": "claude-opus-4-6-thinking", "name": "Claude Opus 4.6 Thinking", "reasoning": true, "input": ["text", "image"] },
-        { "id": "gpt-5.4", "name": "GPT-5.4", "reasoning": true, "input": ["text", "image"] },
-        { "id": "google/gemini-3-flash", "name": "Gemini 3 Flash", "reasoning": true, "input": ["text", "image"] },
-        { "id": "google/gemini-3-pro", "name": "Gemini 3 Pro", "reasoning": true, "input": ["text", "image"] },
-        { "id": "deepseek/deepseek-v4-pro", "name": "DeepSeek V4 Pro" },
-        { "id": "grok-4.6", "name": "Grok 4.6", "reasoning": true },
-        { "id": "kimi-k2.6", "name": "Kimi K2.6" },
-        { "id": "minimax-m2.7", "name": "MiniMax M2.7" }
+        { "id": "claude-sonnet-5-5", "name": "Claude Sonnet 5.5", "reasoning": true, "input": ["text", "image"] },
+        { "id": "claude-opus-5-5", "name": "Claude Opus 5.5", "reasoning": true, "input": ["text", "image"] },
+        { "id": "anthropic/claude-haiku-5.5", "name": "Claude Haiku 5.5", "reasoning": true, "input": ["text", "image"] },
+        { "id": "openai/gpt-5.5", "name": "GPT-5.5", "reasoning": true, "input": ["text", "image"] },
+        { "id": "gemini-3.8-flash", "name": "Gemini 3.8 Flash", "reasoning": true, "input": ["text", "image"] },
+        { "id": "google/gemini-3.1-pro", "name": "Gemini 3.1 Pro", "reasoning": true, "input": ["text", "image"] },
+        { "id": "deepseek-v4.1-flash", "name": "DeepSeek V4.1 Flash" },
+        { "id": "grok-4.7", "name": "Grok 4.7", "reasoning": true },
+        { "id": "kimi-k3", "name": "Kimi K3" },
+        { "id": "qwen3.8-max", "name": "Qwen 3.8 Max" }
       ]
     }
   }
@@ -199,7 +199,7 @@ Useful for a local trial. The key is stored in plaintext:
       "api": "openai-completions",
       "apiKey": "sk-your-aiberm-api-key",
       "models": [
-        { "id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6" }
+        { "id": "claude-sonnet-5-5", "name": "Claude Sonnet 5.5" }
       ]
     }
   }
@@ -216,7 +216,7 @@ In `~/.pi/agent/settings.json`:
 {
   "$schema": "https://pi.dev/schemas/settings.schema.json",
   "defaultProvider": "aiberm",
-  "defaultModel": "claude-sonnet-4-6"
+  "defaultModel": "claude-sonnet-5-5"
 }
 ```
 
@@ -255,7 +255,7 @@ In the TUI:
 Choose **Aiberm**, then a model. From the shell:
 
 ```bash
-pi --provider aiberm --model claude-sonnet-4-6
+pi --provider aiberm --model claude-sonnet-5-5
 pi --list-models aiberm
 ```
 
@@ -272,7 +272,7 @@ This only matters when the model has `"reasoning": true` in `models.json` and th
 One-shot:
 
 ```bash
-pi --provider aiberm --model claude-sonnet-4-6 --print "Summarize this repository"
+pi --provider aiberm --model claude-sonnet-5-5 --print "Summarize this repository"
 ```
 
 Resume the latest session for the same folder:
@@ -293,7 +293,7 @@ When several sources exist for a provider, Pi uses:
 A custom `aiberm` provider does **not** automatically read `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`. Use `models.json` `apiKey` (prefer `$AIBERM_API_KEY`), or:
 
 ```bash
-pi --provider aiberm --model claude-sonnet-4-6 --api-key "sk-your-aiberm-api-key"
+pi --provider aiberm --model claude-sonnet-5-5 --api-key "sk-your-aiberm-api-key"
 ```
 
 ## Vision and thinking models
