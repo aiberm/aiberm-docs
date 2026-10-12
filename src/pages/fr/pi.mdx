@@ -1,0 +1,361 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Configuration de Pi
+lang: fr
+activeId: pi
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Configuration de Pi
+
+This guide shows how to run [Pi](https://pi.dev) (`@earendil-works/pi-coding-agent`) with **Aiberm** as a custom OpenAI-compatible provider. Pi is an extensible terminal AI agent: give it a goal and a working folder, and it can inspect files, run commands, edit code, and work through multi-step tasks.
+
+Aiberm exposes an OpenAI-compatible `/v1` API. For Pi that is a supported protocol, so you do **not** need a provider extension. Add the endpoint in `models.json`. After setup, one Aiberm API key can reach Claude, GPT, Gemini, DeepSeek, Kimi, MiniMax, GLM, Grok, and the rest of the models on Aiberm.
+
+<Callout client:load type="info">
+This page follows Pi's official [Quickstart](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/quickstart.md), [Choose a Model](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/models.md), and [Configuration](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/configuration.md) docs. Pi changes quickly; treat `pi --help` and [pi.dev/schemas/models.schema.json](https://pi.dev/schemas/models.schema.json) as the source of truth for your installed version.
+</Callout>
+
+## What is Pi?
+
+Pi is an open-source agent harness from [Earendil Works](https://github.com/earendil-works/pi). It ships powerful defaults but skips features such as sub-agents and plan mode. You can extend it with [extensions](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md), [skills](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md), prompt templates, and themes, or bundle those as Pi packages.
+
+Typical entry points:
+
+- Interactive TUI: run `pi` in a project directory
+- One-shot jobs: `pi --print "summarize the README"`
+- JSON / RPC / TypeScript SDK: for scripts and embeddings
+
+Official project:
+
+- Homepage: [pi.dev](https://pi.dev)
+- Docs: [documentation index](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/index.md)
+- Source: [github.com/earendil-works/pi](https://github.com/earendil-works/pi)
+- npm: [`@earendil-works/pi-coding-agent`](https://www.npmjs.com/package/@earendil-works/pi-coding-agent)
+
+## Prerequisites
+
+- An Aiberm account ([Sign up](https://aiberm.com/register))
+- An Aiberm API key ([Get your key](https://aiberm.com/console/token))
+- Node.js **22.19 or newer** (the official installer can install it if needed)
+- A terminal on macOS, Linux, or Windows
+
+<Callout client:load type="warning">
+Pi's tools run with the permissions of the Pi process: they can read files, run commands, and edit code. Use a dedicated project folder. Do not start Pi in a directory that already contains secrets, production credentials, or system files. See the official [Security](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/security.md) guide.
+</Callout>
+
+## Install
+
+### macOS / Linux
+
+The official installer pins dependencies and updates Pi with `pi update`:
+
+```bash
+curl -fsSL https://pi.dev/install.sh | sh
+```
+
+Or install from npm (this does **not** pin transitive dependencies):
+
+```bash
+npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+```
+
+Nix users can install the latest stable release from the flake:
+
+```bash
+nix profile add github:earendil-works/pi/stable
+```
+
+`pi update` cannot update a Nix install of Pi itself. Use `nix profile upgrade pi`.
+
+### Windows
+
+```powershell
+powershell -c "irm https://pi.dev/install.ps1 | iex"
+```
+
+Or npm:
+
+```powershell
+npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+```
+
+On native Windows, install [Git for Windows](https://git-scm.com/download/win) so Pi's `bash` tool can run. You can also install Pi inside WSL using the Linux instructions. See [Windows Setup](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/windows.md).
+
+### Verify the install
+
+```bash
+pi --version
+```
+
+## Why models.json instead of /login?
+
+Pi already includes Anthropic, OpenAI, Gemini, OpenRouter, and other providers. `/login openai` or `/login anthropic` talks to those **official** endpoints, not Aiberm.
+
+Aiberm is an OpenAI-compatible gateway. The supported integration is to add a compatible endpoint in [`models.json`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/models.md#configure-a-compatible-endpoint). Write a [custom provider extension](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/custom-provider.md) only when the service needs an unsupported protocol or login flow. Aiberm does not.
+
+## Configure the Aiberm provider
+
+User-level config lives in `~/.pi/agent` by default (override with `PI_CODING_AGENT_DIR`). Custom models go in:
+
+| OS | Path |
+|----|------|
+| macOS / Linux | `~/.pi/agent/models.json` |
+| Windows | `%USERPROFILE%\.pi\agent\models.json` |
+
+> **If you prefer a GUI editor** over Vim:
+>
+> - **macOS**: Open Finder, press `Shift + Command + G`, enter `~/.pi/agent`, and press Return. Create `models.json` if it is missing.
+> - **Windows**: In File Explorer, type `%USERPROFILE%\.pi\agent` in the address bar and press Enter.
+>
+> Save the file (`Command + S` / `Ctrl + S`). Opening `/model` in interactive mode reloads `models.json`. After editing `settings.json` or other resources, run `/reload` inside Pi.
+
+### Recommended configuration
+
+Create or edit `models.json`:
+
+```json
+{
+  "$schema": "https://pi.dev/schemas/models.schema.json",
+  "providers": {
+    "aiberm": {
+      "name": "Aiberm",
+      "baseUrl": "https://aiberm.com/v1",
+      "api": "openai-completions",
+      "apiKey": "$AIBERM_API_KEY",
+      "models": [
+        { "id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6", "reasoning": true, "input": ["text", "image"] },
+        { "id": "claude-opus-4-6", "name": "Claude Opus 4.6", "reasoning": true, "input": ["text", "image"] },
+        { "id": "claude-opus-4-6-thinking", "name": "Claude Opus 4.6 Thinking", "reasoning": true, "input": ["text", "image"] },
+        { "id": "gpt-5.4", "name": "GPT-5.4", "reasoning": true, "input": ["text", "image"] },
+        { "id": "google/gemini-3-flash", "name": "Gemini 3 Flash", "reasoning": true, "input": ["text", "image"] },
+        { "id": "google/gemini-3-pro", "name": "Gemini 3 Pro", "reasoning": true, "input": ["text", "image"] },
+        { "id": "deepseek/deepseek-v4-pro", "name": "DeepSeek V4 Pro" },
+        { "id": "grok-4.6", "name": "Grok 4.6", "reasoning": true },
+        { "id": "kimi-k2.6", "name": "Kimi K2.6" },
+        { "id": "minimax-m2.7", "name": "MiniMax M2.7" }
+      ]
+    }
+  }
+}
+```
+
+Put the Aiberm API key in the environment that launches Pi (do not commit the real key):
+
+**macOS / Linux:**
+
+```bash
+export AIBERM_API_KEY="sk-your-aiberm-api-key"
+```
+
+To persist it, add the same line to `~/.zshrc` or `~/.bashrc`, then open a new terminal.
+
+**Windows PowerShell (current user, persistent):**
+
+```powershell
+[System.Environment]::SetEnvironmentVariable('AIBERM_API_KEY', 'sk-your-aiberm-api-key', 'User')
+```
+
+Open a new terminal and confirm with `echo $env:AIBERM_API_KEY`.
+
+<Callout client:load type="warning">
+Replace `sk-your-aiberm-api-key` with the real key from [Aiberm Console](https://aiberm.com/console/token). When `apiKey` is `$AIBERM_API_KEY`, Pi reads the variable at request time. The variable must exist in **the process that starts Pi**.
+</Callout>
+
+### Field reference
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `providers.aiberm` | Yes | Provider ID. Sessions, `--provider`, and `/model` all use this name. Keep it `aiberm`. |
+| `name` | Recommended | Display name, for example `Aiberm`. |
+| `baseUrl` | Yes | Always `https://aiberm.com/v1` (include `/v1`). |
+| `api` | Yes | Protocol implementation. Use `openai-completions` for Aiberm Chat Completions. |
+| `apiKey` | Yes | API key. A literal, `$NAME` / `${NAME}` interpolation, or a `!command` (run at request time; Pi does not cache it). |
+| `models` | Yes | Models that should appear in the picker. Each entry needs at least `id`, matching Aiberm's model ID exactly. |
+| `models[].name` | No | Label shown in `/model`. |
+| `models[].reasoning` | No | Set `true` to enable `/thinking` for that model. |
+| `models[].input` | No | Input modalities. Use `["text", "image"]` for vision. Untyped models are treated as text-only. |
+| `models[].contextWindow` / `maxTokens` | No | Context window and max output. Pi uses conservative defaults when omitted. |
+
+`apiKey` and header values accept:
+
+- `$AIBERM_API_KEY` or `${AIBERM_API_KEY}`: environment variable
+- `sk-...`: plaintext (protect the file; do not commit it)
+- `!security find-generic-password -ws 'aiberm'`: command output
+- `$$` for a literal `$`, `$!` for a literal leading `!`
+
+### Store the key in models.json (optional)
+
+Useful for a local trial. The key is stored in plaintext:
+
+```json
+{
+  "$schema": "https://pi.dev/schemas/models.schema.json",
+  "providers": {
+    "aiberm": {
+      "name": "Aiberm",
+      "baseUrl": "https://aiberm.com/v1",
+      "api": "openai-completions",
+      "apiKey": "sk-your-aiberm-api-key",
+      "models": [
+        { "id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6" }
+      ]
+    }
+  }
+}
+```
+
+Do not commit this file or share it.
+
+## Set a default model
+
+In `~/.pi/agent/settings.json`:
+
+```json
+{
+  "$schema": "https://pi.dev/schemas/settings.schema.json",
+  "defaultProvider": "aiberm",
+  "defaultModel": "claude-sonnet-4-6"
+}
+```
+
+Or open `/model`, select a model, and press `Ctrl+S` to save it as the default for **new** sessions. A session that already sent a request keeps the model recorded in its own log.
+
+## List every Aiberm model
+
+The sample list above is a curated subset. The catalog changes; confirm IDs from the console or:
+
+```bash
+curl -H "Authorization: Bearer sk-your-aiberm-api-key" \
+     https://aiberm.com/v1/models | jq -r '.data[].id'
+```
+
+Add the IDs you need to the `models` array. Opening `/model` reloads the file. See the [Models List](/docs/fr/models) and [Aiberm Pricing](https://aiberm.com/pricing).
+
+<Callout client:load type="tip">
+Keep only the models you actually use. A shorter `models` list makes `/model` easier to scan.
+</Callout>
+
+## Use Pi with Aiberm
+
+Start Pi in the folder it should work in:
+
+```bash
+cd /path/to/project
+pi
+```
+
+In the TUI:
+
+```text
+/model
+```
+
+Choose **Aiberm**, then a model. From the shell:
+
+```bash
+pi --provider aiberm --model claude-sonnet-4-6
+pi --list-models aiberm
+```
+
+Send a real task (for example, explain the current repository). The footer should show provider `aiberm` and the selected model.
+
+Thinking level:
+
+```text
+/thinking
+```
+
+This only matters when the model has `"reasoning": true` in `models.json` and the upstream model actually supports thinking.
+
+One-shot:
+
+```bash
+pi --provider aiberm --model claude-sonnet-4-6 --print "Summarize this repository"
+```
+
+Resume the latest session for the same folder:
+
+```bash
+pi --continue
+```
+
+## Credential order
+
+When several sources exist for a provider, Pi uses:
+
+1. Runtime `--api-key` (not persisted; requires `--model` or `--models`)
+2. A stored credential in `~/.pi/agent/auth.json`
+3. `apiKey` from `models.json`
+4. Built-in provider environment variables or ambient cloud credentials
+
+A custom `aiberm` provider does **not** automatically read `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`. Use `models.json` `apiKey` (prefer `$AIBERM_API_KEY`), or:
+
+```bash
+pi --provider aiberm --model claude-sonnet-4-6 --api-key "sk-your-aiberm-api-key"
+```
+
+## Vision and thinking models
+
+A model you type by hand is treated as text-only until you say otherwise. For Claude / GPT / Gemini vision models, set `"input": ["text", "image"]` on that entry (see the recommended config).
+
+For thinking models, set `"reasoning": true`, then use `/thinking` (`off`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`). Pi clamps unsupported levels to what the model can do.
+
+Do not turn on `compat` flags just because an endpoint advertises OpenAI compatibility. Enable them only after you confirm a real request or response difference.
+
+## Troubleshooting
+
+### Aiberm does not appear in `/model`
+
+- `models.json` must include a non-empty `providers.aiberm.models` list.
+- Credentials must resolve. Custom models can load from the file but stay hidden until Pi can resolve a key.
+- Opening `/model` reloads the file. If it is still missing, quit and start `pi` again.
+- Validate the JSON (for example with [jsonlint](https://jsonlint.com/)).
+
+### 401 Unauthorized
+
+- Check the key at [Aiberm Console](https://aiberm.com/console/token).
+- `baseUrl` must be `https://aiberm.com/v1` (include `/v1`).
+- If you use `$AIBERM_API_KEY`, run `echo $AIBERM_API_KEY` in the same shell that starts Pi (Windows: `echo $env:AIBERM_API_KEY`). Environment variables apply only to that process and its children.
+- Do not paste an Aiberm key into the built-in `openai` / `anthropic` `/login` flows.
+
+### Model not found
+
+Aiberm model IDs change. Re-query `/v1/models` and update the `id` fields. The ID must match the API exactly, including prefixes such as `google/` or `deepseek/`.
+
+### Requests still go to OpenAI or Anthropic
+
+You authenticated a built-in provider. `/logout` those official accounts, use the `aiberm` entry in `models.json`, and pick a model under Aiberm in `/model`.
+
+### Image refused before sending
+
+The model has no image modality. Add `"input": ["text", "image"]`, then start a **new** session. An attached image stays in the old session log.
+
+### Config edits do not apply
+
+`/model` reloads `models.json`. Changes to `settings.json`, instructions, or extensions need `/reload`. Existing sessions keep the model already written in their log. A new default only affects new sessions.
+
+### Where the files live
+
+| Path | Purpose |
+|------|---------|
+| `~/.pi/agent/models.json` | Compatible endpoints and model lists |
+| `~/.pi/agent/settings.json` | `defaultProvider` / `defaultModel` and other preferences |
+| `~/.pi/agent/auth.json` | Credentials saved by `/login` (usually unused for Aiberm) |
+| `PI_CODING_AGENT_DIR` | Override the entire agent directory |
+
+## Notes
+
+- Run Pi in a dedicated project folder. The working directory controls file discovery, `AGENTS.md`, and session grouping.
+- Pi does not ask before every tool call. Use version control or backups for important work.
+- For more CLI flags, see `pi --help` or the official [Command Line](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/cli.md) page.
+
+## Links
+
+- [Pi homepage](https://pi.dev)
+- [Pi on GitHub](https://github.com/earendil-works/pi)
+- [Official: configure a compatible endpoint](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/models.md#configure-a-compatible-endpoint)
+- [Aiberm Console](https://aiberm.com/console/token)
+- [Aiberm Models List](/docs/fr/models)
+- [Aiberm Pricing](https://aiberm.com/pricing)

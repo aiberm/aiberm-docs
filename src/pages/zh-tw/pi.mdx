@@ -1,0 +1,362 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Pi 設定
+lang: zh-tw
+activeId: pi
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Pi 設定
+
+本指南介紹如何將 [Pi](https://pi.dev)（`@earendil-works/pi-coding-agent`）接到 **Aiberm**。Pi 是一個可擴展的終端 AI agent：給它一個目標和一個工作目錄，它就能讀檔案、跑命令、改程式碼，並完成多步任務。
+
+Aiberm 提供 OpenAI 相容的 `/v1` 介面。對 Pi 來說，這屬於「已支援的協定」，因此**不需要寫 provider 擴充**，只要在 `models.json` 裡宣告自訂端點即可。設定完成後，一把 Aiberm API Key 就能呼叫 Claude、GPT、Gemini、DeepSeek、Kimi、MiniMax、GLM、Grok 以及平台上的其他模型。
+
+<Callout client:load type="info">
+本頁依據 Pi 官方文件：[Quickstart](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/quickstart.md)、[Choose a Model](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/models.md)、[Configuration](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/configuration.md)。Pi 迭代較快，欄位以目前安裝版本的 `pi --help` 與 [pi.dev/schemas/models.schema.json](https://pi.dev/schemas/models.schema.json) 為準。
+</Callout>
+
+## 什麼是 Pi？
+
+Pi 是 [Earendil Works](https://github.com/earendil-works/pi) 開源的 agent harness。它預設精簡（不內建 sub-agent、plan mode），但可以透過 [extensions](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md)、[skills](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md)、prompt templates 和 themes 擴充，也可以打成 Pi package 分享。
+
+常用入口：
+
+- 互動式 TUI：在專案目錄執行 `pi`
+- 一次性任務：`pi --print "summarize the README"`
+- JSON / RPC / TypeScript SDK：適合腳本與二次整合
+
+官方專案：
+
+- 首頁：[pi.dev](https://pi.dev)
+- 文件：[pi.dev 文件索引](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/index.md)
+- 原始碼：[github.com/earendil-works/pi](https://github.com/earendil-works/pi)
+- npm：[`@earendil-works/pi-coding-agent`](https://www.npmjs.com/package/@earendil-works/pi-coding-agent)
+
+## 前置條件
+
+- Aiberm 帳戶（[註冊](https://aiberm.com/register)）
+- Aiberm API Key（[取得 Key](https://aiberm.com/console/token)）
+- Node.js **22.19 或更高**（官方安裝指令碼可在需要時安裝）
+- macOS、Linux 或 Windows 上的終端機
+
+<Callout client:load type="warning">
+Pi 的工具以目前行程權限執行：能讀檔案、執行命令、改程式碼。請在專用專案目錄中使用，不要在含有金鑰、生產憑證或系統目錄中啟動。詳見官方 [Security](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/security.md)。
+</Callout>
+
+## 安裝
+
+### macOS / Linux
+
+官方建議安裝指令碼（會釘住依賴，之後用 `pi update` 升級）：
+
+```bash
+curl -fsSL https://pi.dev/install.sh | sh
+```
+
+或使用 npm（**不會**釘住傳遞依賴）：
+
+```bash
+npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+```
+
+Nix 使用者可以從 flake 安裝最新穩定版：
+
+```bash
+nix profile add github:earendil-works/pi/stable
+```
+
+Nix 安裝不能用 `pi update` 升級本體，請改用 `nix profile upgrade pi`。
+
+### Windows
+
+```powershell
+powershell -c "irm https://pi.dev/install.ps1 | iex"
+```
+
+也可以用 npm：
+
+```powershell
+npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+```
+
+原生 Windows 建議安裝 [Git for Windows](https://git-scm.com/download/win)，以便 Pi 的 `bash` 工具可用。也可以在 WSL 中依 Linux 方式安裝。詳見官方 [Windows Setup](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/windows.md)。
+
+### 驗證安裝
+
+```bash
+pi --version
+```
+
+## 為什麼用 models.json，而不是 /login？
+
+Pi 內建了 Anthropic、OpenAI、Gemini、OpenRouter 等 provider。`/login openai` 或 `/login anthropic` 會連到**官方端點**，不會經過 Aiberm。
+
+Aiberm 是 OpenAI 相容閘道，官方建議的接入方式是：把相容端點寫進 [`models.json`](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/models.md#configure-a-compatible-endpoint)。只有在對方協定或認證流程不被 Pi 支援時，才需要寫 [Custom Provider](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/custom-provider.md) 擴充。Aiberm 不需要這一步。
+
+## 設定 Aiberm Provider
+
+Pi 的使用者層級設定目錄預設是 `~/.pi/agent`（可用環境變數 `PI_CODING_AGENT_DIR` 覆蓋）。自訂模型寫在：
+
+| 系統 | 路徑 |
+|------|------|
+| macOS / Linux | `~/.pi/agent/models.json` |
+| Windows | `%USERPROFILE%\.pi\agent\models.json` |
+
+> **如果你不熟悉命令列編輯器**，可以用系統內建編輯器開啟：
+>
+> - **macOS**：開啟「Finder」，按 `Shift + Command + G`，輸入 `~/.pi/agent` 後按 Return。若沒有 `models.json`，先新建該檔案。
+> - **Windows**：在檔案總管位址列輸入 `%USERPROFILE%\.pi\agent` 後按 Enter。
+>
+> 編輯後儲存（`Command + S` / `Ctrl + S`）。互動模式中開啟 `/model` 會重新載入該檔案；若改了 `settings.json` 或其他資源，在 Pi 裡執行 `/reload`。
+
+### 建議設定
+
+建立或編輯 `models.json`：
+
+```json
+{
+  "$schema": "https://pi.dev/schemas/models.schema.json",
+  "providers": {
+    "aiberm": {
+      "name": "Aiberm",
+      "baseUrl": "https://aiberm.com/v1",
+      "api": "openai-completions",
+      "apiKey": "$AIBERM_API_KEY",
+      "models": [
+        { "id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6", "reasoning": true, "input": ["text", "image"] },
+        { "id": "claude-opus-4-6", "name": "Claude Opus 4.6", "reasoning": true, "input": ["text", "image"] },
+        { "id": "claude-opus-4-6-thinking", "name": "Claude Opus 4.6 Thinking", "reasoning": true, "input": ["text", "image"] },
+        { "id": "gpt-5.4", "name": "GPT-5.4", "reasoning": true, "input": ["text", "image"] },
+        { "id": "google/gemini-3-flash", "name": "Gemini 3 Flash", "reasoning": true, "input": ["text", "image"] },
+        { "id": "google/gemini-3-pro", "name": "Gemini 3 Pro", "reasoning": true, "input": ["text", "image"] },
+        { "id": "deepseek/deepseek-v4-pro", "name": "DeepSeek V4 Pro" },
+        { "id": "grok-4.6", "name": "Grok 4.6", "reasoning": true },
+        { "id": "kimi-k2.6", "name": "Kimi K2.6" },
+        { "id": "minimax-m2.7", "name": "MiniMax M2.7" }
+      ]
+    }
+  }
+}
+```
+
+然後將 Aiberm API Key 寫入啟動 Pi 的環境（不要把真實 Key 提交到 Git）：
+
+**macOS / Linux：**
+
+```bash
+export AIBERM_API_KEY="sk-your-aiberm-api-key"
+```
+
+要長期生效，把該行加到 `~/.zshrc` 或 `~/.bashrc`，然後新開一個終端機。
+
+**Windows PowerShell（目前使用者，持久）：**
+
+```powershell
+[System.Environment]::SetEnvironmentVariable('AIBERM_API_KEY', 'sk-your-aiberm-api-key', 'User')
+```
+
+新開終端機後執行 `echo $env:AIBERM_API_KEY` 確認。
+
+<Callout client:load type="warning">
+請把 `"sk-your-aiberm-api-key"` 換成 [Aiberm 控制台](https://aiberm.com/console/token) 裡的真實 Key。`apiKey` 使用 `$AIBERM_API_KEY` 時，Pi 會在發請求時從環境變數讀取；環境變數必須存在於**啟動 Pi 的那個行程**中。
+</Callout>
+
+### 欄位說明
+
+| 欄位 | 必填 | 說明 |
+|------|------|------|
+| `providers.aiberm` | 是 | Provider ID。之後在 `/model`、`--provider`、工作階段記錄裡都會用到這個名字。建議固定為 `aiberm`。 |
+| `name` | 建议 | 顯示名稱，例如 `Aiberm`。 |
+| `baseUrl` | 是 | 固定為 `https://aiberm.com/v1`（必須帶 `/v1`）。 |
+| `api` | 是 | 協定實作。Aiberm Chat Completions 填 `openai-completions`。 |
+| `apiKey` | 是 | API Key。可用字面量、`$NAME` / `${NAME}` 環境變數插值，或 `!command`（每次請求時執行，Pi 不快取）。 |
+| `models` | 是 | 該自訂 provider 要出現在選擇器中的模型清單。每條至少要有 `id`，且必須與 Aiberm 的模型 ID 完全一致。 |
+| `models[].name` | 否 | `/model` 中的顯示名。 |
+| `models[].reasoning` | 否 | 設為 `true` 後可用 `/thinking` 選擇思考強度。 |
+| `models[].input` | 否 | 輸入模態。需要識圖時設為 `["text", "image"]`。未宣告時按純文字處理。 |
+| `models[].contextWindow` / `maxTokens` | 否 | 上下文視窗與最大輸出。不填時 Pi 使用保守預設值。 |
+
+`apiKey` 與 header 支援的寫法：
+
+- `$AIBERM_API_KEY` 或 `${AIBERM_API_KEY}`：讀環境變數
+- `sk-...`：明文寫入（檔案權限需自行保管，不要提交儲存庫）
+- `!security find-generic-password -ws 'aiberm'`：從系統鑰匙圈等命令讀取
+- `$$` 表示字面量 `$`，`$!` 表示字面量開頭的 `!`
+
+### 直接把 Key 寫進 models.json（可選）
+
+適合本機快速試用。檔案裡是明文：
+
+```json
+{
+  "$schema": "https://pi.dev/schemas/models.schema.json",
+  "providers": {
+    "aiberm": {
+      "name": "Aiberm",
+      "baseUrl": "https://aiberm.com/v1",
+      "api": "openai-completions",
+      "apiKey": "sk-your-aiberm-api-key",
+      "models": [
+        { "id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6" }
+      ]
+    }
+  }
+}
+```
+
+不要把該檔案提交到 Git，也不要分享給他人。
+
+## 設定預設模型
+
+在 `~/.pi/agent/settings.json` 中指定啟動時使用的 Aiberm 模型：
+
+```json
+{
+  "$schema": "https://pi.dev/schemas/settings.schema.json",
+  "defaultProvider": "aiberm",
+  "defaultModel": "claude-sonnet-4-6"
+}
+```
+
+也可以在互動介面開啟 `/model`，選中模型後按 `Ctrl+S`，把該模型存為新工作階段的預設值。既有工作階段會記住自己當時的模型，不會被這項預設值覆蓋。
+
+## 取得完整模型清單
+
+上文只列出常用模型。Aiberm 目錄會更新，請以控制台和介面為準：
+
+```bash
+curl -H "Authorization: Bearer sk-your-aiberm-api-key" \
+     https://aiberm.com/v1/models | jq -r '.data[].id'
+```
+
+把需要的 ID 加進 `models.json` 的 `models` 陣列。開啟 `/model` 即可重新載入檔案。完整目錄見 [模型列表](/docs/zh-tw/models) 與 [Aiberm 價格頁](https://aiberm.com/pricing)。
+
+<Callout client:load type="tip">
+建議只保留常用模型。`models` 清單越短，`/model` 選擇器越好用。
+</Callout>
+
+## 使用方式
+
+進入希望 Pi 工作的專案目錄後啟動：
+
+```bash
+cd /path/to/project
+pi
+```
+
+在 TUI 中：
+
+```text
+/model
+```
+
+選擇 **Aiberm**，再選具體模型。也可以直接：
+
+```bash
+pi --provider aiberm --model claude-sonnet-4-6
+pi --list-models aiberm
+```
+
+給一個真實任務驗證（例如解釋目前儲存庫結構）。頁尾應顯示 provider `aiberm` 和你選的模型。
+
+思考強度：
+
+```text
+/thinking
+```
+
+僅當該模型在 `models.json` 裡宣告了 `"reasoning": true`，並且上游模型本身支援思考時，選項才有意義。
+
+一次性指令碼呼叫：
+
+```bash
+pi --provider aiberm --model claude-sonnet-4-6 --print "Summarize this repository"
+```
+
+恢復最近一次工作階段：
+
+```bash
+pi --continue
+```
+
+## 認證優先順序
+
+同一 provider 配了多種憑證時，Pi 的解析順序是：
+
+1. 命令列 `--api-key`（不落盤，且必須同時指定 `--model` 或 `--models`）
+2. `~/.pi/agent/auth.json` 裡儲存的憑證
+3. `models.json` 的 `apiKey`
+4. 內建 provider 的環境變數 / 雲端憑證
+
+自訂的 `aiberm` **不會**自動讀取 `OPENAI_API_KEY` 或 `ANTHROPIC_API_KEY`。請用 `models.json` 的 `apiKey`（建議 `$AIBERM_API_KEY`），或在啟動時傳入：
+
+```bash
+pi --provider aiberm --model claude-sonnet-4-6 --api-key "sk-your-aiberm-api-key"
+```
+
+## 視覺模型與思考模型
+
+手寫加入的模型預設按文字處理。要讓 Claude / GPT / Gemini 等識圖模型接收圖片，請在對應條目設定 `"input": ["text", "image"]`（見上文建議設定）。
+
+對支援思考的模型設定 `"reasoning": true`，然後用 `/thinking` 在 `off`、`minimal`、`low`、`medium`、`high`、`xhigh`、`max` 之間選擇。Pi 會把不支援的級別鉗制到該模型實際能力範圍內。
+
+不要僅憑「相容 OpenAI」就打開 `compat` 開關。只在確認 Aiberm 端點的請求/回應確實與預設實作有差異後再改。
+
+## 疑難排解
+
+### `/model` 裡看不到 Aiberm
+
+- `models.json` 必須包含非空的 `providers.aiberm.models`。
+- 憑證必須能解析。自訂模型即使寫進了檔案，在 Key 無效時也不會出現在選擇器中。
+- 開啟 `/model` 會重新載入檔案；改完後若仍沒有，退出再進 `pi`。
+- 確認 JSON 合法（可用 [jsonlint](https://jsonlint.com/) 檢查）。
+
+### 401 Unauthorized
+
+- 在 [Aiberm 控制台](https://aiberm.com/console/token) 核對 Key。
+- `baseUrl` 必須是 `https://aiberm.com/v1`（帶 `/v1`）。
+- 若使用 `$AIBERM_API_KEY`，在啟動 Pi 的同一個 shell 裡執行 `echo $AIBERM_API_KEY`（Windows：`echo $env:AIBERM_API_KEY`）。環境變數只對目前行程及其子行程生效。
+- 不要把 Aiberm Key 填進內建的 `openai` / `anthropic` `/login` 流程。
+
+### Model not found / 模型不可用
+
+Aiberm 的模型 ID 會更新。重新請求 `/v1/models`，把 `models.json` 裡的 `id` 改成目前 ID。`id` 必須與介面回傳值完全一致，包括前綴（如 `google/`、`deepseek/`）。
+
+### 請求仍打到 OpenAI 或 Anthropic
+
+你登入的是內建 provider。`/logout` 那些官方帳號，改用 `models.json` 中的 `aiberm`，並用 `/model` 選 Aiberm 下的模型。
+
+### 圖片在傳送前被拒絕
+
+該模型沒有宣告圖像模態。補上 `"input": ["text", "image"]`，然後開一個**新工作階段**。已附加在舊工作階段裡的圖片不會自動改寫。
+
+### 設定改了不生效
+
+`/model` 會重載 `models.json`。`settings.json`、指令和擴充改完後需要 `/reload`。既有工作階段會保留自己記錄的模型；改預設模型只影響新工作階段。
+
+### 設定檔在哪？
+
+| 路徑 | 用途 |
+|------|------|
+| `~/.pi/agent/models.json` | 自訂端點與模型清單 |
+| `~/.pi/agent/settings.json` | `defaultProvider` / `defaultModel` 等偏好 |
+| `~/.pi/agent/auth.json` | `/login` 儲存的官方憑證（Aiberm 通常用不到） |
+| `PI_CODING_AGENT_DIR` | 覆蓋整個 agent 目錄 |
+
+## 注意事項
+
+- 在專用專案資料夾中執行 Pi。它從目前工作目錄發現檔案、`AGENTS.md` 和工作階段分組。
+- Pi 預設不會在每次工具呼叫前詢問。重要儲存庫請配合版本控制或備份。
+- 完全支援中文輸入和輸出。
+- 更多 CLI 選項見 `pi --help` 或官方 [Command Line](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/cli.md)。
+
+## 相關連結
+
+- [Pi 官網](https://pi.dev)
+- [Pi GitHub](https://github.com/earendil-works/pi)
+- [官方：設定相容端點](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/models.md#configure-a-compatible-endpoint)
+- [Aiberm 控制台](https://aiberm.com/console/token)
+- [Aiberm 模型列表](/docs/zh-tw/models)
+- [Aiberm 價格](https://aiberm.com/pricing)

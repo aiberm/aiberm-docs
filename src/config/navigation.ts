@@ -389,6 +389,24 @@ export const navigation: NavGroup[] = [
         icon: 'terminal',
       },
       {
+        id: 'pi',
+        title: {
+          en: 'Pi Setup',
+          zh: 'Pi 设置',
+          'zh-tw': 'Pi 設定',
+          ko: 'Pi 설정',
+          ja: 'Pi セットアップ',
+          ru: 'Настройка Pi',
+          es: 'Configuración de Pi',
+          pt: 'Configuração do Pi',
+          it: 'Configurazione di Pi',
+          fr: 'Configuration de Pi',
+          de: 'Pi einrichten',
+          vi: 'Cài đặt Pi',
+        },
+        icon: 'terminal',
+      },
+      {
         id: 'deepseek-harness',
         title: {
           en: 'DeepSeek Harness Setup',
