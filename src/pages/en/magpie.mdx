@@ -1,0 +1,119 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Magpie Setup
+description: Add Aiberm to magpie so Claude Code, Codex, OpenCode, and other agents share one API key and model list.
+lang: en
+activeId: magpie
+---
+
+# Magpie Setup
+
+This guide shows how to add [Aiberm](https://aiberm.com) as a provider in [magpie](https://usemagpie.ai/). After you add it once, Claude Code, Codex, Gemini CLI, OpenCode, and the other agents magpie supports can all pick models from Aiberm.
+
+magpie is an open-source gateway that runs on your machine (by default at `127.0.0.1:3425`). It speaks the OpenAI, Anthropic, and Gemini APIs and translates among them, including streaming, tool calls, and reasoning. Agents talk only to magpie. The API key stays in magpie and is not written into each agent's config.
+
+## Prerequisites
+
+- An Aiberm account ([sign up](https://aiberm.com/register))
+- An Aiberm API key ([create one](https://aiberm.com/console/token))
+- magpie 0.1.8 or later (required for import links)
+
+Installers for macOS, Windows, and Linux are on the [download page](https://usemagpie.ai/#get). From a terminal:
+
+```bash
+curl -fsSL https://usemagpie.ai/install.sh | sh
+```
+
+## Aiberm endpoints
+
+| Protocol | Value in magpie | Notes |
+| --- | --- | --- |
+| OpenAI Chat | `https://aiberm.com/v1` | Must end in `/v1`. magpie appends `/chat/completions`. |
+| Anthropic Messages | `https://aiberm.com` | The root, with no `/v1`. This is the same value as Claude Code's `ANTHROPIC_BASE_URL`. |
+
+Codex speaks only the OpenAI Responses API. You do not need a separate Responses URL. When it is omitted, magpie translates Responses requests into Chat Completions before sending them to Aiberm.
+
+Fill in both URLs. Each agent uses the protocol it speaks natively; magpie translates the rest.
+
+## Option 1: import link (recommended)
+
+On a machine where magpie is installed, open the link below. magpie shows a confirmation dialog with the provider name, the host your prompts will be sent to, and where the model list comes from. **Nothing is saved until you press Add.**
+
+[Add to magpie](https://usemagpie.ai/import#name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken)
+
+The link intentionally has no API key. A public page should never carry a secret; the dialog asks you to paste your own key. The key is stored only in `~/.config/magpie/providers.json` on your machine, readable by your user alone. The web link keeps parameters after `#`, so the browser does not send them to usemagpie.ai.
+
+## Option 2: add it in the app
+
+1. Open magpie, go to **Providers**, and press **Add provider**.
+2. Choose **Custom** (any compatible URL). Aiberm is not in the preset list.
+3. Fill in the fields:
+
+| Field | Value |
+| --- | --- |
+| Name | `Aiberm` |
+| Id | `aiberm` (agents will see models as `aiberm/<model>`) |
+| OpenAI Chat base URL | `https://aiberm.com/v1` |
+| Anthropic base URL | `https://aiberm.com` |
+| API key | Your Aiberm API key |
+| Website | `https://aiberm.com` |
+| Key page | `https://aiberm.com/console/token` |
+
+4. Save. magpie requests `https://aiberm.com/v1/models` and offers the returned models in every agent's picker. Open the provider row to choose which models agents see, or press Test to check the key and URLs.
+
+Leave Models empty so magpie uses `/v1/models`. Models added later show up on the next refresh. Set a comma-separated list only when the automatic list is wrong. Use ids from the [Aiberm console](https://aiberm.com) or the [models endpoint](/docs/en/models/), for example `claude-sonnet-4-6`, `gpt-5.4`, or `google/gemini-2.5-flash`.
+
+## Pick a model for each agent
+
+Open **Agents**. Each row is an agent installed or configured on this machine. Click the model, choose one under **aiberm**, or type `aiberm/` plus a model id.
+
+```bash
+magpie claude aiberm/claude-sonnet-4-6
+magpie codex aiberm/gpt-5.4
+magpie opencode aiberm/claude-sonnet-4-6
+magpie gemini aiberm/google/gemini-2.5-flash
+```
+
+magpie changes only the keys it owns. Comments, ordering, and indentation in the agent config are left as they are. A session that is already running keeps the model it started with. **Start a new session** to pick up the change. For Codex, also restart the Codex app, because it builds its model list at startup.
+
+| Agent | What magpie writes |
+| --- | --- |
+| Claude Code | `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, and the model variables in the `env` block of `~/.claude/settings.json`. The base URL points at the local gateway, not at Aiberm. |
+| Codex | A `[model_providers.magpie]` table in `~/.codex/config.toml`, plus the model list in `magpie-models.json`. Your existing ChatGPT sign-in is left alone. |
+| OpenCode, Pi, Crush, and similar agents | A provider entry named `magpie`, with the model set to `magpie/aiberm/<model>`. |
+| Gemini CLI | `GOOGLE_GEMINI_BASE_URL` pointed at the gateway, using API-key auth. |
+
+To go back, pick one of the agent's own models, or run `magpie claude default` (replace `claude` with the agent name). magpie removes what it wrote and restores the values it replaced.
+
+## While you use it
+
+- **magpie has to be running.** Closing the window leaves it in the menu bar or system tray. `magpie tray` starts the icon only, `magpie serve` runs just the gateway, and `magpie daemon install` keeps it running from login.
+- **Do not also point** `ANTHROPIC_BASE_URL` or `OPENAI_BASE_URL` at Aiberm. magpie already writes the gateway address into the agent config. Setting both will bypass magpie or conflict with it.
+- Add the key only in magpie. magpie does not read API keys from your shell environment.
+- A local proxy (Clash, Surge, mihomo, and similar tools) can intercept traffic to `127.0.0.1:3425`. If an agent returns 502 and the request never appears on magpie's Routing page, send local addresses direct: `IP-CIDR,127.0.0.0/8,DIRECT,no-resolve`.
+- The Usage page counts only calls that go through the gateway. Calls an agent makes straight to Aiberm are not included. Billing stays on the Aiberm console. magpie's USD estimate needs model prices, which a custom provider may not have.
+
+## Optional: several keys or a fallback
+
+You can add more than one Aiberm key under the same provider. Open the row, tick the keys to use, and choose how requests are spread:
+
+| Routing | Behavior |
+| --- | --- |
+| Smart | The default. Prefers the account that resets soonest and still has quota. |
+| In order | Uses the first key until it cannot answer, then the next. |
+| In turn | Spreads conversation turns across the keys. |
+| Least used | Prefers the key with the most allowance left. |
+
+You can also create a group on the **Routing** tab that pairs an Aiberm model with the same model from another provider, for example `aiberm/claude-sonnet-4-6` followed by a subscription model of the same name. Point an agent at `group/<id>`. If one key is out of credit or rate limited, magpie tries the next member before the error reaches the agent.
+
+## Recover and troubleshoot
+
+| What you see | What to do |
+| --- | --- |
+| The confirmation dialog never opens | Check that magpie is installed and is version 0.1.8 or later. If it is not installed, the web link offers the download first. Otherwise add the provider manually below. |
+| The model list is empty | On the provider row, press Test. Confirm the key is valid and the Chat URL is `https://aiberm.com/v1`, then refresh models. |
+| The agent still uses the old model | Quit the current session and start a new one. Restart the Codex app as well. |
+| 401 or 403 | The key is wrong, revoked, or not allowed to call that model. Create a new one under [API tokens](https://aiberm.com/console/token) and replace it in magpie. Do not edit the token inside the agent config. |
+| You want it removed | Delete Aiberm under Providers, then run `magpie <agent> default` for each agent. |
+
+magpie's own documentation is at [Get started](https://usemagpie.ai/docs/start) and [Add to magpie](https://usemagpie.ai/docs/import).

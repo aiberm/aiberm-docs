@@ -461,6 +461,24 @@ export const navigation: NavGroup[] = [
         icon: 'terminal',
       },
       {
+        id: 'magpie',
+        title: {
+          en: 'Magpie Setup',
+          zh: 'Magpie 设置',
+          'zh-tw': 'Magpie 設定',
+          ko: 'Magpie 설정',
+          ja: 'Magpie セットアップ',
+          ru: 'Настройка Magpie',
+          es: 'Configuración de Magpie',
+          pt: 'Configuração do Magpie',
+          it: 'Configurazione di Magpie',
+          fr: 'Configuration de Magpie',
+          de: 'Magpie einrichten',
+          vi: 'Cài đặt Magpie',
+        },
+        icon: 'terminal',
+      },
+      {
         id: 'error-handling',
         title: {
           en: 'Error Handling',
