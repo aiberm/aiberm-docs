@@ -1,0 +1,157 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Magpie セットアップ
+description: Aiberm を magpie に追加して、Claude Code、Codex、OpenCode などのエージェントで 1 つの API キーとモデル一覧を共有します。
+lang: ja
+activeId: magpie
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Magpie セットアップ
+
+このガイドでは、[Aiberm](https://aiberm.com) を [magpie](https://usemagpie.ai/) のプロバイダとして追加する方法を説明します。一度追加すれば、Claude Code、Codex、Gemini CLI、OpenCode をはじめ、magpie が対応する他のエージェントすべてで Aiberm のモデルを選べるようになります。
+
+magpie は、お使いのマシン上で動作するオープンソースのゲートウェイです（デフォルトは `127.0.0.1:3425`）。OpenAI、Anthropic、Gemini の各 API に対応し、ストリーミングやツール呼び出しも含めて API 間を相互に変換します。エージェントは magpie とだけ通信します。Aiberm API キーは magpie 内に保持され、エージェントの設定ファイルには代わりにローカルゲートウェイのアドレスとローカルトークンが書き込まれます。
+
+<Callout client:load type="info">
+このページは magpie の [はじめに](https://usemagpie.ai/docs/ja/start) と [magpie に追加](https://usemagpie.ai/docs/ja/import) のドキュメントに基づいており、magpie 0.1.1276 で内容を確認しています。magpie は変更が速いため、アプリとこのページの内容が食い違う場合は、magpie 自身のドキュメントを正としてください。
+</Callout>
+
+## 前提条件
+
+- Aiberm アカウント（[登録](https://aiberm.com/register)）
+- Aiberm API キー（[キーを作成](https://aiberm.com/console/token)）
+- magpie 0.1.8 以降（インポートリンクに必要）
+
+macOS、Windows、Linux 向けのダウンロードは [ダウンロードページ](https://usemagpie.ai/#get) にあります。macOS または Linux では、ターミナルからもインストールできます。
+
+```bash
+curl -fsSL https://usemagpie.ai/install.sh | sh
+```
+
+Linux では、GTK 3 と WebKitGTK 4.1 がある場合はデスクトップアプリが、ない場合はターミナル版がインストールされます。ダウンロード時に GitHub に接続できない場合は、プロキシを指定してください: `curl -fsSL https://usemagpie.ai/install.sh | sh -s -- --proxy http://127.0.0.1:7890`。
+
+## Aiberm のエンドポイント
+
+| プロトコル | magpie に入力する値 | 備考 |
+| --- | --- | --- |
+| OpenAI Chat | `https://aiberm.com/v1` | 末尾は `/v1` にする必要があります。magpie が `/chat/completions` を付け足します。 |
+| Anthropic Messages | `https://aiberm.com` | `/v1` を付けないルートです。[Claude Code セットアップ](/docs/ja/claude-code/) の `ANTHROPIC_BASE_URL` と同じ値です。 |
+| OpenAI Responses | 空欄のまま | 下記を参照してください。 |
+| Gemini | 空欄のまま | 下記を参照してください。 |
+
+Chat URL と Anthropic URL の両方を入力します。Claude Code のリクエストはそのまま Anthropic URL に送られ、他のエージェントからの Claude モデルへのリクエストも magpie がそこへ送ります。それ以外のリクエストは Chat URL に送られ、エージェントが別の API を使う場合は変換されます。Aiberm のチャットモデルはどちらのプロトコルにも対応しています。
+
+Responses URL と Gemini URL は空欄のままにします。Aiberm の Responses（`/v1/responses`）と Gemini（`/v1beta`）のエンドポイントはすべてのモデルを提供しているわけではなく、たとえば Claude モデルはこれらからは利用できません。これらの URL がなければ、magpie が Codex の Responses リクエストと Gemini CLI のリクエストを自分で変換するため、Codex と Gemini CLI で Aiberm のどのモデルでも使えます。
+
+<Callout client:load type="tip">
+Codex で GPT モデルしか使わない場合は、[Codex CLI セットアップ](/docs/ja/codex/) の手順で、Codex を Aiberm の Responses API に変換なしで直接接続できます。
+</Callout>
+
+## 方法 1: インポートリンク（推奨）
+
+magpie をインストールしたマシンで、下のリンクを開きます。magpie に確認ダイアログが表示され、プロバイダ名、エンドポイント、API キーの入力欄が示されるとともに、プロンプトとキーがどのホストに送信されるかが警告されます。**「追加」を押すまで、何も保存されません。**
+
+[magpie に追加](https://usemagpie.ai/import#name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken)
+
+このリンクには意図的に API キーを含めていません。公開ページに秘密情報を載せるべきではないので、ダイアログにご自身のキーを貼り付けてください。キーはお使いのマシンの `~/.config/magpie/providers.json` にのみ保存され、読み取れるのはあなたのユーザーだけです。Web リンクはパラメータを `#` の後ろに置いており、ブラウザはこの部分をサーバーに送信しません。
+
+デスクトップ環境がない場合（SSH 接続時など）は、同じパラメータをターミナル版に渡します。同じ概要が表示され、追加する前に確認を求められます。
+
+```bash
+magpie import 'magpie://import?name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken'
+```
+
+## 方法 2: アプリで追加する
+
+1. magpie を開き、**プロバイダ** に移動して **＋ プロバイダを追加** を押します。
+2. **カスタム**（任意の互換 URL）を選びます。magpie には Aiberm のプリセットはありません。
+3. フォームに入力します。
+
+| 項目 | 値 |
+| --- | --- |
+| 名前 | `Aiberm`。magpie はここから ID `aiberm` を生成するため、エージェントにはモデルが `aiberm/<model>` として表示されます。 |
+| ベース URL | `https://aiberm.com/v1`。API は **OpenAI 互換** に設定します |
+| APIキー | Aiberm API キー |
+| その他のエンドポイント → Anthropic URL | `https://aiberm.com` |
+| その他のエンドポイント → Responses URL、Gemini URL | 空欄のままにします。**API を検出** で入力された場合は消去してください。 |
+| モデル | 空欄のまま |
+
+4. 保存します。magpie は `https://aiberm.com/v1/models` にリクエストし、返されたモデルをすべてのエージェントのモデル選択に表示します。保存前に **モデルを取得** でエージェントに見せるモデルを選び、**モデルをテスト** でキーと URL を確認できます。
+
+「モデル」を空欄にすると、一覧は `/v1/models` から取得されるため、Aiberm が後から追加したモデルも、モデルを再取得する（または `magpie provider refresh aiberm` を実行する）と表示されます。一覧にはキーで利用できるすべてのモデルが含まれ、その中にはコーディングエージェントでは使えない画像・音声・埋め込みモデルもあります。必要なものだけを選んでください。自動で取得した一覧が正しくない場合にのみ、カンマ区切りの一覧を設定します。モデル ID は [料金ページ](https://aiberm.com/pricing) と [モデル一覧](/docs/ja/models/) に掲載されています。たとえば `claude-sonnet-5-5`、`gpt-5.6-sol`、`google/gemini-3.1-pro` などです。
+
+## エージェントごとにモデルを選ぶ
+
+**エージェント** を開きます。各行は、このマシンにインストールまたは設定されているエージェントです。モデルをクリックして **aiberm** の下から選ぶか、`aiberm/` に続けてモデル ID を入力します。
+
+```bash
+magpie claude aiberm/claude-sonnet-5-5
+magpie codex aiberm/gpt-5.6-sol
+magpie opencode aiberm/claude-sonnet-5-5
+magpie gemini aiberm/google/gemini-3.1-pro
+```
+
+magpie が書き換えるのは、自身が管理する設定項目だけです。エージェントの設定にあるコメント、並び順、インデントはそのまま残ります。すでに実行中のセッションは、開始時のモデルを使い続けます。変更を反映するには **新しいセッションを開始** してください。Codex の場合は、起動時にモデル一覧を作成するため、Codex アプリも再起動してください。
+
+| エージェント | magpie が書き込む内容 |
+| --- | --- |
+| Claude Code | `~/.claude/settings.json` の `env` ブロックに、`ANTHROPIC_BASE_URL`（Aiberm ではなくローカルゲートウェイ）、`ANTHROPIC_AUTH_TOKEN`（Aiberm のキーではなくローカルトークン）、モデル関連の変数を書き込みます。 |
+| Codex | `~/.codex/config.toml` にゲートウェイのアドレスとモデルを、`magpie-models.json` にモデル一覧を書き込みます。ChatGPT のサインインはそのまま残ります。 |
+| OpenCode、Pi、Crush | `magpie` という名前のプロバイダエントリを追加し、モデルを `magpie/aiberm/<model>` に設定します。 |
+| Gemini CLI | `~/.gemini/.env` に、ゲートウェイを指す `GOOGLE_GEMINI_BASE_URL` とローカルの API キーを書き込み、API キー認証を選択します。Google のサインインは保持されます。 |
+
+元に戻すには、エージェント本来のモデルを選ぶか、`magpie claude default` を実行します（`claude` はエージェント名に置き換えてください）。magpie は書き込んだ内容を削除し、置き換えた値を元に戻します。
+
+### すでにエージェントを Aiberm に直接接続している場合
+
+magpie のために `ANTHROPIC_BASE_URL` や `OPENAI_BASE_URL` を export する必要はありません。magpie が各エージェント自身の設定にゲートウェイのアドレスを書き込みます。
+
+- **Claude Code または Codex を設定ファイルで設定している場合**（[Claude Code セットアップ](/docs/ja/claude-code/) と [Codex CLI セットアップ](/docs/ja/codex/) の手順）: 何もする必要はありません。magpie は必要な値だけを置き換え、`magpie <agent> default` で元の値に戻ります。
+- **Claude Code を `export`、`setx`、または Windows のユーザー環境変数で設定している場合**: そのままで構いません。Claude Code は `~/.claude/settings.json` の値を優先するため、magpie を使っている間は magpie の設定が有効になります。`magpie claude default` を実行すると、Claude Code は環境変数の設定に戻り、Aiberm に直接接続します。
+
+## 使用中の注意点
+
+- **magpie を起動しておく必要があります。** ウィンドウを閉じても、メニューバーまたはシステムトレイに残ります。`magpie tray` はアイコンだけを起動し、`magpie serve` はゲートウェイだけを実行します。ウィンドウを開かずにログイン時に起動するには、macOS または Linux では `magpie daemon install` を、Windows では `magpie autostart on` を実行します。
+- キーは magpie にだけ追加してください。magpie はシェルの環境変数から API キーを読み込みません。
+- プロキシアプリ（Clash、Surge、mihomo などのツールで、システムプロキシ、TUN、拡張モードのいずれかを有効にしている場合）は、`127.0.0.1:3425` への通信を横取りすることがあります。エージェントが 502 を返し、そのリクエストが magpie の **ルーティング** タブに一度も表示されない場合は、ローカルアドレスを直接接続させるルールを、他のルールより前に追加してください。
+
+  ```text
+  IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  IP-CIDR6,::1/128,DIRECT,no-resolve
+  ```
+
+  Clash または mihomo の設定では、同じ行を `rules:` の下に、それぞれ `- ` で始めて記述します。
+- **使用量** タブに集計されるのは、ゲートウェイを経由した呼び出しだけです。エージェントが Aiberm に直接送った呼び出しは含まれません。プロバイダに独自の価格や価格倍率を設定していない限り、magpie はモデル提供元の定価でコストを見積もるため、Aiberm の実際の請求額を大きく上回ることがあります。実際の請求は [Aiberm コンソール](https://aiberm.com/console) で確認してください。
+
+## オプション: 複数のキーまたはフォールバック
+
+1 つの Aiberm アカウントの API キーは、すべて同じ残高を使います。残高がなくなると、そのアカウントのキーはすべて同時に失敗するため、同じアカウントのキーを増やしても残高切れに対するフォールバックにはなりません。複数のキーが役立つのは、キーがそれぞれ別の Aiberm アカウントのものである場合や、コンソールで個別のクォータ上限を設定したキーがあり、それを使い切ったら次のキーに引き継ぎたい場合です。
+
+複数のキーを使うには、Aiberm プロバイダの「APIキー」欄に、カンマ、スペース、改行のいずれかで区切って貼り付けます。最初のキーから先に試されます。次に、リクエストの振り分け方法を選びます。
+
+| ルーティング | Aiberm キーでの動作 |
+| --- | --- |
+| スマート（デフォルト） | キーには比較できるサブスクリプションの残量がないため、入力した順に試されます。失敗したキーはしばらく休止し、次のキーが応答します。 |
+| 順番 | 失敗する、クォータを使い切る、またはレート制限を受けるまで最初のキーを使い、その後は次のキーに移ります。 |
+| 交互 | 会話のターンごとに次のキーへ送り、負荷を分散します。 |
+| 重み付け | 各キーの横に設定した重みに応じてリクエストを振り分けます。 |
+
+magpie は、エージェントにまだ何も送信していない限り、401、403、429、5xx などのエラーで次のキーに切り替えます。「使用量が最少のものを優先」と「週ペース」は主にサブスクリプション向けで、キーに対しては直近のトークン使用量を比較するだけです。「スマート」以外のモードはすべて magpie の組み込み **rotation** プラグインによるものです。「スマート」しか表示されない場合は、このプラグインを有効にしてください。
+
+より一般的なのは、プロバイダをまたいだフォールバックです。まずサブスクリプションを使い、使い切ったら Aiberm を使います。**ルーティング** タブでグループを作成し、サブスクリプションのモデルを 1 番目、Aiberm のモデルを 2 番目に置き（たとえば Claude プランのモデルの次に `aiberm/claude-sonnet-5-5`）、エージェントの接続先を `group/<id>` にします。最初のメンバーがクォータ切れ、レート制限、または停止中の場合、magpie はエラーがエージェントに届く前に、そのターンを次のメンバーに送ります。また、2 つのプロバイダが同じモデルを提供している場合、magpie は `group/auto-<model>` を自動で作成します。
+
+## 復旧とトラブルシューティング
+
+| 症状 | 対処 |
+| --- | --- |
+| 確認ダイアログが開かない | magpie がインストールされていて、バージョンが 0.1.8 以降であることを確認してください。インストールされていない場合は、Web リンクからまずダウンロードが案内されます。それ以外の場合は、プロバイダを手動で追加してください。 |
+| モデル一覧が空 | Aiberm プロバイダを開いて **モデルをテスト** を実行します。キーが有効で、ベース URL が `https://aiberm.com/v1` であることを確認してから、モデルを再取得してください。 |
+| エージェントが古いモデルを使い続ける | 現在のセッションを終了し、新しいセッションを開始してください。Codex アプリも再起動してください。 |
+| 401 | キーが間違っている、削除された、期限切れである、またはキー個別のクォータ上限を使い切っています。[APIトークン](https://aiberm.com/console/token) で確認し、有効期限を延長する、上限を引き上げる、または新しいキーを作成して magpie で置き換えてください。エージェントの設定内のトークンは編集しないでください。 |
+| 403 | 多くの場合、アカウント残高が不足しています。[チャージ](https://aiberm.com/console/topup) してから再試行してください。新しいキーを作っても解決しません。それ以外では、キーにそのモデルの呼び出しが許可されていないか、キーの IP 許可リストにこのマシンが含まれていません。キーの設定を確認してください。 |
+| 503 と `model_not_found` | モデル ID が間違っているか、そのモデルに現在利用可能なルートがありません。[料金ページ](https://aiberm.com/pricing) で ID を確認するか、別のモデルを選んでください。 |
+| 削除したい | まず、`aiberm/` モデルを使っている各エージェントで `magpie <agent> default` を実行してから、**プロバイダ** で Aiberm を削除します。先にプロバイダを削除すると、magpie はそれらのエージェントを、別のプロバイダの同名モデルか、各エージェントのデフォルトに切り替えます。 |
+
+その他のエラーコードについては、[エラー処理](/docs/ja/error-handling/) を参照してください。magpie 自体のドキュメントは [はじめに](https://usemagpie.ai/docs/ja/start) と [magpie に追加](https://usemagpie.ai/docs/ja/import) にあります。

@@ -1,0 +1,157 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Configurazione di Magpie
+description: Aggiungi Aiberm a magpie, così Claude Code, Codex, OpenCode e gli altri agenti condividono un'unica API key e un unico elenco di modelli.
+lang: it
+activeId: magpie
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Configurazione di Magpie
+
+Questa guida mostra come aggiungere [Aiberm](https://aiberm.com) come provider in [magpie](https://usemagpie.ai/). Dopo averlo aggiunto una volta, Claude Code, Codex, Gemini CLI, OpenCode e gli altri agenti supportati da magpie possono scegliere tutti i modelli di Aiberm.
+
+magpie è un gateway open source che gira sul tuo computer (per impostazione predefinita su `127.0.0.1:3425`). Parla le API di OpenAI, Anthropic e Gemini e traduce dall'una all'altra, streaming e chiamate agli strumenti compresi. Gli agenti comunicano solo con magpie. La tua API key Aiberm resta in magpie; nei file di configurazione degli agenti finiscono invece l'indirizzo del gateway locale e un token locale.
+
+<Callout client:load type="info">
+Questa pagina segue la documentazione di magpie [Get started](https://usemagpie.ai/docs/start) e [Add to magpie](https://usemagpie.ai/docs/import) ed è stata verificata con magpie 0.1.1276. magpie cambia rapidamente; se l'app e questa pagina non concordano, fa fede la documentazione di magpie.
+</Callout>
+
+## Prerequisiti
+
+- Un account Aiberm ([registrati](https://aiberm.com/register))
+- Una API key Aiberm ([creane una](https://aiberm.com/console/token))
+- magpie 0.1.8 o successivo (necessario per i link di importazione)
+
+I download per macOS, Windows e Linux sono nella [pagina di download](https://usemagpie.ai/#get). Su macOS o Linux puoi installarlo anche dal terminale:
+
+```bash
+curl -fsSL https://usemagpie.ai/install.sh | sh
+```
+
+Su Linux lo script installa l'app desktop se sono presenti GTK 3 e WebKitGTK 4.1, altrimenti la versione per terminale. Se il download non riesce a raggiungere GitHub, passa un proxy: `curl -fsSL https://usemagpie.ai/install.sh | sh -s -- --proxy http://127.0.0.1:7890`.
+
+## Endpoint di Aiberm
+
+| Protocollo | Valore in magpie | Note |
+| --- | --- | --- |
+| OpenAI Chat | `https://aiberm.com/v1` | Deve terminare con `/v1`. magpie aggiunge `/chat/completions`. |
+| Anthropic Messages | `https://aiberm.com` | La radice, senza `/v1`. Lo stesso valore di `ANTHROPIC_BASE_URL` nella guida [Configurazione di Claude Code](/docs/it/claude-code/). |
+| OpenAI Responses | Lascia vuoto | Vedi sotto. |
+| Gemini | Lascia vuoto | Vedi sotto. |
+
+Compila sia l'URL Chat sia l'URL Anthropic. Le richieste di Claude Code vanno all'URL Anthropic senza modifiche, e magpie vi invia anche le richieste ai modelli Claude provenienti da altri agenti. Le altre richieste vanno all'URL Chat, tradotte quando l'agente parla un'API diversa. Aiberm accetta entrambi i protocolli per i suoi modelli di chat.
+
+Lascia vuoti gli URL Responses e Gemini. Gli endpoint Responses (`/v1/responses`) e Gemini (`/v1beta`) di Aiberm non servono tutti i modelli: i modelli Claude, ad esempio, non sono disponibili tramite questi endpoint. Senza questi URL, magpie traduce da sé le richieste Responses di Codex e quelle di Gemini CLI, così Codex e Gemini CLI possono usare qualsiasi modello Aiberm.
+
+<Callout client:load type="tip">
+Se in Codex usi solo modelli GPT, la guida [Configurazione di Codex CLI](/docs/it/codex/) collega Codex direttamente alla Responses API di Aiberm, senza traduzione.
+</Callout>
+
+## Opzione 1: link di importazione (consigliato)
+
+Su un computer con magpie installato, apri il link qui sotto. magpie mostra una finestra di conferma con il nome del provider, i suoi endpoint e un campo per la tua API key, e ti avvisa a quali host verranno inviati i tuoi prompt e la chiave. **Nulla viene salvato finché non premi Add.**
+
+[Add to magpie](https://usemagpie.ai/import#name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken)
+
+Il link volutamente non contiene alcuna API key. Una pagina pubblica non dovrebbe mai contenere un segreto; incolla la tua chiave nella finestra di dialogo. La chiave viene salvata solo in `~/.config/magpie/providers.json` sul tuo computer, leggibile soltanto dal tuo utente. Il link web tiene i parametri dopo il `#`, e i browser non inviano mai quella parte al server.
+
+Senza un desktop (ad esempio via SSH), passa gli stessi parametri alla versione per terminale. Mostra lo stesso riepilogo e chiede conferma prima di aggiungere:
+
+```bash
+magpie import 'magpie://import?name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken'
+```
+
+## Opzione 2: aggiungilo nell'app
+
+1. Apri magpie, vai su **Providers** e premi **＋ Add provider**.
+2. Scegli **Custom** (qualsiasi URL compatibile). magpie non ha un preset per Aiberm.
+3. Compila il modulo:
+
+| Campo | Valore |
+| --- | --- |
+| Name | `Aiberm`. magpie ne ricava l'ID `aiberm`, quindi gli agenti vedono i modelli come `aiberm/<model>`. |
+| Base URL | `https://aiberm.com/v1`, con l'API impostata su **OpenAI compatible** |
+| API key | La tua API key Aiberm |
+| More endpoints → Anthropic URL | `https://aiberm.com` |
+| More endpoints → Responses URL, Gemini URL | Lasciali vuoti. Se **Detect APIs** li compila, svuotali. |
+| Models | Lascia vuoto |
+
+4. Salva. magpie richiede `https://aiberm.com/v1/models` e propone i modelli restituiti nel selettore di ogni agente. Prima di salvare, con **Fetch models** puoi scegliere quali modelli vedono gli agenti, e **Test models** verifica la chiave e gli URL.
+
+Con Models vuoto, l'elenco arriva da `/v1/models`, quindi i modelli che Aiberm aggiunge in seguito compaiono quando recuperi di nuovo i modelli (o esegui `magpie provider refresh aiberm`). L'elenco include tutti i modelli che la tua chiave può usare, tra cui modelli di immagini, voce ed embedding che gli agenti di programmazione non possono usare; scegli solo quelli che ti servono. Imposta un elenco separato da virgole solo quando l'elenco automatico è sbagliato. Gli ID dei modelli sono elencati nella [pagina dei prezzi](https://aiberm.com/pricing) e in [Elenco modelli](/docs/it/models/), ad esempio `claude-sonnet-5-5`, `gpt-5.6-sol` o `google/gemini-3.1-pro`.
+
+## Scegli un modello per ogni agente
+
+Apri **Agents**. Ogni riga è un agente installato o configurato su questo computer. Fai clic sul modello e scegline uno sotto **aiberm**, oppure digita `aiberm/` seguito dall'ID di un modello.
+
+```bash
+magpie claude aiberm/claude-sonnet-5-5
+magpie codex aiberm/gpt-5.6-sol
+magpie opencode aiberm/claude-sonnet-5-5
+magpie gemini aiberm/google/gemini-3.1-pro
+```
+
+magpie modifica solo le chiavi di configurazione che gestisce. Commenti, ordine e indentazione nella configurazione dell'agente restano invariati. Una sessione già in corso mantiene il modello con cui è partita. **Avvia una nuova sessione** per applicare la modifica. Per Codex, riavvia anche l'app Codex, perché costruisce l'elenco dei modelli all'avvio.
+
+| Agente | Cosa scrive magpie |
+| --- | --- |
+| Claude Code | Nel blocco `env` di `~/.claude/settings.json`: `ANTHROPIC_BASE_URL` (il gateway locale, non Aiberm), `ANTHROPIC_AUTH_TOKEN` (un token locale, non la tua chiave Aiberm) e le variabili del modello. |
+| Codex | In `~/.codex/config.toml`: l'indirizzo del gateway e il modello, più l'elenco dei modelli in `magpie-models.json`. Il tuo accesso a ChatGPT non viene toccato. |
+| OpenCode, Pi, Crush | Una voce provider chiamata `magpie`, con il modello impostato su `magpie/aiberm/<model>`. |
+| Gemini CLI | In `~/.gemini/.env`: `GOOGLE_GEMINI_BASE_URL` puntato al gateway e una API key locale, con l'autenticazione tramite API key selezionata. Il tuo accesso con Google viene mantenuto. |
+
+Per tornare indietro, scegli uno dei modelli propri dell'agente oppure esegui `magpie claude default` (sostituisci `claude` con il nome dell'agente). magpie rimuove ciò che aveva scritto e ripristina i valori che aveva sostituito.
+
+### Se hai già collegato un agente direttamente ad Aiberm
+
+Non serve esportare `ANTHROPIC_BASE_URL` o `OPENAI_BASE_URL` per magpie: scrive l'indirizzo del gateway nella configurazione di ciascun agente.
+
+- **Claude Code o Codex configurato nel proprio file di configurazione** (come nella guida [Configurazione di Claude Code](/docs/it/claude-code/) e nella guida [Configurazione di Codex CLI](/docs/it/codex/)): non devi fare nulla. magpie sostituisce solo i valori che gli servono, e `magpie <agent> default` rimette i tuoi.
+- **Claude Code configurato con `export`, `setx` o variabili d'ambiente utente di Windows**: puoi lasciarle. Claude Code dà la precedenza ai valori in `~/.claude/settings.json`, quindi le impostazioni di magpie prevalgono finché lo usi. Dopo `magpie claude default`, Claude Code torna alle tue variabili e comunica direttamente con Aiberm.
+
+## Durante l'uso
+
+- **magpie deve essere in esecuzione.** Se chiudi la finestra, resta nella barra dei menu o nell'area di notifica. `magpie tray` avvia solo l'icona e `magpie serve` esegue solo il gateway. Per avviarlo all'accesso senza finestra, esegui `magpie daemon install` su macOS o Linux, oppure `magpie autostart on` su Windows.
+- Aggiungi la chiave solo in magpie. magpie non legge le API key dall'ambiente della shell.
+- Un'app proxy (Clash, Surge, mihomo e strumenti simili, con proxy di sistema, TUN o modalità avanzata attivi) può intercettare il traffico verso `127.0.0.1:3425`. Se un agente restituisce 502 e la richiesta non compare mai nella scheda **Routing** di magpie, aggiungi regole che facciano passare gli indirizzi locali in connessione diretta, prima delle altre regole:
+
+  ```text
+  IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  IP-CIDR6,::1/128,DIRECT,no-resolve
+  ```
+
+  In una configurazione Clash o mihomo, metti le stesse righe sotto `rules:`, ciascuna preceduta da `- `.
+- La scheda **Usage** conta solo le chiamate che passano dal gateway. Le chiamate che un agente fa direttamente ad Aiberm non sono incluse. Se non imposti prezzi tuoi o un moltiplicatore di prezzo per il provider, magpie stima il costo ai prezzi di listino dei produttori dei modelli, che possono essere ben superiori a quanto addebita Aiberm. L'addebito effettivo è nella [console di Aiberm](https://aiberm.com/console).
+
+## Facoltativo: più chiavi o un fallback
+
+Tutte le API key di uno stesso account Aiberm attingono allo stesso saldo. Quando il saldo si esaurisce, tutte le chiavi di quell'account smettono di funzionare insieme, quindi altre chiavi dello stesso account non fanno da fallback quando finisce il credito. Più chiavi servono quando provengono da account Aiberm diversi, oppure quando una chiave ha un proprio limite di quota impostato nella console e vuoi che la chiave successiva subentri una volta esaurito.
+
+Per usare più chiavi, incollale nel campo API key del provider Aiberm, separate da virgole, spazi o a capo. La prima chiave viene provata per prima. Poi scegli come distribuire le richieste:
+
+| Routing | Comportamento con le chiavi Aiberm |
+| --- | --- |
+| Smart (predefinita) | Le chiavi non hanno una quota di abbonamento da confrontare, quindi vengono provate nell'ordine in cui le hai inserite. Una chiave che fallisce resta ferma per un po' e risponde la successiva. |
+| In order | Usa la prima chiave finché non fallisce, non esaurisce la quota o non incontra un limite di frequenza, poi passa alla successiva. |
+| In turn | Ogni turno della conversazione va alla chiave successiva, distribuendo il carico. |
+| By weight | Ripartisce le richieste in base a un peso che imposti accanto a ogni chiave. |
+
+magpie passa alla chiave successiva con errori come 401, 403, 429 e 5xx, purché all'agente non sia ancora stato inviato nulla. Least used first e Weekly pace servono soprattutto per gli abbonamenti; con le chiavi confrontano solo l'uso recente di token. Tutte le modalità tranne Smart provengono dal plugin integrato **rotation** di magpie; se viene proposta solo Smart, attiva quel plugin.
+
+Una configurazione più comune è un fallback tra provider: prima l'abbonamento e, quando si esaurisce, Aiberm. Nella scheda **Routing**, crea un gruppo con il modello del tuo abbonamento al primo posto e il modello Aiberm al secondo, ad esempio un modello del piano Claude seguito da `aiberm/claude-sonnet-5-5`, e fai puntare l'agente a `group/<id>`. Quando il primo membro ha esaurito la quota, incontra un limite di frequenza o non è disponibile, magpie invia il turno al membro successivo prima che l'errore raggiunga l'agente. magpie crea anche da solo `group/auto-<model>` quando due dei tuoi provider servono lo stesso modello.
+
+## Ripristino e risoluzione dei problemi
+
+| Cosa vedi | Cosa fare |
+| --- | --- |
+| La finestra di conferma non si apre mai | Verifica che magpie sia installato e che la versione sia 0.1.8 o successiva. Se non è installato, il link web propone prima il download. Altrimenti aggiungi il provider manualmente. |
+| L'elenco dei modelli è vuoto | Apri il provider Aiberm ed esegui **Test models**. Verifica che la chiave sia valida e che il Base URL sia `https://aiberm.com/v1`, poi recupera di nuovo i modelli. |
+| L'agente usa ancora il vecchio modello | Esci dalla sessione corrente e avviane una nuova. Riavvia anche l'app Codex. |
+| 401 | La chiave è errata, eliminata o scaduta, oppure il suo limite di quota è esaurito. Controllala in [API Tokens](https://aiberm.com/console/token): prolungane la validità, alzane il limite oppure creane una nuova e sostituiscila in magpie. Non modificare il token nella configurazione dell'agente. |
+| 403 | Il più delle volte il saldo dell'account è troppo basso: [ricarica](https://aiberm.com/console/topup) e riprova. Una nuova chiave non aiuta. Altrimenti la chiave non è autorizzata a chiamare quel modello, oppure la sua allowlist IP esclude questo computer; controlla le impostazioni della chiave. |
+| 503 con `model_not_found` | L'ID del modello è errato, oppure il modello al momento non ha un percorso disponibile. Controlla l'ID nella [pagina dei prezzi](https://aiberm.com/pricing) oppure scegli un altro modello. |
+| Vuoi rimuovere Aiberm | Esegui prima `magpie <agent> default` per ogni agente che usa un modello `aiberm/`, poi rimuovi Aiberm in **Providers**. Se rimuovi prima il provider, magpie sposta quegli agenti sul modello con lo stesso nome di un altro provider o li riporta al loro modello predefinito. |
+
+Per altri codici di errore, consulta [Gestione degli errori](/docs/it/error-handling/). La documentazione di magpie si trova in [Get started](https://usemagpie.ai/docs/start) e [Add to magpie](https://usemagpie.ai/docs/import).
