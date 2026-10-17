@@ -1,0 +1,157 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Configuration de Magpie
+description: Ajoutez Aiberm à magpie pour que Claude Code, Codex, OpenCode et les autres agents partagent une même clé API et une même liste de modèles.
+lang: fr
+activeId: magpie
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Configuration de Magpie
+
+Ce guide explique comment ajouter [Aiberm](https://aiberm.com) comme fournisseur dans [magpie](https://usemagpie.ai/). Une fois l’ajout effectué, Claude Code, Codex, Gemini CLI, OpenCode et les autres agents pris en charge par magpie peuvent tous choisir des modèles d’Aiberm.
+
+magpie est une passerelle open source qui s’exécute sur votre machine (par défaut sur `127.0.0.1:3425`). Elle parle les API OpenAI, Anthropic et Gemini et traduit de l’une à l’autre, streaming et appels d’outils compris. Les agents ne communiquent qu’avec magpie. Votre clé API Aiberm reste dans magpie ; les fichiers de configuration des agents reçoivent à la place l’adresse de la passerelle locale et un jeton local.
+
+<Callout client:load type="info">
+Cette page suit les documentations [Get started](https://usemagpie.ai/docs/start) et [Add to magpie](https://usemagpie.ai/docs/import) de magpie, et a été vérifiée avec magpie 0.1.1276. magpie évolue vite ; si l’application et cette page divergent, la documentation de magpie fait foi.
+</Callout>
+
+## Prérequis
+
+- Un compte Aiberm ([Inscription](https://aiberm.com/register))
+- Une clé API Aiberm ([Créez-en une](https://aiberm.com/console/token))
+- magpie 0.1.8 ou version ultérieure (requis pour les liens d’import)
+
+Les téléchargements pour macOS, Windows et Linux se trouvent sur la [page de téléchargement](https://usemagpie.ai/#get). Sous macOS ou Linux, vous pouvez aussi installer magpie depuis un terminal :
+
+```bash
+curl -fsSL https://usemagpie.ai/install.sh | sh
+```
+
+Sous Linux, le script installe l’application de bureau si GTK 3 et WebKitGTK 4.1 sont présents, et la version terminal sinon. Si le téléchargement n’arrive pas à joindre GitHub, indiquez un proxy : `curl -fsSL https://usemagpie.ai/install.sh | sh -s -- --proxy http://127.0.0.1:7890`.
+
+## Points de terminaison Aiberm
+
+| Protocole | Valeur dans magpie | Remarques |
+| --- | --- | --- |
+| OpenAI Chat | `https://aiberm.com/v1` | Doit se terminer par `/v1`. magpie ajoute `/chat/completions`. |
+| Anthropic Messages | `https://aiberm.com` | La racine, sans `/v1`. Même valeur que `ANTHROPIC_BASE_URL` dans [Configuration de Claude Code](/docs/fr/claude-code/). |
+| OpenAI Responses | Laisser vide | Voir ci-dessous. |
+| Gemini | Laisser vide | Voir ci-dessous. |
+
+Renseignez à la fois l’URL Chat et l’URL Anthropic. Les requêtes de Claude Code partent telles quelles vers l’URL Anthropic, et magpie y envoie aussi les requêtes des autres agents destinées aux modèles Claude. Les autres requêtes vont à l’URL Chat, traduites lorsque l’agent parle une autre API. Aiberm accepte les deux protocoles pour ses modèles de chat.
+
+Laissez vides les URL Responses et Gemini. Les points de terminaison Responses (`/v1/responses`) et Gemini (`/v1beta`) d’Aiberm ne servent pas tous les modèles ; les modèles Claude, par exemple, n’y sont pas disponibles. Sans ces URL, c’est magpie qui traduit les requêtes Responses de Codex et celles de Gemini CLI, si bien que Codex et Gemini CLI peuvent utiliser n’importe quel modèle Aiberm.
+
+<Callout client:load type="tip">
+Si vous n’utilisez que des modèles GPT dans Codex, vous pouvez connecter Codex directement à l’API Responses d’Aiberm, sans traduction, comme décrit dans [Configuration de Codex CLI](/docs/fr/codex/).
+</Callout>
+
+## Option 1 : lien d’import (recommandé)
+
+Sur une machine où magpie est installé, ouvrez le lien ci-dessous. magpie affiche une boîte de dialogue de confirmation avec le nom du fournisseur, ses points de terminaison et un champ pour votre clé API, et vous indique vers quels hôtes vos prompts et votre clé seront envoyés. **Rien n’est enregistré tant que vous n’avez pas cliqué sur Add.**
+
+[Ajouter à magpie](https://usemagpie.ai/import#name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken)
+
+Le lien ne contient volontairement aucune clé API. Une page publique ne doit jamais contenir de secret ; collez votre propre clé dans la boîte de dialogue. La clé est stockée uniquement dans `~/.config/magpie/providers.json` sur votre machine, lisible par votre seul utilisateur. Le lien web place ses paramètres après `#`, et les navigateurs n’envoient jamais cette partie au serveur.
+
+Sans environnement de bureau (par exemple via SSH), passez les mêmes paramètres à la version terminal. Elle affiche le même récapitulatif et demande confirmation avant l’ajout :
+
+```bash
+magpie import 'magpie://import?name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken'
+```
+
+## Option 2 : ajout dans l’application
+
+1. Ouvrez magpie, allez dans **Providers** et cliquez sur **＋ Add provider**.
+2. Choisissez **Custom** (n’importe quelle URL compatible). magpie n’a pas de préréglage Aiberm.
+3. Remplissez le formulaire :
+
+| Champ | Valeur |
+| --- | --- |
+| Name | `Aiberm`. magpie en déduit l’identifiant `aiberm`, si bien que les agents voient les modèles sous la forme `aiberm/<model>`. |
+| Base URL | `https://aiberm.com/v1`, avec l’API réglée sur **OpenAI compatible** |
+| API key | Votre clé API Aiberm |
+| More endpoints → Anthropic URL | `https://aiberm.com` |
+| More endpoints → Responses URL, Gemini URL | Laisser vide. Si **Detect APIs** les remplit, videz-les. |
+| Models | Laisser vide |
+
+4. Enregistrez. magpie interroge `https://aiberm.com/v1/models` et propose les modèles renvoyés dans le sélecteur de chaque agent. Avant d’enregistrer, **Fetch models** vous permet de choisir ceux que les agents voient, et **Test models** vérifie la clé et les URL.
+
+Si le champ Models reste vide, la liste provient de `/v1/models` : les modèles qu’Aiberm ajoute par la suite apparaissent lorsque vous récupérez à nouveau les modèles (ou exécutez `magpie provider refresh aiberm`). La liste comprend tous les modèles que votre clé peut utiliser, dont des modèles d’image, de voix et d’embeddings dont les agents de code n’ont pas l’usage ; ne sélectionnez que ceux dont vous avez besoin. Ne saisissez une liste séparée par des virgules que si la liste automatique est incorrecte. Les identifiants de modèles figurent sur la [page des tarifs](https://aiberm.com/pricing) et dans la [Liste des modèles](/docs/fr/models/), par exemple `claude-sonnet-5-5`, `gpt-5.6-sol` ou `google/gemini-3.1-pro`.
+
+## Choisir un modèle pour chaque agent
+
+Ouvrez **Agents**. Chaque ligne correspond à un agent installé ou configuré sur cette machine. Cliquez sur le modèle, choisissez-en un sous **aiberm**, ou saisissez `aiberm/` suivi d’un identifiant de modèle.
+
+```bash
+magpie claude aiberm/claude-sonnet-5-5
+magpie codex aiberm/gpt-5.6-sol
+magpie opencode aiberm/claude-sonnet-5-5
+magpie gemini aiberm/google/gemini-3.1-pro
+```
+
+magpie ne modifie que les clés de configuration qu’il gère. Les commentaires, l’ordre et l’indentation de la configuration de l’agent restent tels quels. Une session déjà en cours conserve le modèle avec lequel elle a démarré. **Démarrez une nouvelle session** pour que le changement soit pris en compte. Pour Codex, redémarrez aussi l’application Codex, car elle construit sa liste de modèles au démarrage.
+
+| Agent | Ce que magpie écrit |
+| --- | --- |
+| Claude Code | Dans le bloc `env` de `~/.claude/settings.json` : `ANTHROPIC_BASE_URL` (la passerelle locale, pas Aiberm), `ANTHROPIC_AUTH_TOKEN` (un jeton local, pas votre clé Aiberm) et les variables de modèle. |
+| Codex | Dans `~/.codex/config.toml` : l’adresse de la passerelle et le modèle, plus la liste des modèles dans `magpie-models.json`. Votre connexion ChatGPT n’est pas touchée. |
+| OpenCode, Pi, Crush | Une entrée de fournisseur nommée `magpie`, avec le modèle défini sur `magpie/aiberm/<model>`. |
+| Gemini CLI | Dans `~/.gemini/.env` : `GOOGLE_GEMINI_BASE_URL` pointant vers la passerelle et une clé API locale, avec l’authentification par clé API sélectionnée. Votre connexion Google est conservée. |
+
+Pour revenir en arrière, choisissez l’un des modèles propres à l’agent, ou exécutez `magpie claude default` (remplacez `claude` par le nom de l’agent). magpie supprime ce qu’il a écrit et restaure les valeurs qu’il avait remplacées.
+
+### Si vous avez déjà connecté un agent directement à Aiberm
+
+Vous n’avez pas besoin d’exporter `ANTHROPIC_BASE_URL` ni `OPENAI_BASE_URL` pour magpie ; il écrit l’adresse de la passerelle dans la configuration propre à chaque agent.
+
+- **Claude Code ou Codex configuré dans son fichier de configuration** (comme dans [Configuration de Claude Code](/docs/fr/claude-code/) et [Configuration de Codex CLI](/docs/fr/codex/)) : rien à faire. magpie ne remplace que les valeurs dont il a besoin, et `magpie <agent> default` remet les vôtres.
+- **Claude Code configuré avec `export`, `setx` ou des variables d’environnement utilisateur Windows** : vous pouvez les laisser. Claude Code donne la priorité aux valeurs de `~/.claude/settings.json`, donc les réglages de magpie l’emportent tant que vous l’utilisez. Après `magpie claude default`, Claude Code revient à vos variables et communique directement avec Aiberm.
+
+## Pendant l’utilisation
+
+- **magpie doit être en cours d’exécution.** Une fois la fenêtre fermée, il reste dans la barre des menus ou la zone de notification. `magpie tray` ne lance que l’icône, et `magpie serve` uniquement la passerelle. Pour le lancer à l’ouverture de session sans fenêtre, exécutez `magpie daemon install` sous macOS ou Linux, ou `magpie autostart on` sous Windows.
+- Ajoutez la clé uniquement dans magpie. magpie ne lit pas les clés API depuis l’environnement de votre shell.
+- Une application de proxy (Clash, Surge, mihomo et outils similaires, avec le proxy système, le mode TUN ou le mode amélioré activé) peut intercepter le trafic vers `127.0.0.1:3425`. Si un agent renvoie 502 et que la requête n’apparaît jamais dans l’onglet **Routing** de magpie, ajoutez des règles qui envoient les adresses locales en direct, avant vos autres règles :
+
+  ```text
+  IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  IP-CIDR6,::1/128,DIRECT,no-resolve
+  ```
+
+  Dans une configuration Clash ou mihomo, placez les mêmes lignes sous `rules:`, chacune précédée de `- `.
+- L’onglet **Usage** ne compte que les appels qui passent par la passerelle. Les appels qu’un agent envoie directement à Aiberm n’y figurent pas. Sauf si vous définissez vos propres prix ou un coefficient de prix pour le fournisseur, magpie estime le coût aux prix catalogue des éditeurs de modèles, qui peuvent être bien supérieurs à ce que facture Aiberm. Votre facturation réelle se trouve dans la [console Aiberm](https://aiberm.com/console).
+
+## Facultatif : plusieurs clés ou une solution de repli
+
+Toutes les clés API d’un même compte Aiberm puisent dans le même solde. Quand le solde est épuisé, toutes les clés de ce compte échouent en même temps ; ajouter des clés du même compte ne constitue donc pas une solution de repli en cas de crédit épuisé. Plusieurs clés sont utiles lorsqu’elles proviennent de comptes Aiberm différents, ou lorsqu’une clé a sa propre limite de quota définie dans la console et que vous voulez que la clé suivante prenne le relais une fois ce quota épuisé.
+
+Pour utiliser plusieurs clés, collez-les dans le champ API key du fournisseur Aiberm, séparées par des virgules, des espaces ou des retours à la ligne. La première clé est essayée en premier. Choisissez ensuite comment répartir les requêtes :
+
+| Routing | Comportement avec les clés Aiberm |
+| --- | --- |
+| Smart (par défaut) | Les clés n’ont pas de quota d’abonnement à comparer, elles sont donc essayées dans l’ordre où vous les avez saisies. Une clé qui échoue est mise de côté un moment et la suivante répond. |
+| In order | Utilise la première clé jusqu’à ce qu’elle échoue, épuise son quota ou soit limitée en débit, puis passe à la suivante. |
+| In turn | Chaque tour de conversation va à la clé suivante, ce qui répartit la charge. |
+| By weight | Répartit les requêtes selon un poids que vous définissez à côté de chaque clé. |
+
+magpie passe à la clé suivante en cas d’erreurs comme 401, 403, 429 et 5xx, tant que rien n’a encore été envoyé à l’agent. « Least used first » et « Weekly pace » sont surtout destinés aux abonnements ; avec des clés, ils ne comparent que la consommation récente de tokens. Tous les modes sauf « Smart » proviennent du plugin intégré **rotation** de magpie ; si seul « Smart » est proposé, activez ce plugin.
+
+Une configuration plus courante est un repli entre fournisseurs : utiliser d’abord un abonnement, puis Aiberm quand il est épuisé. Dans l’onglet **Routing**, créez un groupe avec le modèle de votre abonnement en premier et le modèle Aiberm en second, par exemple un modèle d’un forfait Claude suivi de `aiberm/claude-sonnet-5-5`, et pointez l’agent vers `group/<id>`. Lorsque le premier membre n’a plus de quota, est limité en débit ou est indisponible, magpie envoie le tour au membre suivant avant que l’erreur n’atteigne l’agent. magpie crée aussi de lui-même `group/auto-<model>` lorsque deux de vos fournisseurs servent le même modèle.
+
+## Récupération et dépannage
+
+| Ce que vous voyez | Que faire |
+| --- | --- |
+| La boîte de dialogue de confirmation ne s’ouvre jamais | Vérifiez que magpie est installé et en version 0.1.8 ou ultérieure. S’il n’est pas installé, le lien web propose d’abord le téléchargement. Sinon, ajoutez le fournisseur manuellement. |
+| La liste des modèles est vide | Ouvrez le fournisseur Aiberm et lancez **Test models**. Vérifiez que la clé est valide et que le champ Base URL contient `https://aiberm.com/v1`, puis récupérez à nouveau les modèles. |
+| L’agent utilise toujours l’ancien modèle | Quittez la session en cours et démarrez-en une nouvelle. Redémarrez aussi l’application Codex. |
+| 401 | La clé est incorrecte, supprimée ou expirée, ou sa propre limite de quota est épuisée. Vérifiez-la dans [API Tokens](https://aiberm.com/console/token) : prolongez-la, augmentez sa limite, ou créez-en une nouvelle et remplacez-la dans magpie. Ne modifiez pas le jeton dans la configuration de l’agent. |
+| 403 | Le plus souvent, le solde du compte est insuffisant : [rechargez](https://aiberm.com/console/topup) et réessayez. Une nouvelle clé n’y change rien. Sinon, la clé n’est pas autorisée à appeler ce modèle, ou sa liste blanche d’IP exclut cette machine ; vérifiez les paramètres de la clé. |
+| 503 avec `model_not_found` | L’identifiant du modèle est incorrect, ou le modèle n’a actuellement aucune route disponible. Vérifiez l’identifiant sur la [page des tarifs](https://aiberm.com/pricing), ou choisissez un autre modèle. |
+| Vous voulez le supprimer | Exécutez d’abord `magpie <agent> default` pour chaque agent qui utilise un modèle `aiberm/`, puis supprimez Aiberm dans **Providers**. Si vous supprimez d’abord le fournisseur, magpie bascule ces agents vers le modèle du même nom d’un autre fournisseur ou les ramène à leur valeur par défaut. |
+
+Pour les autres codes d’erreur, consultez [Gestion des erreurs](/docs/fr/error-handling/). La documentation de magpie se trouve dans [Get started](https://usemagpie.ai/docs/start) et [Add to magpie](https://usemagpie.ai/docs/import).

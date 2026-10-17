@@ -1,0 +1,157 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Cài đặt Magpie
+description: Thêm Aiberm vào magpie để Claude Code, Codex, OpenCode và các agent khác dùng chung một API key và một danh sách mô hình.
+lang: vi
+activeId: magpie
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Cài đặt Magpie
+
+Hướng dẫn này cho biết cách thêm [Aiberm](https://aiberm.com) làm nhà cung cấp trong [magpie](https://usemagpie.ai/). Chỉ cần thêm một lần, Claude Code, Codex, Gemini CLI, OpenCode và các agent khác mà magpie hỗ trợ đều có thể chọn mô hình từ Aiberm.
+
+magpie là một gateway mã nguồn mở chạy trên máy của bạn (mặc định tại `127.0.0.1:3425`). Nó hỗ trợ các API OpenAI, Anthropic và Gemini, đồng thời chuyển đổi qua lại giữa chúng, kể cả streaming và gọi công cụ. Agent chỉ giao tiếp với magpie. API key Aiberm của bạn nằm trong magpie; thay vào đó, tệp cấu hình của các agent nhận địa chỉ của gateway cục bộ và một token cục bộ.
+
+<Callout client:load type="info">
+Trang này dựa trên tài liệu [Get started](https://usemagpie.ai/docs/start) và [Add to magpie](https://usemagpie.ai/docs/import) của magpie và đã được kiểm tra với magpie 0.1.1276. magpie thay đổi nhanh; khi ứng dụng và trang này không khớp, hãy lấy tài liệu của chính magpie làm chuẩn.
+</Callout>
+
+## Điều kiện tiên quyết
+
+- Một tài khoản Aiberm ([Đăng ký tại đây](https://aiberm.com/register))
+- Một API key Aiberm ([Tạo khóa](https://aiberm.com/console/token))
+- magpie 0.1.8 trở lên (liên kết nhập cần phiên bản này)
+
+Bản tải xuống cho macOS, Windows và Linux có trên [trang tải xuống](https://usemagpie.ai/#get). Trên macOS hoặc Linux, bạn cũng có thể cài từ terminal:
+
+```bash
+curl -fsSL https://usemagpie.ai/install.sh | sh
+```
+
+Trên Linux, script cài ứng dụng desktop nếu máy có GTK 3 và WebKitGTK 4.1, nếu không thì cài bản terminal. Nếu quá trình tải không kết nối được tới GitHub, hãy chỉ định proxy: `curl -fsSL https://usemagpie.ai/install.sh | sh -s -- --proxy http://127.0.0.1:7890`.
+
+## Endpoint của Aiberm
+
+| Giao thức | Giá trị trong magpie | Ghi chú |
+| --- | --- | --- |
+| OpenAI Chat | `https://aiberm.com/v1` | Phải kết thúc bằng `/v1`. magpie tự thêm `/chat/completions`. |
+| Anthropic Messages | `https://aiberm.com` | Địa chỉ gốc, không có `/v1`. Cùng giá trị với `ANTHROPIC_BASE_URL` trong [Cài đặt Claude Code](/docs/vi/claude-code/). |
+| OpenAI Responses | Để trống | Xem bên dưới. |
+| Gemini | Để trống | Xem bên dưới. |
+
+Điền cả URL Chat và URL Anthropic. Yêu cầu của Claude Code được gửi nguyên vẹn tới URL Anthropic, và magpie cũng gửi yêu cầu dùng mô hình Claude từ các agent khác tới đó. Các yêu cầu còn lại đi tới URL Chat, và được chuyển đổi nếu agent dùng API khác. Aiberm chấp nhận cả hai giao thức cho các mô hình chat của mình.
+
+Để trống URL Responses và URL Gemini. Endpoint Responses (`/v1/responses`) và Gemini (`/v1beta`) của Aiberm không phục vụ mọi mô hình; ví dụ, các mô hình Claude không dùng được qua các endpoint này. Khi không có các URL đó, magpie tự chuyển đổi yêu cầu Responses của Codex và yêu cầu của Gemini CLI, nhờ vậy Codex và Gemini CLI có thể dùng bất kỳ mô hình Aiberm nào.
+
+<Callout client:load type="tip">
+Nếu bạn chỉ chạy mô hình GPT trong Codex, hướng dẫn [Cài đặt Codex CLI](/docs/vi/codex/) kết nối Codex trực tiếp với Responses API của Aiberm, không qua chuyển đổi.
+</Callout>
+
+## Phương pháp 1: Liên kết nhập (Khuyến nghị)
+
+Trên máy đã cài magpie, hãy mở liên kết bên dưới. magpie hiển thị hộp thoại xác nhận gồm tên nhà cung cấp, các endpoint của nó và một ô để nhập API key, đồng thời cảnh báo prompt và khóa của bạn sẽ được gửi tới những host nào. **Không có gì được lưu cho tới khi bạn nhấn Add.**
+
+[Add to magpie](https://usemagpie.ai/import#name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken)
+
+Liên kết cố ý không chứa API key. Trang công khai không bao giờ nên chứa bí mật; hãy tự dán khóa của bạn vào hộp thoại. Khóa chỉ được lưu trong `~/.config/magpie/providers.json` trên máy của bạn, và chỉ người dùng của bạn đọc được. Liên kết web đặt tham số sau `#`, và trình duyệt không bao giờ gửi phần đó lên máy chủ.
+
+Khi không có môi trường desktop (ví dụ qua SSH), hãy truyền cùng các tham số đó cho bản terminal. Nó hiển thị cùng phần tóm tắt và hỏi lại trước khi thêm:
+
+```bash
+magpie import 'magpie://import?name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken'
+```
+
+## Phương pháp 2: Thêm trong ứng dụng
+
+1. Mở magpie, vào **Providers** và nhấn **＋ Add provider**.
+2. Chọn **Custom** (bất kỳ URL tương thích nào). magpie không có preset cho Aiberm.
+3. Điền biểu mẫu:
+
+| Trường | Giá trị |
+| --- | --- |
+| Name | `Aiberm`. magpie tạo id `aiberm` từ tên này, nên agent thấy các mô hình dưới dạng `aiberm/<model>`. |
+| Base URL | `https://aiberm.com/v1`, với API đặt là **OpenAI compatible** |
+| API key | API key Aiberm của bạn |
+| More endpoints → Anthropic URL | `https://aiberm.com` |
+| More endpoints → Responses URL, Gemini URL | Để trống. Nếu **Detect APIs** tự điền vào, hãy xóa đi. |
+| Models | Để trống |
+
+4. Lưu. magpie gọi `https://aiberm.com/v1/models` và đưa các mô hình trả về vào bộ chọn của mọi agent. Trước khi lưu, **Fetch models** cho phép bạn chọn những mô hình mà agent sẽ thấy, còn **Test models** kiểm tra khóa và các URL.
+
+Khi để trống Models, danh sách được lấy từ `/v1/models`, nên các mô hình Aiberm thêm sau này sẽ xuất hiện khi bạn tải lại mô hình (hoặc chạy `magpie provider refresh aiberm`). Danh sách gồm mọi mô hình mà khóa của bạn dùng được, trong đó có các mô hình hình ảnh, giọng nói và embedding mà agent lập trình không dùng được; chỉ chọn những mô hình bạn cần. Chỉ đặt danh sách phân tách bằng dấu phẩy khi danh sách tự động bị sai. ID mô hình có trên [Aiberm Pricing](https://aiberm.com/pricing) và trong [Danh sách mô hình](/docs/vi/models/), ví dụ `claude-sonnet-5-5`, `gpt-5.6-sol` hoặc `google/gemini-3.1-pro`.
+
+## Chọn mô hình cho từng agent
+
+Mở **Agents**. Mỗi hàng là một agent đã được cài hoặc cấu hình trên máy này. Nhấp vào mô hình, chọn một mô hình dưới **aiberm**, hoặc gõ `aiberm/` kèm ID mô hình.
+
+```bash
+magpie claude aiberm/claude-sonnet-5-5
+magpie codex aiberm/gpt-5.6-sol
+magpie opencode aiberm/claude-sonnet-5-5
+magpie gemini aiberm/google/gemini-3.1-pro
+```
+
+magpie chỉ thay đổi các khóa cấu hình mà nó quản lý. Chú thích, thứ tự và thụt lề trong cấu hình agent được giữ nguyên. Phiên đang chạy vẫn giữ mô hình lúc bắt đầu. **Bắt đầu phiên mới** để áp dụng thay đổi. Với Codex, hãy khởi động lại cả ứng dụng Codex, vì nó tạo danh sách mô hình khi khởi động.
+
+| Agent | Nội dung magpie ghi |
+| --- | --- |
+| Claude Code | Trong khối `env` của `~/.claude/settings.json`: `ANTHROPIC_BASE_URL` (gateway cục bộ, không phải Aiberm), `ANTHROPIC_AUTH_TOKEN` (token cục bộ, không phải khóa Aiberm của bạn) và các biến mô hình. |
+| Codex | Trong `~/.codex/config.toml`: địa chỉ gateway và mô hình, cùng danh sách mô hình trong `magpie-models.json`. Đăng nhập ChatGPT của bạn được giữ nguyên. |
+| OpenCode, Pi, Crush | Một mục nhà cung cấp tên `magpie`, với mô hình đặt là `magpie/aiberm/<model>`. |
+| Gemini CLI | Trong `~/.gemini/.env`: `GOOGLE_GEMINI_BASE_URL` trỏ tới gateway và một API key cục bộ, với xác thực bằng API key được chọn. Đăng nhập Google của bạn vẫn được giữ. |
+
+Để quay lại, hãy chọn một mô hình riêng của agent, hoặc chạy `magpie claude default` (thay `claude` bằng tên agent). magpie sẽ gỡ những gì nó đã ghi và khôi phục các giá trị nó đã thay thế.
+
+### Nếu bạn đã kết nối agent trực tiếp với Aiberm
+
+Bạn không cần export `ANTHROPIC_BASE_URL` hay `OPENAI_BASE_URL` cho magpie; nó ghi địa chỉ gateway vào cấu hình riêng của từng agent.
+
+- **Claude Code hoặc Codex được cấu hình trong tệp cấu hình** (như trong [Cài đặt Claude Code](/docs/vi/claude-code/) và [Cài đặt Codex CLI](/docs/vi/codex/)): không cần làm gì. magpie chỉ thay các giá trị cần thiết, và `magpie <agent> default` sẽ trả lại giá trị của bạn.
+- **Claude Code được cấu hình bằng `export`, `setx` hoặc biến môi trường người dùng của Windows**: bạn có thể giữ nguyên. Claude Code ưu tiên các giá trị trong `~/.claude/settings.json`, nên cài đặt của magpie được dùng trong lúc bạn sử dụng magpie. Sau `magpie claude default`, Claude Code quay về các biến của bạn và giao tiếp trực tiếp với Aiberm.
+
+## Khi sử dụng
+
+- **magpie phải đang chạy.** Khi đóng cửa sổ, magpie vẫn nằm ở thanh menu hoặc khay hệ thống. `magpie tray` chỉ khởi động biểu tượng, còn `magpie serve` chỉ chạy gateway. Để khởi động khi đăng nhập mà không mở cửa sổ, hãy chạy `magpie daemon install` trên macOS hoặc Linux, hoặc `magpie autostart on` trên Windows.
+- Chỉ thêm khóa trong magpie. magpie không đọc API key từ môi trường shell của bạn.
+- Ứng dụng proxy (Clash, Surge, mihomo và các công cụ tương tự, khi bật proxy hệ thống, TUN hoặc chế độ tăng cường) có thể đánh chặn lưu lượng tới `127.0.0.1:3425`. Nếu agent trả về 502 và yêu cầu không hề xuất hiện trên tab **Routing** của magpie, hãy thêm quy tắc cho địa chỉ cục bộ kết nối trực tiếp, đặt trước các quy tắc khác:
+
+  ```text
+  IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  IP-CIDR6,::1/128,DIRECT,no-resolve
+  ```
+
+  Trong cấu hình Clash hoặc mihomo, hãy đặt các dòng này dưới `rules:`, mỗi dòng bắt đầu bằng `- `.
+- Tab **Usage** chỉ tính các lệnh gọi đi qua gateway. Các lệnh gọi mà agent gửi thẳng tới Aiberm không được tính. Trừ khi bạn tự đặt giá hoặc tỷ lệ giá cho nhà cung cấp, magpie ước tính chi phí theo giá niêm yết của hãng phát triển mô hình, có thể cao hơn nhiều so với mức Aiberm tính. Hóa đơn thực tế của bạn nằm trong [Aiberm Console](https://aiberm.com/console).
+
+## Tùy chọn: nhiều khóa hoặc dự phòng
+
+Mọi API key của cùng một tài khoản Aiberm đều trừ vào cùng một số dư. Khi hết số dư, mọi khóa của tài khoản đó đều thất bại cùng lúc, nên thêm khóa từ cùng tài khoản không phải là phương án dự phòng khi hết tiền. Nhiều khóa sẽ hữu ích khi chúng đến từ các tài khoản Aiberm khác nhau, hoặc khi một khóa có hạn mức riêng được đặt trong console và bạn muốn khóa tiếp theo thay thế khi khóa đó dùng hết.
+
+Để dùng nhiều khóa, hãy dán chúng vào trường API key của nhà cung cấp Aiberm, phân tách bằng dấu phẩy, dấu cách hoặc xuống dòng. Khóa đầu tiên được thử trước. Sau đó chọn cách phân phối yêu cầu:
+
+| Routing | Hành vi với khóa Aiberm |
+| --- | --- |
+| Smart (mặc định) | Khóa không có hạn mức gói đăng ký để so sánh, nên chúng được thử theo thứ tự bạn đã nhập. Khóa nào lỗi sẽ tạm nghỉ một lúc và khóa tiếp theo sẽ trả lời. |
+| In order | Dùng khóa đầu tiên cho tới khi nó lỗi, hết hạn mức hoặc bị giới hạn tốc độ, rồi chuyển sang khóa tiếp theo. |
+| In turn | Mỗi lượt hội thoại đi tới khóa tiếp theo, giúp phân tán tải. |
+| By weight | Chia yêu cầu theo trọng số bạn đặt bên cạnh mỗi khóa. |
+
+magpie chuyển sang khóa tiếp theo khi gặp các lỗi như 401, 403, 429 và 5xx, miễn là chưa có gì được gửi tới agent. Least used first và Weekly pace chủ yếu dành cho gói đăng ký; với khóa, chúng chỉ so sánh lượng token dùng gần đây. Mọi chế độ trừ Smart đều đến từ plugin **rotation** tích hợp sẵn của magpie; nếu chỉ thấy Smart, hãy bật plugin đó.
+
+Một cách thiết lập phổ biến hơn là dự phòng giữa các nhà cung cấp: dùng gói đăng ký trước, và dùng Aiberm khi gói hết. Trên tab **Routing**, tạo một nhóm với mô hình của gói đăng ký đứng đầu và mô hình Aiberm đứng thứ hai, ví dụ một mô hình thuộc gói Claude rồi tới `aiberm/claude-sonnet-5-5`, và trỏ agent tới `group/<id>`. Khi thành viên đầu tiên hết hạn mức, bị giới hạn tốc độ hoặc ngừng hoạt động, magpie gửi lượt đó tới thành viên tiếp theo trước khi lỗi tới được agent. magpie cũng tự tạo `group/auto-<model>` khi hai nhà cung cấp của bạn cùng phục vụ một mô hình.
+
+## Khôi phục và xử lý sự cố
+
+| Bạn thấy gì | Việc cần làm |
+| --- | --- |
+| Hộp thoại xác nhận không bao giờ mở | Kiểm tra magpie đã được cài và là phiên bản 0.1.8 trở lên. Nếu chưa cài, liên kết web sẽ đề nghị tải xuống trước. Trong các trường hợp khác, hãy thêm nhà cung cấp thủ công. |
+| Danh sách mô hình trống | Mở nhà cung cấp Aiberm và chạy **Test models**. Xác nhận khóa hợp lệ và Base URL là `https://aiberm.com/v1`, rồi tải lại mô hình. |
+| Agent vẫn dùng mô hình cũ | Thoát phiên hiện tại và bắt đầu phiên mới. Khởi động lại cả ứng dụng Codex. |
+| 401 | Khóa sai, đã bị xóa hoặc hết hạn, hoặc hạn mức riêng của nó đã dùng hết. Kiểm tra trên trang [API Tokens](https://aiberm.com/console/token): gia hạn, nâng hạn mức, hoặc tạo khóa mới và thay khóa đó trong magpie. Đừng sửa token trong cấu hình agent. |
+| 403 | Thường gặp nhất là số dư tài khoản quá thấp: [nạp tiền](https://aiberm.com/console/topup) rồi thử lại. Tạo khóa mới không giúp được. Nếu không phải vậy, khóa không được phép gọi mô hình đó, hoặc danh sách IP cho phép của khóa không bao gồm máy này; hãy kiểm tra cài đặt của khóa. |
+| 503 với `model_not_found` | ID mô hình sai, hoặc mô hình hiện không có tuyến khả dụng. Kiểm tra ID trên [Aiberm Pricing](https://aiberm.com/pricing), hoặc chọn mô hình khác. |
+| Bạn muốn gỡ bỏ | Trước tiên chạy `magpie <agent> default` cho từng agent đang dùng mô hình `aiberm/`, rồi xóa Aiberm trong **Providers**. Nếu bạn xóa nhà cung cấp trước, magpie sẽ chuyển các agent đó sang mô hình cùng tên của nhà cung cấp khác hoặc trả về mặc định của chúng. |
+
+Với các mã lỗi khác, xem [Xử lý lỗi](/docs/vi/error-handling/). Tài liệu riêng của magpie có tại [Get started](https://usemagpie.ai/docs/start) và [Add to magpie](https://usemagpie.ai/docs/import).

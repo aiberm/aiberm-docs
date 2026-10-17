@@ -1,0 +1,157 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Magpie 設定
+description: 將 Aiberm 加入 magpie，讓 Claude Code、Codex、OpenCode 等 Agent 共用同一組 API 金鑰和模型清單。
+lang: zh-tw
+activeId: magpie
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Magpie 設定
+
+本指南說明如何將 [Aiberm](https://aiberm.com) 新增為 [magpie](https://usemagpie.ai/) 的供應商。只要新增一次，Claude Code、Codex、Gemini CLI、OpenCode 以及 magpie 支援的其他 Agent 都能選用 Aiberm 的模型。
+
+magpie 是在你電腦上執行的開源閘道（預設位於 `127.0.0.1:3425`）。它支援 OpenAI、Anthropic 和 Gemini 三種 API，並在彼此之間互相轉換，串流和工具呼叫也包含在內。Agent 只與 magpie 通訊。你的 Aiberm API 金鑰保存在 magpie 裡，寫進各個 Agent 設定檔的則是本機閘道的位址和一個本機權杖。
+
+<Callout client:load type="info">
+本頁依據 magpie 的 [快速上手](https://usemagpie.ai/docs/zh/start) 和 [新增到 magpie](https://usemagpie.ai/docs/zh/import) 文件撰寫，並以 magpie 0.1.1276 核對過。magpie 更新很快，應用程式與本頁不一致時，請以 magpie 自己的文件為準。
+</Callout>
+
+## 前置條件
+
+- 一個 Aiberm 帳戶（[註冊](https://aiberm.com/register)）
+- 一個 Aiberm API 金鑰（[建立金鑰](https://aiberm.com/console/token)）
+- magpie 0.1.8 或更新版本（匯入連結需要此版本）
+
+macOS、Windows 和 Linux 版本都可以從 [下載頁面](https://usemagpie.ai/#get) 取得。在 macOS 或 Linux 上也可以從終端機安裝：
+
+```bash
+curl -fsSL https://usemagpie.ai/install.sh | sh
+```
+
+在 Linux 上，若系統已安裝 GTK 3 和 WebKitGTK 4.1，指令碼會安裝桌面版，否則安裝終端機版。如果下載時連不上 GitHub，可以指定代理伺服器：`curl -fsSL https://usemagpie.ai/install.sh | sh -s -- --proxy http://127.0.0.1:7890`。
+
+## Aiberm 端點
+
+| 協定 | 在 magpie 中填入的值 | 說明 |
+| --- | --- | --- |
+| OpenAI Chat | `https://aiberm.com/v1` | 必須以 `/v1` 結尾。magpie 會在後面加上 `/chat/completions`。 |
+| Anthropic Messages | `https://aiberm.com` | 根位址，不含 `/v1`。與 [Claude Code 設定](/docs/zh-tw/claude-code/) 中的 `ANTHROPIC_BASE_URL` 相同。 |
+| OpenAI Responses | 留空 | 見下文。 |
+| Gemini | 留空 | 見下文。 |
+
+Chat 和 Anthropic 兩個位址都要填。Claude Code 的請求會原封不動送往 Anthropic 位址，其他 Agent 使用 Claude 模型時，magpie 也會把請求送到這裡。其餘請求送往 Chat 位址，Agent 使用其他 API 時由 magpie 轉換。Aiberm 的對話模型兩種協定都支援。
+
+Responses 和 Gemini 位址請留空。Aiberm 的 Responses（`/v1/responses`）和 Gemini（`/v1beta`）端點並未涵蓋所有模型，例如 Claude 模型就無法透過它們使用。不填這兩個位址時，magpie 會自行轉換 Codex 的 Responses 請求和 Gemini CLI 的請求，因此 Codex 和 Gemini CLI 都能使用任何 Aiberm 模型。
+
+<Callout client:load type="tip">
+如果你在 Codex 中只使用 GPT 模型，可以依照 [Codex CLI 設定](/docs/zh-tw/codex/) 讓 Codex 直接連線到 Aiberm 的 Responses API，不經過轉換。
+</Callout>
+
+## 方法一：匯入連結（建議）
+
+在已安裝 magpie 的電腦上開啟下方連結。magpie 會顯示確認對話框，列出供應商名稱、各個端點和一個填寫 API 金鑰的欄位，並提醒你提示詞和金鑰會傳送到哪些主機。**在你按下新增之前，不會儲存任何內容。**
+
+[新增到 magpie](https://usemagpie.ai/import#name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken)
+
+連結刻意不含 API 金鑰。公開頁面絕不應帶有機密資訊，請在對話框中貼上你自己的金鑰。金鑰只會儲存在你電腦上的 `~/.config/magpie/providers.json`，且只有你的使用者帳號能讀取。網頁連結把參數放在 `#` 之後，瀏覽器從不會把這部分傳送給伺服器。
+
+沒有桌面環境時（例如透過 SSH 連線），把相同的參數交給終端機版。它會顯示同樣的摘要，並在新增前先詢問你：
+
+```bash
+magpie import 'magpie://import?name=Aiberm&id=aiberm&chat=https%3A%2F%2Faiberm.com%2Fv1&anthropic=https%3A%2F%2Faiberm.com&website=https%3A%2F%2Faiberm.com&keys=https%3A%2F%2Faiberm.com%2Fconsole%2Ftoken'
+```
+
+## 方法二：在應用程式中新增
+
+1. 開啟 magpie，前往 **供應商**，按下 **＋ 新增供應商**。
+2. 選擇 **自定義**（任何相容的 URL）。magpie 沒有 Aiberm 的預設範本。
+3. 依下表填寫：
+
+| 欄位 | 值 |
+| --- | --- |
+| 名稱 | `Aiberm`。magpie 會據此產生 ID `aiberm`，因此 Agent 看到的模型名稱是 `aiberm/模型名`。 |
+| API 位址 | `https://aiberm.com/v1`，API 選擇 **OpenAI 相容** |
+| API 金鑰 | 你的 Aiberm API 金鑰 |
+| 更多端點 → Anthropic 位址 | `https://aiberm.com` |
+| 更多端點 → Responses 位址、Gemini 位址 | 留空。如果 **檢測協議** 自動填入了值，請清除。 |
+| 模型 | 留空 |
+
+4. 儲存。magpie 會請求 `https://aiberm.com/v1/models`，並把回傳的模型放進每個 Agent 的模型選單。儲存前，可以用 **取得模型** 挑選要讓 Agent 看到哪些模型，用 **測試模型** 檢查金鑰和位址。
+
+「模型」留空時，清單來自 `/v1/models`，因此 Aiberm 日後新增的模型，會在你重新取得模型（或執行 `magpie provider refresh aiberm`）後出現。這份清單包含你的金鑰能用的所有模型，其中也有程式開發用的 Agent 用不到的影像、語音和嵌入模型；只挑選你需要的即可。只有在自動取得的清單有誤時，才需要手動填入以逗號分隔的清單。模型 ID 可在 [價格頁](https://aiberm.com/pricing) 和 [模型列表](/docs/zh-tw/models/) 查到，例如 `claude-sonnet-5-5`、`gpt-5.6-sol` 或 `google/gemini-3.1-pro`。
+
+## 為每個 Agent 選擇模型
+
+開啟 **Agent**。每一列代表這台電腦上已安裝或已設定的一個 Agent。點選模型，在 **aiberm** 底下選擇一個，或輸入 `aiberm/` 加上模型 ID。
+
+```bash
+magpie claude aiberm/claude-sonnet-5-5
+magpie codex aiberm/gpt-5.6-sol
+magpie opencode aiberm/claude-sonnet-5-5
+magpie gemini aiberm/google/gemini-3.1-pro
+```
+
+magpie 只會修改它自己管理的設定項目。Agent 設定中的註解、順序和縮排都會維持原樣。已在執行中的工作階段會沿用啟動時的模型，**開啟新的工作階段**才會套用變更。Codex 還需要重新啟動 Codex 應用程式，因為它在啟動時建立模型清單。
+
+| Agent | magpie 寫入的內容 |
+| --- | --- |
+| Claude Code | 在 `~/.claude/settings.json` 的 `env` 區塊中寫入 `ANTHROPIC_BASE_URL`（本機閘道，不是 Aiberm）、`ANTHROPIC_AUTH_TOKEN`（本機權杖，不是你的 Aiberm 金鑰）和模型相關變數。 |
+| Codex | 在 `~/.codex/config.toml` 中寫入閘道位址和模型，並在 `magpie-models.json` 中寫入模型清單。你的 ChatGPT 登入不受影響。 |
+| OpenCode、Pi、Crush | 一個名為 `magpie` 的 provider 項目，模型設為 `magpie/aiberm/模型名`。 |
+| Gemini CLI | 在 `~/.gemini/.env` 中寫入指向閘道的 `GOOGLE_GEMINI_BASE_URL` 和一個本機 API 金鑰，並改用 API 金鑰認證。你的 Google 登入會保留。 |
+
+要改回原狀，選擇 Agent 本身的模型，或執行 `magpie claude default`（將 `claude` 換成 Agent 名稱）。magpie 會移除它寫入的內容，並還原被它取代的值。
+
+### 如果你已讓 Agent 直接連線到 Aiberm
+
+使用 magpie 不需要另外設定 `ANTHROPIC_BASE_URL` 或 `OPENAI_BASE_URL` 環境變數；magpie 會把閘道位址寫進每個 Agent 自己的設定。
+
+- **Claude Code 或 Codex 寫在設定檔裡**（如 [Claude Code 設定](/docs/zh-tw/claude-code/) 和 [Codex CLI 設定](/docs/zh-tw/codex/) 中的做法）：不需要做任何事。magpie 只替換它需要的值，執行 `magpie <agent> default` 就會還原你原本的設定。
+- **Claude Code 透過 `export`、`setx` 或 Windows 使用者環境變數設定**：可以保留不動。Claude Code 會優先採用 `~/.claude/settings.json` 中的值，因此使用 magpie 期間以 magpie 的設定為準。執行 `magpie claude default` 後，Claude Code 會改回使用你的環境變數，直接連線到 Aiberm。
+
+## 使用期間
+
+- **magpie 必須保持執行。** 關閉視窗後，它會留在選單列或系統匣中。`magpie tray` 只啟動圖示，`magpie serve` 只執行閘道。若要在登入時啟動且不開啟視窗，macOS 或 Linux 請執行 `magpie daemon install`，Windows 請執行 `magpie autostart on`。
+- 只在 magpie 中新增金鑰。magpie 不會從 shell 環境變數讀取 API 金鑰。
+- 代理軟體（Clash、Surge、mihomo 等工具，開啟了系統代理、TUN 或增強模式時）可能會攔截送往 `127.0.0.1:3425` 的流量。如果 Agent 回傳 502，而這個請求從未出現在 magpie 的 **路由** 分頁中，請新增讓本機位址直連的規則，並放在其他規則之前：
+
+  ```text
+  IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  IP-CIDR6,::1/128,DIRECT,no-resolve
+  ```
+
+  在 Clash 或 mihomo 設定中，把相同的幾行放在 `rules:` 底下，每行以 `- ` 開頭。
+- **用量** 分頁只統計經過閘道的呼叫，Agent 直接向 Aiberm 發出的呼叫不包含在內。除非你為該供應商設定了自己的價格或價格倍率，否則 magpie 會以模型廠商的官方定價估算費用，可能遠高於 Aiberm 實際收取的金額。實際帳單請以 [Aiberm 控制台](https://aiberm.com/console) 為準。
+
+## 選用：多個金鑰或備援
+
+同一個 Aiberm 帳戶的所有 API 金鑰共用同一份餘額。餘額用完時，該帳戶的每個金鑰都會同時失效，因此同一帳戶的多個金鑰無法作為餘額耗盡時的備援。多個金鑰適用於兩種情況：金鑰來自不同的 Aiberm 帳戶，或某個金鑰在控制台設有自己的額度上限，而你希望它用完後由下一個金鑰接手。
+
+要使用多個金鑰，請將它們貼到 Aiberm 供應商的 API 金鑰欄位中，以逗號、空格或換行分隔。第一個金鑰會最先嘗試。接著選擇請求的分配方式：
+
+| 路由 | 搭配 Aiberm 金鑰時的行為 |
+| --- | --- |
+| 智慧（預設） | 金鑰沒有可比較的訂閱額度，因此會依你輸入的順序嘗試。失敗的金鑰會暫停一段時間，由下一個接手回應。 |
+| 按順序 | 一直使用第一個金鑰，直到它失敗、額度用完或觸發速率限制，再換下一個。 |
+| 輪流 | 對話的每一輪交給下一個金鑰，分散負載。 |
+| 按權重 | 依你在每個金鑰旁設定的權重分配請求。 |
+
+遇到 401、403、429 和 5xx 等錯誤時，只要還沒有任何內容傳送給 Agent，magpie 就會換用下一個金鑰。「用量少的優先」和「重置前用完」主要是為訂閱設計的，用於金鑰時只會比較近期的 token 用量。除了「智慧」以外，所有模式都來自 magpie 內建的 **rotation** 外掛；如果只看到「智慧」可選，請啟用該外掛。
+
+更常見的做法是跨供應商備援：先使用訂閱，用完後再改用 Aiberm。在 **路由** 分頁建立一個群組，把訂閱的模型放在第一位、Aiberm 的模型放在第二位，例如 Claude 方案的模型後面接 `aiberm/claude-sonnet-5-5`，然後讓 Agent 指向 `group/<id>`。當第一個成員額度用完、觸發速率限制或無法使用時，magpie 會在錯誤傳到 Agent 之前，把這一輪交給下一個成員。當你有兩個供應商提供同一個模型時，magpie 也會自動建立 `group/auto-<模型>`。
+
+## 復原與疑難排解
+
+| 你看到的情況 | 處理方式 |
+| --- | --- |
+| 確認對話框一直沒有出現 | 確認已安裝 magpie，且版本為 0.1.8 或更新。如果尚未安裝，網頁連結會先提供下載。否則請改為手動新增供應商。 |
+| 模型清單是空的 | 開啟 Aiberm 供應商並執行 **測試模型**。確認金鑰有效、API 位址為 `https://aiberm.com/v1`，然後重新取得模型。 |
+| Agent 仍在使用舊模型 | 結束目前的工作階段，再開啟新的工作階段。Codex 應用程式也需要重新啟動。 |
+| 401 | 金鑰錯誤、已刪除或已過期，或它自己的額度上限已用完。請在 [API 權杖](https://aiberm.com/console/token) 中檢查：延長有效期限、調高額度上限，或建立新的金鑰並在 magpie 中替換。不要修改 Agent 設定裡的權杖。 |
+| 403 | 最常見的原因是帳戶餘額不足：請 [儲值](https://aiberm.com/console/topup) 後重試。換新的金鑰沒有幫助。其他原因是該金鑰不允許呼叫這個模型，或它的 IP 允許清單不包含這台電腦；請檢查金鑰的設定。 |
+| 503，錯誤碼為 `model_not_found` | 模型 ID 錯誤，或該模型目前沒有可用路由。請在 [價格頁](https://aiberm.com/pricing) 核對 ID，或改選其他模型。 |
+| 想要移除 | 先對每個使用 `aiberm/` 模型的 Agent 執行 `magpie <agent> default`，再到 **供應商** 中移除 Aiberm。如果先移除供應商，magpie 會把這些 Agent 改用其他供應商的同名模型，或改回它們的預設模型。 |
+
+其他錯誤碼請見 [錯誤處理](/docs/zh-tw/error-handling/)。magpie 本身的文件請見 [快速上手](https://usemagpie.ai/docs/zh/start) 和 [新增到 magpie](https://usemagpie.ai/docs/zh/import)。
