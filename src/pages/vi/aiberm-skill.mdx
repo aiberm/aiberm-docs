@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/DocsLayout.astro
 title: Aiberm Skill
-description: Cài Aiberm Skill để Claude Code, Codex, Grok Build và các agent khác kiểm tra số dư, mức sử dụng và giá trên tài khoản Aiberm của bạn, đồng thời quản lý API token của bạn.
+description: Cài Aiberm Skill để agent kiểm tra số dư, mức sử dụng và giá trên tài khoản Aiberm của bạn, đồng thời quản lý API token của bạn.
 lang: vi
 activeId: aiberm-skill
 ---
@@ -10,7 +10,7 @@ import Callout from '../../components/Callout.tsx';
 
 # Aiberm Skill
 
-[aiberm-skill](https://github.com/aiberm/aiberm-skill) dạy agent lập trình cách đọc tài khoản Aiberm của chính bạn. Sau khi cài, bạn có thể hỏi Claude Code, Codex, Grok Build hoặc agent khác: "Số dư Aiberm của tôi còn bao nhiêu?" Agent sẽ gọi API của Aiberm và trả lời bằng ngôn ngữ dễ hiểu.
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) dạy agent lập trình cách đọc tài khoản Aiberm của chính bạn. Sau khi cài, bạn có thể hỏi Claude Code, Codex, Grok Bot hoặc agent khác: "Số dư Aiberm của tôi còn bao nhiêu?" Agent sẽ gọi API của Aiberm và trả lời bằng ngôn ngữ dễ hiểu.
 
 Skill này đọc số dư, mô hình, giá, API token, nhật ký sử dụng và lịch sử nạp tiền của bạn. Nó cũng có thể tạo, chỉnh sửa, kích hoạt, vô hiệu hóa và xóa API token của bạn, và luôn hỏi bạn trước mỗi thay đổi.
 
@@ -21,7 +21,7 @@ Skill là một thư mục chứa tệp `SKILL.md`. Khi câu hỏi của bạn k
 ## Điều kiện tiên quyết
 
 - Một tài khoản Aiberm ([Đăng ký tại đây](https://aiberm.com/register))
-- Một agent hỗ trợ Skill, chẳng hạn [Claude Code](/docs/vi/claude-code/), [Codex](/docs/vi/codex/) hoặc [Grok Build](https://x.ai/build)
+- Một agent hỗ trợ Skill, chẳng hạn [Claude Code](/docs/vi/claude-code/), [Codex](/docs/vi/codex/) hoặc [Grok Bot](https://docs.x.ai/grok-bot)
 - `git`, `curl` và một shell tương thích bash. macOS và Linux thường có sẵn cả ba. Trên Windows, Claude Code dùng Git Bash.
 
 ## 1. Lấy ID người dùng và mã thông báo truy cập hệ thống
@@ -41,7 +41,7 @@ Mã thông báo truy cập hệ thống **không phải** là API key (`sk-...`)
 
 ## 2. Cài Skill
 
-Dán prompt này vào Claude Code, Codex, Grok Build hoặc agent khác, rồi để agent tự cài Skill:
+Dán prompt này vào Claude Code, Codex, Grok Bot hoặc agent khác, rồi để agent tự cài Skill:
 
 ```text
 Hãy cài Aiberm Skill từ https://github.com/aiberm/aiberm-skill: sao chép thư mục skills/aiberm của repository vào thư mục mà bạn tải Skill.
@@ -92,7 +92,7 @@ Bắt đầu một phiên agent mới và hỏi theo cách của bạn:
 - "Tạo một API key Aiberm tên `my-app` với hạn mức $5."
 - "Vô hiệu hóa token Aiberm `old-test` của tôi."
 
-Bạn cũng có thể gọi Skill trực tiếp: `/aiberm` trong Claude Code và Grok Build, `$aiberm` trong Codex.
+Bạn cũng có thể gọi Skill trực tiếp: `/aiberm` trong Claude Code và Grok Bot, `$aiberm` trong Codex.
 
 | Bạn hỏi về | Skill đọc |
 | --- | --- |
@@ -133,7 +133,7 @@ Các quy tắc này là chỉ dẫn cho agent, không phải cơ chế khóa k�
 | `未提供 New-Api-User` | Chưa đặt `AIBERM_USER_ID`. |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` không phải ID của tài khoản sở hữu token. Hãy sao chép ID từ Cài đặt cá nhân của chính tài khoản đó. |
 | `access token 无效` | Token sai hoặc đã được tạo lại. Hãy tạo token mới và cập nhật `AIBERM_ACCESS_TOKEN`. |
-| Agent không dùng Skill | Kiểm tra tệp nằm ở `~/.claude/skills/aiberm/SKILL.md`, `~/.agents/skills/aiberm/SKILL.md` hoặc `~/.grok/skills/aiberm/SKILL.md`, rồi bắt đầu phiên mới. Hoặc gọi trực tiếp bằng `/aiberm` (Claude Code, Grok Build) hay `$aiberm` (Codex). |
+| Agent không dùng Skill | Kiểm tra tệp nằm ở `~/.claude/skills/aiberm/SKILL.md` hoặc `~/.agents/skills/aiberm/SKILL.md`, rồi bắt đầu phiên mới. Hoặc gọi trực tiếp bằng `/aiberm` (Claude Code, Grok Bot) hay `$aiberm` (Codex). |
 | `时间跨度不能超过 1 个月` | Mức sử dụng theo giờ chỉ lấy được tối đa 30 ngày cho mỗi yêu cầu. Hãy hỏi khoảng thời gian ngắn hơn. |
 
 Mã nguồn của skill và danh sách đầy đủ các yêu cầu có trong [repository aiberm-skill](https://github.com/aiberm/aiberm-skill). Với lỗi từ chính API mô hình, xem [Xử lý lỗi](/docs/vi/error-handling/).

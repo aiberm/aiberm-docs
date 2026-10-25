@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/DocsLayout.astro
 title: Aiberm Skill
-description: Instala Aiberm Skill para que Claude Code, Codex, Grok Build y otros agentes consulten tu saldo, uso y precios de Aiberm, y gestionen tus tokens de API.
+description: Instala Aiberm Skill para que tu agente consulte tu saldo, uso y precios de Aiberm, y gestione tus tokens de API.
 lang: es
 activeId: aiberm-skill
 ---
@@ -10,7 +10,7 @@ import Callout from '../../components/Callout.tsx';
 
 # Aiberm Skill
 
-[aiberm-skill](https://github.com/aiberm/aiberm-skill) le enseña a un agente de programación a leer tu propia cuenta de Aiberm. Una vez instalada, puedes preguntarle a Claude Code, Codex, Grok Build u otro agente: "¿Cuánto saldo me queda en Aiberm?". El agente llama a la API de Aiberm y te responde con palabras sencillas.
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) le enseña a un agente de programación a leer tu propia cuenta de Aiberm. Una vez instalada, puedes preguntarle a Claude Code, Codex, Grok Bot u otro agente: "¿Cuánto saldo me queda en Aiberm?". El agente llama a la API de Aiberm y te responde con palabras sencillas.
 
 La skill lee tu saldo, modelos, precios, tokens de API, registros de uso y recargas. También puede crear, editar, habilitar, deshabilitar y eliminar tus tokens de API, y te pide confirmación antes de cada cambio.
 
@@ -21,7 +21,7 @@ Una skill es una carpeta que contiene un archivo `SKILL.md`. El agente lee el ar
 ## Requisitos previos
 
 - Una cuenta de Aiberm ([regístrate](https://aiberm.com/register))
-- Un agente compatible con skills, como [Claude Code](/docs/es/claude-code/), [Codex](/docs/es/codex/) o [Grok Build](https://x.ai/build)
+- Un agente compatible con skills, como [Claude Code](/docs/es/claude-code/), [Codex](/docs/es/codex/) o [Grok Bot](https://docs.x.ai/grok-bot)
 - `git`, `curl` y un shell compatible con bash. macOS y Linux suelen traer los tres. En Windows, Claude Code usa Git Bash.
 
 ## 1. Obtén tu ID de usuario y tu token de acceso del sistema
@@ -41,7 +41,7 @@ El token de acceso del sistema **no** es una clave de API (`sk-...`). Funciona c
 
 ## 2. Instala la skill
 
-Pega este prompt en Claude Code, Codex, Grok Build u otro agente y deja que instale la skill:
+Pega este prompt en Claude Code, Codex, Grok Bot u otro agente y deja que instale la skill:
 
 ```text
 Instala Aiberm Skill desde https://github.com/aiberm/aiberm-skill: copia su carpeta skills/aiberm en la carpeta desde la que cargas las skills.
@@ -92,7 +92,7 @@ Inicia una sesión nueva del agente y pregunta con tus propias palabras:
 - "Crea una clave de API de Aiberm llamada `my-app` con un límite de $5."
 - "Desactiva mi token de Aiberm `old-test`."
 
-También puedes invocar la skill directamente: `/aiberm` en Claude Code y Grok Build, `$aiberm` en Codex.
+También puedes invocar la skill directamente: `/aiberm` en Claude Code y Grok Bot, `$aiberm` en Codex.
 
 | Si preguntas por | La skill consulta |
 | --- | --- |
@@ -133,7 +133,7 @@ Estas reglas son instrucciones para el agente, no un bloqueo técnico. El token 
 | `未提供 New-Api-User` | `AIBERM_USER_ID` no está definida. |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` no es el ID de la cuenta dueña del token. Copia el ID desde Configuración personal de esa misma cuenta. |
 | `access token 无效` | El token es incorrecto o se regeneró. Genera uno nuevo y actualiza `AIBERM_ACCESS_TOKEN`. |
-| El agente no usa la skill | Comprueba que el archivo esté en `~/.claude/skills/aiberm/SKILL.md`, `~/.agents/skills/aiberm/SKILL.md` o `~/.grok/skills/aiberm/SKILL.md` y luego inicia una sesión nueva. O invócala directamente con `/aiberm` (Claude Code, Grok Build) o `$aiberm` (Codex). |
+| El agente no usa la skill | Comprueba que el archivo esté en `~/.claude/skills/aiberm/SKILL.md` o `~/.agents/skills/aiberm/SKILL.md` y luego inicia una sesión nueva. O invócala directamente con `/aiberm` (Claude Code, Grok Bot) o `$aiberm` (Codex). |
 | `时间跨度不能超过 1 个月` | El uso por hora abarca como máximo 30 días por solicitud. Pide un rango más corto. |
 
 El código fuente de la skill y la lista completa de solicitudes están en el [repositorio aiberm-skill](https://github.com/aiberm/aiberm-skill). Para errores de la propia API de modelos, consulta [Manejo de errores](/docs/es/error-handling/).

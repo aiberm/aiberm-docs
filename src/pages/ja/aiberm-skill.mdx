@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/DocsLayout.astro
 title: Aiberm Skill
-description: Aiberm Skill をインストールして、Claude Code、Codex、Grok Build などのエージェントから Aiberm の残高、使用量、料金を確認し、API トークンを管理できるようにします。
+description: Aiberm Skill をインストールして、エージェントから Aiberm の残高、使用量、料金を確認し、API トークンを管理できるようにします。
 lang: ja
 activeId: aiberm-skill
 ---
@@ -10,7 +10,7 @@ import Callout from '../../components/Callout.tsx';
 
 # Aiberm Skill
 
-[aiberm-skill](https://github.com/aiberm/aiberm-skill) は、コーディングエージェントがご自身の Aiberm アカウントを読み取れるようにする Skill です。インストールすれば、Claude Code、Codex、Grok Build などのエージェントに「Aiberm の残高はあといくら？」と聞けます。エージェントが Aiberm API を呼び出し、わかりやすい言葉で答えます。
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) は、コーディングエージェントがご自身の Aiberm アカウントを読み取れるようにする Skill です。インストールすれば、Claude Code、Codex、Grok Bot などのエージェントに「Aiberm の残高はあといくら？」と聞けます。エージェントが Aiberm API を呼び出し、わかりやすい言葉で答えます。
 
 この Skill は、残高、モデル、料金、API トークン、使用ログ、チャージ履歴を読み取ります。API トークンの作成、編集、有効化、無効化、削除もでき、変更のたびに事前にあなたの確認を求めます。
 
@@ -21,7 +21,7 @@ Skill とは、`SKILL.md` ファイルを含むフォルダのことです。質
 ## 前提条件
 
 - Aiberm アカウント（[登録](https://aiberm.com/register)）
-- Skill に対応したエージェント（[Claude Code](/docs/ja/claude-code/)、[Codex](/docs/ja/codex/)、[Grok Build](https://x.ai/build) など）
+- Skill に対応したエージェント（[Claude Code](/docs/ja/claude-code/)、[Codex](/docs/ja/codex/)、[Grok Bot](https://docs.x.ai/grok-bot) など）
 - `git`、`curl`、bash 互換のシェル。macOS と Linux には通常 3 つとも入っています。Windows では、Claude Code は Git Bash を使います。
 
 ## 1. ユーザー ID とシステムアクセストークンを取得する
@@ -41,7 +41,7 @@ Aiberm はアカウントへのリクエストのたびに両方を確認しま�
 
 ## 2. Skill をインストールする
 
-次のプロンプトを Claude Code、Codex、Grok Build などのエージェントに貼り付けて、Skill をインストールしてもらいます。
+次のプロンプトを Claude Code、Codex、Grok Bot などのエージェントに貼り付けて、Skill をインストールしてもらいます。
 
 ```text
 https://github.com/aiberm/aiberm-skill から Aiberm Skill をインストールしてください。リポジトリ内の skills/aiberm フォルダを、Skill を読み込むフォルダにコピーしてください。
@@ -92,7 +92,7 @@ curl -sS "https://aiberm.com/api/user/self" \
 - 「Aiberm で `my-app` って名前の API キーを、上限 $5 で作って。」
 - 「Aiberm のトークン `old-test` を無効にして。」
 
-Skill を直接呼び出すこともできます。Claude Code と Grok Build では `/aiberm`、Codex では `$aiberm` と入力します。
+Skill を直接呼び出すこともできます。Claude Code と Grok Bot では `/aiberm`、Codex では `$aiberm` と入力します。
 
 | 質問の内容 | Skill が読み取る API |
 | --- | --- |
@@ -133,7 +133,7 @@ Skill を直接呼び出すこともできます。Claude Code と Grok Build �
 | `未提供 New-Api-User` | `AIBERM_USER_ID` が設定されていません。 |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` が、トークンを所有するアカウントの ID ではありません。同じアカウントのアカウント設定から ID をコピーしてください。 |
 | `access token 无效` | トークンが間違っているか、再生成されています。新しいトークンを生成し、`AIBERM_ACCESS_TOKEN` を更新してください。 |
-| エージェントが Skill を使わない | ファイルが `~/.claude/skills/aiberm/SKILL.md`、`~/.agents/skills/aiberm/SKILL.md`、`~/.grok/skills/aiberm/SKILL.md` のいずれかにあることを確認し、新しいセッションを開始してください。または、`/aiberm`（Claude Code、Grok Build）や `$aiberm`（Codex）で直接呼び出してください。 |
+| エージェントが Skill を使わない | ファイルが `~/.claude/skills/aiberm/SKILL.md` か `~/.agents/skills/aiberm/SKILL.md` のいずれかにあることを確認し、新しいセッションを開始してください。または、`/aiberm`（Claude Code、Grok Bot）や `$aiberm`（Codex）で直接呼び出してください。 |
 | `时间跨度不能超过 1 个月` | 時間別の使用量は、1 回のリクエストで最大 30 日分です。期間を短くして聞いてください。 |
 
 Skill のソースとリクエストの完全な一覧は [aiberm-skill リポジトリ](https://github.com/aiberm/aiberm-skill) にあります。モデル API 自体のエラーについては、[エラー処理](/docs/ja/error-handling/) を参照してください。
