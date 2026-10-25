@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/DocsLayout.astro
 title: Aiberm Skill
-description: Installez Aiberm Skill pour que Claude Code, Codex et d’autres agents consultent votre solde, votre consommation et les prix sur Aiberm, et gèrent vos clés API.
+description: Installez Aiberm Skill pour que votre agent consulte votre solde, votre consommation et les prix sur Aiberm, et gère vos clés API.
 lang: fr
 activeId: aiberm-skill
 ---
@@ -10,9 +10,9 @@ import Callout from '../../components/Callout.tsx';
 
 # Aiberm Skill
 
-[aiberm-skill](https://github.com/aiberm/aiberm-skill) apprend à un agent de code à lire votre propre compte Aiberm. Une fois la skill installée, vous pouvez demander à Claude Code, à Codex ou à un autre agent : « Quel est mon solde restant sur Aiberm ? » L’agent appelle l’API Aiberm et vous répond en langage clair.
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) apprend à un agent de code à lire votre propre compte Aiberm. Une fois la skill installée, vous pouvez demander à Claude Code, à Codex, à Grok Bot ou à un autre agent : « Quel est mon solde restant sur Aiberm ? » L’agent appelle l’API Aiberm et vous répond en langage clair.
 
-La skill lit votre solde, vos groupes, les modèles, les prix, vos clés API, vos journaux d’utilisation et l’historique de vos recharges. Elle peut aussi créer, modifier, activer, désactiver et supprimer vos clés API, et vous demande votre accord avant chaque modification.
+La skill lit votre solde, les modèles, les prix, vos clés API, vos journaux d’utilisation et l’historique de vos recharges. Elle peut aussi créer, modifier, activer, désactiver et supprimer vos clés API, et vous demande votre accord avant chaque modification.
 
 <Callout client:load type="info">
 Une skill est un dossier qui contient un fichier `SKILL.md`. L’agent lit ce fichier quand votre question correspond à la description de la skill, puis exécute `curl` lui-même. Rien ne tourne en arrière-plan, et il n’y a rien à compiler ni à laisser tourner.
@@ -21,8 +21,8 @@ Une skill est un dossier qui contient un fichier `SKILL.md`. L’agent lit ce fi
 ## Prérequis
 
 - Un compte Aiberm ([Inscription](https://aiberm.com/register))
-- Un agent compatible avec les skills, comme [Claude Code](/docs/fr/claude-code/) ou [Codex](/docs/fr/codex/)
-- `curl` et un shell compatible bash. macOS et Linux disposent des deux. Sous Windows, Claude Code utilise Git Bash.
+- Un agent compatible avec les Skills, comme [Claude Code](/docs/fr/claude-code/), [Codex](/docs/fr/codex/) ou [Grok Bot](https://docs.x.ai/grok-bot)
+- `git`, `curl` et un shell compatible bash. macOS et Linux disposent généralement des trois. Sous Windows, Claude Code utilise Git Bash.
 
 ## 1. Obtenir votre ID utilisateur et votre jeton d’accès au système
 
@@ -39,23 +39,15 @@ Aiberm vérifie les deux à chaque requête liée au compte, et l’ID doit appa
 Le jeton d’accès au système n’est **pas** une clé API (`sk-...`). Il fonctionne comme votre connexion à la console : quiconque le détient peut faire tout ce que vous pouvez faire dans la console. Gardez-le secret. Un clic sur **Régénérer** le remplace, et tout ce qui utilise encore l’ancien jeton cesse de fonctionner.
 </Callout>
 
-## 2. Installer la skill
+## 2. Installer la Skill
 
-Copiez le dossier `skills/aiberm` du dépôt dans le dossier des skills de votre agent :
+Collez ce prompt dans Claude Code, Codex, Grok Bot ou un autre agent, et laissez-le installer la Skill :
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-mkdir -p ~/.claude/skills
-cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
+```text
+Installe Aiberm Skill depuis https://github.com/aiberm/aiberm-skill : copie son dossier skills/aiberm dans le dossier depuis lequel tu charges les Skills.
 ```
 
-| Agent | Dossier des skills |
-| --- | --- |
-| Claude Code | `~/.claude/skills/aiberm` pour tous les projets, ou `.claude/skills/aiberm` dans un seul projet |
-| Codex | `~/.codex/skills/aiberm` |
-| Cursor | `~/.cursor/skills/aiberm` |
-
-Pour les autres agents, placez le dossier `aiberm` là où l’agent charge ses skills. Pour mettre à jour plus tard, exécutez `git pull` dans le clone et copiez à nouveau le dossier.
+Une fois l’installation terminée, démarrez une nouvelle session. Pour mettre à jour la Skill plus tard, envoyez à nouveau le même prompt.
 
 ## 3. Définir les deux variables
 
@@ -94,18 +86,17 @@ Démarrez une nouvelle session de l’agent et posez votre question avec vos pro
 - « Quel est mon solde restant sur Aiberm ? »
 - « Combien j’ai dépensé hier sur Aiberm, par modèle ? »
 - « Liste mes clés API Aiberm et le quota restant de chacune. »
-- « Combien coûte `claude-sonnet-5-5` pour 1M de tokens dans mon groupe ? »
+- « Combien coûte `claude-sonnet-5-5` pour 1M de tokens sur Aiberm ? »
 - « Quels modèles j’ai le plus utilisés sur Aiberm cette semaine ? »
 - « Montre-moi mes dernières recharges Aiberm. »
 - « Crée une clé API Aiberm nommée `my-app` avec une limite de 5 $. »
 - « Désactive mon jeton Aiberm `old-test`. »
 
-Dans Claude Code, vous pouvez aussi appeler la skill directement avec `/aiberm`.
+Vous pouvez aussi appeler la Skill directement : `/aiberm` dans Claude Code et Grok Bot, `$aiberm` dans Codex.
 
 | Votre question porte sur | Ce que lit la skill |
 | --- | --- |
 | Le solde et le total dépensé | `GET /api/user/self` |
-| Les groupes et leurs ratios de prix | `GET /api/user/self/groups` |
 | Les modèles que vous pouvez appeler | `GET /api/user/models` |
 | Les prix des modèles | `GET /api/pricing` |
 | Les clés API | `GET /api/token/` |
@@ -115,12 +106,12 @@ Dans Claude Code, vous pouvez aussi appeler la skill directement avec `/aiberm`.
 | L’historique des recharges | `GET /api/user/topup/self` |
 | La création, la modification ou la suppression de clés API | `POST`, `PUT` ou `DELETE /api/token/` |
 
-Les montants sont convertis en USD à raison de 500000 unités de quota pour 1 $. Les prix appliquent les ratios des groupes de votre compte, et non les valeurs publiques par défaut.
+Les montants sont convertis en USD à raison de 500000 unités de quota pour 1 $. Les prix sont ceux que votre compte paie réellement.
 
 ### Créer et modifier des clés API
 
 - Avant chaque création, modification, activation, désactivation ou suppression, l’agent vous indique ce qu’il va envoyer et attend votre accord.
-- Sauf demande contraire, une nouvelle clé reçoit un quota illimité et aucune date d’expiration, comme dans la console. Vous pouvez demander une limite de dépense, une date d’expiration, un groupe ou une liste de modèles autorisés.
+- Sauf demande contraire, une nouvelle clé reçoit un quota illimité et aucune date d’expiration, comme dans la console. Vous pouvez demander une limite de dépense, une date d’expiration ou une liste de modèles autorisés.
 - Après la création d’une clé, l’agent affiche la clé complète une seule fois. Copiez-la dans votre application ou votre configuration.
 - La suppression d’une clé est irréversible, et les applications qui l’utilisent cessent aussitôt de fonctionner.
 
@@ -142,7 +133,7 @@ Ces règles sont des instructions données à l’agent, pas un verrou technique
 | `未提供 New-Api-User` | `AIBERM_USER_ID` n’est pas défini. |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` n’est pas l’ID du compte qui possède le jeton. Copiez l’ID depuis la page Profil de ce même compte. |
 | `access token 无效` | Le jeton est incorrect ou a été régénéré. Générez-en un nouveau et mettez à jour `AIBERM_ACCESS_TOKEN`. |
-| L’agent n’utilise pas la skill | Vérifiez que le fichier se trouve bien à `~/.claude/skills/aiberm/SKILL.md` (ou dans le dossier de votre agent) et démarrez une nouvelle session. Dans Claude Code, tapez `/aiberm`. |
+| L’agent n’utilise pas la Skill | Vérifiez que le fichier se trouve bien à `~/.claude/skills/aiberm/SKILL.md` ou `~/.agents/skills/aiberm/SKILL.md`, puis démarrez une nouvelle session. Vous pouvez aussi l’appeler directement avec `/aiberm` (Claude Code, Grok Bot) ou `$aiberm` (Codex). |
 | `时间跨度不能超过 1 个月` | L’utilisation par heure couvre au maximum 30 jours par requête. Demandez une période plus courte. |
 
 Le code source de la skill et la liste complète des requêtes se trouvent dans le [dépôt aiberm-skill](https://github.com/aiberm/aiberm-skill). Pour les erreurs renvoyées par l’API des modèles elle-même, consultez [Gestion des erreurs](/docs/fr/error-handling/).
