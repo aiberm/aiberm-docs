@@ -41,22 +41,13 @@ The system access token is **not** an API key (`sk-...`). It works like your con
 
 ## 2. Install the Skill
 
-Copy the `skills/aiberm` folder into your agent's Skills folder, then start a new session:
+Paste this prompt into Claude Code, Codex, Grok Build, or another agent, and let it install the Skill:
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-
-# Claude Code
-mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
-
-# Codex
-mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
-
-# Grok Build
-mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
+```text
+Install the Aiberm Skill from https://github.com/aiberm/aiberm-skill: copy its skills/aiberm folder into the folder you load Skills from (Claude Code: ~/.claude/skills, Codex: ~/.agents/skills, Grok Build: ~/.grok/skills).
 ```
 
-Run only the lines for the agents you use. For other agents, copy the folder to wherever the agent loads Skills from. To update later, run `git pull` in `aiberm-skill` and copy the folder again.
+When it is done, start a new session. To update the Skill later, send the same prompt again.
 
 ## 3. Set the two variables
 

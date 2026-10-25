@@ -41,22 +41,13 @@ O token de acesso do sistema **não** é uma chave de API (`sk-...`). Ele funcio
 
 ## 2. Instale a skill
 
-Copie a pasta `skills/aiberm` para a pasta de skills do seu agente e depois inicie uma nova sessão:
+Cole este prompt no Claude Code, no Codex, no Grok Build ou em outro agente e deixe que ele instale a skill:
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-
-# Claude Code
-mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
-
-# Codex
-mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
-
-# Grok Build
-mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
+```text
+Instale a Aiberm Skill a partir de https://github.com/aiberm/aiberm-skill: copie a pasta skills/aiberm do repositório para a pasta de onde você carrega as skills (Claude Code: ~/.claude/skills, Codex: ~/.agents/skills, Grok Build: ~/.grok/skills).
 ```
 
-Execute apenas as linhas dos agentes que você usa. Para outros agentes, copie a pasta para o local de onde o agente carrega as skills. Para atualizar depois, execute `git pull` em `aiberm-skill` e copie a pasta de novo.
+Quando ele terminar, inicie uma nova sessão. Para atualizar a skill depois, envie o mesmo prompt de novo.
 
 ## 3. Defina as duas variáveis
 

@@ -41,22 +41,13 @@ Aiberm 的每個帳戶請求都會同時檢查這兩個值，而且 ID 必須屬
 
 ## 2. 安裝 Skill
 
-把 `skills/aiberm` 資料夾複製到 Agent 的 Skill 資料夾，然後開啟新的工作階段：
+把下面這段提示詞貼到 Claude Code、Codex、Grok Build 或其他 Agent，讓它幫你安裝 Skill：
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-
-# Claude Code
-mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
-
-# Codex
-mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
-
-# Grok Build
-mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
+```text
+從 https://github.com/aiberm/aiberm-skill 安裝 Aiberm Skill：把儲存庫裡的 skills/aiberm 資料夾複製到你載入 Skill 的資料夾（Claude Code：~/.claude/skills，Codex：~/.agents/skills，Grok Build：~/.grok/skills）。
 ```
 
-只要執行你所用 Agent 對應的那幾行。其他 Agent 請把這個資料夾複製到該 Agent 載入 Skill 的位置。之後要更新時，在 `aiberm-skill` 資料夾裡執行 `git pull`，再重新複製一次資料夾即可。
+安裝完成後，開啟新的工作階段。之後要更新 Skill，再傳送一次同樣的提示詞即可。
 
 ## 3. 設定兩個環境變數
 

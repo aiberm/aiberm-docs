@@ -41,22 +41,13 @@ Aiberm проверяет оба значения при каждом запро
 
 ## 2. Установите Skill
 
-Скопируйте папку `skills/aiberm` в папку Skills вашего агента и начните новый сеанс:
+Вставьте этот промпт в Claude Code, Codex, Grok Build или другой агент, и он сам установит Skill:
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-
-# Claude Code
-mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
-
-# Codex
-mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
-
-# Grok Build
-mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
+```text
+Установи Aiberm Skill из https://github.com/aiberm/aiberm-skill: скопируй папку skills/aiberm из репозитория в папку, из которой ты загружаешь Skills (Claude Code: ~/.claude/skills, Codex: ~/.agents/skills, Grok Build: ~/.grok/skills).
 ```
 
-Выполните только строки для тех агентов, которыми пользуетесь. Для других агентов скопируйте папку туда, откуда агент загружает Skills. Чтобы потом обновить Skill, выполните `git pull` в `aiberm-skill` и скопируйте папку заново.
+Когда агент закончит, начните новый сеанс. Чтобы потом обновить Skill, отправьте тот же промпт ещё раз.
 
 ## 3. Задайте две переменные
 

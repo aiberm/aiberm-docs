@@ -41,22 +41,13 @@ Aiberm はアカウントへのリクエストのたびに両方を確認しま�
 
 ## 2. Skill をインストールする
 
-`skills/aiberm` フォルダをエージェントの Skill フォルダにコピーし、新しいセッションを開始します。
+次のプロンプトを Claude Code、Codex、Grok Build などのエージェントに貼り付けて、Skill をインストールしてもらいます。
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-
-# Claude Code
-mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
-
-# Codex
-mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
-
-# Grok Build
-mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
+```text
+https://github.com/aiberm/aiberm-skill から Aiberm Skill をインストールしてください。リポジトリ内の skills/aiberm フォルダを、Skill を読み込むフォルダ（Claude Code: ~/.claude/skills、Codex: ~/.agents/skills、Grok Build: ~/.grok/skills）にコピーしてください。
 ```
 
-実行するのは、お使いのエージェントの行だけで構いません。その他のエージェントでは、そのエージェントが Skill を読み込む場所にフォルダをコピーしてください。あとで更新するときは、`aiberm-skill` で `git pull` を実行し、もう一度フォルダをコピーします。
+完了したら、新しいセッションを開始します。あとで Skill を更新するときも、同じプロンプトをもう一度送ってください。
 
 ## 3. 2 つの環境変数を設定する
 

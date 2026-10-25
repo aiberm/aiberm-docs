@@ -41,22 +41,13 @@ Mã thông báo truy cập hệ thống **không phải** là API key (`sk-...`)
 
 ## 2. Cài Skill
 
-Sao chép thư mục `skills/aiberm` vào thư mục Skill của agent, rồi bắt đầu một phiên mới:
+Dán prompt này vào Claude Code, Codex, Grok Build hoặc agent khác, rồi để agent tự cài Skill:
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-
-# Claude Code
-mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
-
-# Codex
-mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
-
-# Grok Build
-mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
+```text
+Hãy cài Aiberm Skill từ https://github.com/aiberm/aiberm-skill: sao chép thư mục skills/aiberm của repository vào thư mục mà bạn tải Skill (Claude Code: ~/.claude/skills, Codex: ~/.agents/skills, Grok Build: ~/.grok/skills).
 ```
 
-Chỉ chạy những dòng dành cho agent bạn dùng. Với các agent khác, hãy sao chép thư mục vào nơi agent đó tải Skill. Để cập nhật sau này, chạy `git pull` trong `aiberm-skill` rồi sao chép lại thư mục.
+Khi agent cài xong, hãy bắt đầu một phiên mới. Để cập nhật Skill sau này, hãy gửi lại đúng prompt đó.
 
 ## 3. Đặt hai biến môi trường
 

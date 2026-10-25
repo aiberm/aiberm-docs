@@ -41,22 +41,13 @@ Le jeton d’accès au système n’est **pas** une clé API (`sk-...`). Il fonc
 
 ## 2. Installer la Skill
 
-Copiez le dossier `skills/aiberm` dans le dossier des Skills de votre agent, puis démarrez une nouvelle session :
+Collez ce prompt dans Claude Code, Codex, Grok Build ou un autre agent, et laissez-le installer la Skill :
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-
-# Claude Code
-mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
-
-# Codex
-mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
-
-# Grok Build
-mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
+```text
+Installe Aiberm Skill depuis https://github.com/aiberm/aiberm-skill : copie son dossier skills/aiberm dans le dossier depuis lequel tu charges les Skills (Claude Code : ~/.claude/skills, Codex : ~/.agents/skills, Grok Build : ~/.grok/skills).
 ```
 
-Exécutez uniquement les lignes des agents que vous utilisez. Pour les autres agents, copiez le dossier là où l’agent charge ses Skills. Pour mettre à jour plus tard, exécutez `git pull` dans `aiberm-skill` et copiez à nouveau le dossier.
+Une fois l’installation terminée, démarrez une nouvelle session. Pour mettre à jour la Skill plus tard, envoyez à nouveau le même prompt.
 
 ## 3. Définir les deux variables
 

@@ -41,22 +41,13 @@ Aiberm은 계정 요청마다 두 값을 모두 확인하며, ID는 토큰을 �
 
 ## 2. Skill 설치
 
-`skills/aiberm` 폴더를 에이전트의 Skill 폴더에 복사한 뒤 새 세션을 시작하세요.
+아래 프롬프트를 Claude Code, Codex, Grok Build 또는 다른 에이전트에 붙여 넣고, 에이전트가 Skill을 설치하게 하세요.
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-
-# Claude Code
-mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
-
-# Codex
-mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
-
-# Grok Build
-mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
+```text
+https://github.com/aiberm/aiberm-skill 에서 Aiberm Skill을 설치해 주세요. 저장소의 skills/aiberm 폴더를 Skill을 불러오는 폴더에 복사하면 됩니다(Claude Code: ~/.claude/skills, Codex: ~/.agents/skills, Grok Build: ~/.grok/skills).
 ```
 
-사용하는 에이전트에 해당하는 줄만 실행하세요. 다른 에이전트는 해당 에이전트가 Skill을 불러오는 위치에 폴더를 복사하세요. 나중에 업데이트하려면 `aiberm-skill`에서 `git pull`을 실행한 뒤 폴더를 다시 복사하세요.
+설치가 끝나면 새 세션을 시작하세요. 나중에 Skill을 업데이트하려면 같은 프롬프트를 다시 보내세요.
 
 ## 3. 두 환경 변수 설정
 
