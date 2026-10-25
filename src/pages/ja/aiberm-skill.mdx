@@ -12,7 +12,7 @@ import Callout from '../../components/Callout.tsx';
 
 [aiberm-skill](https://github.com/aiberm/aiberm-skill) は、コーディングエージェントがご自身の Aiberm アカウントを読み取れるようにする Skill です。インストールすれば、Claude Code、Codex などのエージェントに「Aiberm の残高はあといくら？」と聞けます。エージェントが Aiberm API を呼び出し、わかりやすい言葉で答えます。
 
-この Skill は、残高、グループ、モデル、料金、API トークン、使用ログ、チャージ履歴を読み取ります。API トークンの作成、編集、有効化、無効化、削除もでき、変更のたびに事前にあなたの確認を求めます。
+この Skill は、残高、モデル、料金、API トークン、使用ログ、チャージ履歴を読み取ります。API トークンの作成、編集、有効化、無効化、削除もでき、変更のたびに事前にあなたの確認を求めます。
 
 <Callout client:load type="info">
 Skill とは、`SKILL.md` ファイルを含むフォルダのことです。質問が Skill の説明に合うと、エージェントがこのファイルを読み、自分で `curl` を実行します。バックグラウンドで動くものはなく、ビルドや常駐が必要なものもありません。
@@ -41,21 +41,24 @@ Aiberm はアカウントへのリクエストのたびに両方を確認しま�
 
 ## 2. Skill をインストールする
 
-リポジトリの `skills/aiberm` フォルダを、エージェントの Skill フォルダにコピーします。
+**Claude Code**（2.1.275 以降）: Claude Code のセッション内で次を実行します。
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-mkdir -p ~/.claude/skills
-cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
+```text
+/plugin install aiberm --marketplace aiberm/aiberm-skill
 ```
 
-| エージェント | Skill フォルダ |
-| --- | --- |
-| Claude Code | すべてのプロジェクトで使う場合は `~/.claude/skills/aiberm`、1 つのプロジェクトだけで使う場合はそのプロジェクト内の `.claude/skills/aiberm` |
-| Codex | `~/.codex/skills/aiberm` |
-| Cursor | `~/.cursor/skills/aiberm` |
+それより古いバージョンでは、先に `/plugin marketplace add aiberm/aiberm-skill` を実行してから、`/plugin install aiberm@aiberm` を実行します。Claude Code に求められた場合は、`/reload-plugins` を実行してください。
 
-その他のエージェントでは、そのエージェントが Skill を読み込む場所に `aiberm` フォルダを置いてください。あとで更新するときは、クローンしたリポジトリで `git pull` を実行し、もう一度フォルダをコピーします。
+**Codex**: ターミナルで次のコマンドを実行し、新しい Codex セッションを開始します。
+
+```bash
+codex plugin marketplace add aiberm/aiberm-skill
+codex plugin add aiberm@aiberm
+```
+
+Codex 内の `/plugins` からインストールすることもできます。
+
+**その他のエージェント**: [リポジトリ](https://github.com/aiberm/aiberm-skill) をクローンし、その中の `skills/aiberm` フォルダを、エージェントが Skill を読み込むフォルダにコピーします。
 
 ## 3. 2 つの環境変数を設定する
 
@@ -94,18 +97,17 @@ curl -sS "https://aiberm.com/api/user/self" \
 - 「Aiberm の残高、あといくら残ってる？」
 - 「昨日 Aiberm でいくら使った？モデル別に教えて。」
 - 「Aiberm の API トークンを一覧にして、それぞれの残りクォータも出して。」
-- 「`claude-sonnet-5-5` って、私のグループだと 100 万トークンあたりいくら？」
+- 「`claude-sonnet-5-5` って、Aiberm だと 100 万トークンあたりいくら？」
 - 「今週 Aiberm で一番使ったモデルはどれ？」
 - 「最近の Aiberm のチャージ履歴を見せて。」
 - 「Aiberm で `my-app` って名前の API キーを、上限 $5 で作って。」
 - 「Aiberm のトークン `old-test` を無効にして。」
 
-Claude Code では、`/aiberm` で Skill を直接呼び出すこともできます。
+Claude Code では、`/aiberm:aiberm` で Skill を直接呼び出すこともできます。
 
 | 質問の内容 | Skill が読み取る API |
 | --- | --- |
 | 残高と累計利用額 | `GET /api/user/self` |
-| グループとその価格倍率 | `GET /api/user/self/groups` |
 | 呼び出せるモデル | `GET /api/user/models` |
 | モデルの料金 | `GET /api/pricing` |
 | API トークン | `GET /api/token/` |
@@ -115,12 +117,12 @@ Claude Code では、`/aiberm` で Skill を直接呼び出すこともできま
 | チャージ履歴 | `GET /api/user/topup/self` |
 | API トークンの作成・編集・削除 | `POST`、`PUT`、または `DELETE /api/token/` |
 
-金額は 500000 クォータ = $1 で USD に換算されます。料金には、公開されているデフォルト値ではなく、ご自身のアカウントに設定されたグループの倍率が使われます。
+金額は 500000 クォータ = $1 で USD に換算されます。料金は、ご自身のアカウントで実際に支払う金額です。
 
 ### API トークンの作成と変更
 
 - 作成、編集、有効化、無効化、削除の前には毎回、エージェントが送信する内容を示し、あなたの承認を待ちます。
-- 特に指定しない限り、新しいトークンはコンソールと同じく、クォータ無制限・有効期限なしで作成されます。クォータ上限、有効期限、グループ、使用を許可するモデルの一覧を指定することもできます。
+- 特に指定しない限り、新しいトークンはコンソールと同じく、クォータ無制限・有効期限なしで作成されます。クォータ上限、有効期限、使用を許可するモデルの一覧を指定することもできます。
 - トークンを作成すると、エージェントが完全なキーを一度だけ表示します。アプリや設定ファイルにコピーしてください。
 - トークンの削除は元に戻せません。そのキーを使っているアプリはすぐに動かなくなります。
 
@@ -142,7 +144,7 @@ Claude Code では、`/aiberm` で Skill を直接呼び出すこともできま
 | `未提供 New-Api-User` | `AIBERM_USER_ID` が設定されていません。 |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` が、トークンを所有するアカウントの ID ではありません。同じアカウントのアカウント設定から ID をコピーしてください。 |
 | `access token 无效` | トークンが間違っているか、再生成されています。新しいトークンを生成し、`AIBERM_ACCESS_TOKEN` を更新してください。 |
-| エージェントが Skill を使わない | ファイルが `~/.claude/skills/aiberm/SKILL.md`（またはお使いのエージェントのフォルダ）にあることを確認し、新しいセッションを開始してください。Claude Code では `/aiberm` と入力します。 |
+| エージェントが Skill を使わない | 新しいセッションを開始してください。Claude Code では、`/plugin` で `aiberm` が有効になっていることを確認するか、`/aiberm:aiberm` と入力します。Codex では、`codex plugin list` で `aiberm@aiberm` がインストール済みになっていることを確認してください。 |
 | `时间跨度不能超过 1 个月` | 時間別の使用量は、1 回のリクエストで最大 30 日分です。期間を短くして聞いてください。 |
 
 Skill のソースとリクエストの完全な一覧は [aiberm-skill リポジトリ](https://github.com/aiberm/aiberm-skill) にあります。モデル API 自体のエラーについては、[エラー処理](/docs/ja/error-handling/) を参照してください。

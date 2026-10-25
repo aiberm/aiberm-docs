@@ -12,7 +12,7 @@ import Callout from '../../components/Callout.tsx';
 
 A [aiberm-skill](https://github.com/aiberm/aiberm-skill) ensina um agente de programação a ler a sua própria conta Aiberm. Depois de instalá-la, você pode perguntar ao Claude Code, ao Codex ou a outro agente: "Quanto saldo ainda tenho na Aiberm?". O agente chama a API da Aiberm e responde em linguagem simples.
 
-A skill lê seu saldo, grupos, modelos, preços, tokens de API, registros de uso e recargas. Ela também pode criar, editar, ativar, desativar e excluir seus tokens de API, e pede sua confirmação antes de cada alteração.
+A skill lê seu saldo, modelos, preços, tokens de API, registros de uso e recargas. Ela também pode criar, editar, ativar, desativar e excluir seus tokens de API, e pede sua confirmação antes de cada alteração.
 
 <Callout client:load type="info">
 Uma skill é uma pasta que contém um arquivo `SKILL.md`. O agente lê o arquivo quando sua pergunta corresponde à descrição da skill e então executa o `curl` por conta própria. Nada roda em segundo plano, e não há nada para compilar nem para manter em execução.
@@ -41,21 +41,24 @@ O token de acesso do sistema **não** é uma chave de API (`sk-...`). Ele funcio
 
 ## 2. Instale a skill
 
-Copie a pasta `skills/aiberm` do repositório para a pasta de skills do seu agente:
+**Claude Code** (2.1.275 ou posterior): execute isto dentro de uma sessão do Claude Code.
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-mkdir -p ~/.claude/skills
-cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
+```text
+/plugin install aiberm --marketplace aiberm/aiberm-skill
 ```
 
-| Agente | Pasta de skills |
-| --- | --- |
-| Claude Code | `~/.claude/skills/aiberm` para todos os projetos, ou `.claude/skills/aiberm` dentro de um projeto |
-| Codex | `~/.codex/skills/aiberm` |
-| Cursor | `~/.cursor/skills/aiberm` |
+Em versões anteriores, execute primeiro `/plugin marketplace add aiberm/aiberm-skill` e depois `/plugin install aiberm@aiberm`. Se o Claude Code pedir, execute `/reload-plugins`.
 
-Para outros agentes, coloque a pasta `aiberm` no local de onde o agente carrega as skills. Para atualizar depois, execute `git pull` no repositório clonado e copie a pasta de novo.
+**Codex**: execute estes comandos em um terminal e depois inicie uma nova sessão do Codex.
+
+```bash
+codex plugin marketplace add aiberm/aiberm-skill
+codex plugin add aiberm@aiberm
+```
+
+Você também pode instalá-la pelo `/plugins` dentro do Codex.
+
+**Outros agentes**: clone [o repositório](https://github.com/aiberm/aiberm-skill) e copie a pasta `skills/aiberm` dele para a pasta de onde o seu agente carrega as skills.
 
 ## 3. Defina as duas variáveis
 
@@ -94,18 +97,17 @@ Inicie uma nova sessão do agente e pergunte com suas próprias palavras:
 - "Quanto saldo ainda tenho na Aiberm?"
 - "Quanto gastei ontem na Aiberm, separado por modelo?"
 - "Liste meus tokens de API da Aiberm e quanto de cota resta em cada um."
-- "Quanto custa o `claude-sonnet-5-5` por 1M de tokens no meu grupo?"
+- "Quanto custa o `claude-sonnet-5-5` por 1M de tokens na Aiberm?"
 - "Quais modelos eu mais usei na Aiberm esta semana?"
 - "Mostre minhas últimas recargas na Aiberm."
 - "Crie uma chave de API da Aiberm chamada `my-app` com limite de $5."
 - "Desative meu token `old-test` da Aiberm."
 
-No Claude Code, você também pode chamar a skill diretamente com `/aiberm`.
+No Claude Code, você também pode chamar a skill diretamente com `/aiberm:aiberm`.
 
 | Se você pergunta sobre | A skill consulta |
 | --- | --- |
 | Saldo e total gasto | `GET /api/user/self` |
-| Grupos e seus multiplicadores de preço | `GET /api/user/self/groups` |
 | Modelos que você pode chamar | `GET /api/user/models` |
 | Preços dos modelos | `GET /api/pricing` |
 | Tokens de API | `GET /api/token/` |
@@ -115,12 +117,12 @@ No Claude Code, você também pode chamar a skill diretamente com `/aiberm`.
 | Histórico de recargas | `GET /api/user/topup/self` |
 | Criar, editar ou excluir tokens de API | `POST`, `PUT` ou `DELETE /api/token/` |
 
-Os valores são convertidos para USD na proporção de 500000 de cota = $1. Os preços usam os multiplicadores dos grupos da sua conta, não os valores públicos padrão.
+Os valores são convertidos para USD na proporção de 500000 de cota = $1. Os preços são os que a sua conta realmente paga.
 
 ### Criar e alterar tokens de API
 
 - Antes de criar, editar, ativar, desativar ou excluir um token, o agente mostra o que vai enviar e espera a sua confirmação.
-- A menos que você peça outra coisa, um token novo recebe cota ilimitada e não expira, como no console. Você pode pedir um limite de gastos, uma data de expiração, um grupo ou uma lista de modelos permitidos.
+- A menos que você peça outra coisa, um token novo recebe cota ilimitada e não expira, como no console. Você pode pedir um limite de gastos, uma data de expiração ou uma lista de modelos permitidos.
 - Depois de criar um token, o agente mostra a chave completa dele uma única vez. Copie-a para o seu app ou para a sua configuração.
 - A exclusão de um token não pode ser desfeita, e os apps que usam a chave dele param de funcionar imediatamente.
 
@@ -142,7 +144,7 @@ Essas regras são instruções para o agente, não uma trava técnica. O token p
 | `未提供 New-Api-User` | `AIBERM_USER_ID` não está definida. |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` não é o ID da conta dona do token. Copie o ID em Configurações pessoais dessa mesma conta. |
 | `access token 无效` | O token está errado ou foi regenerado. Gere um novo e atualize `AIBERM_ACCESS_TOKEN`. |
-| O agente não usa a skill | Verifique se o arquivo está em `~/.claude/skills/aiberm/SKILL.md` (ou na pasta do seu agente) e inicie uma nova sessão. No Claude Code, digite `/aiberm`. |
+| O agente não usa a skill | Inicie uma nova sessão. No Claude Code, verifique se o `/plugin` mostra o `aiberm` como ativado, ou digite `/aiberm:aiberm`. No Codex, verifique se `codex plugin list` mostra `aiberm@aiberm` como instalado. |
 | `时间跨度不能超过 1 个月` | O uso por hora cobre no máximo 30 dias por solicitação. Peça um intervalo menor. |
 
 O código-fonte da skill e a lista completa de solicitações estão no [repositório aiberm-skill](https://github.com/aiberm/aiberm-skill). Para erros da própria API de modelos, consulte [Tratamento de erros](/docs/pt/error-handling/).

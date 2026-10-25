@@ -12,7 +12,7 @@ import Callout from '../../components/Callout.tsx';
 
 [aiberm-skill](https://github.com/aiberm/aiberm-skill) 教会编程 Agent 读取你自己的 Aiberm 账户。装好之后，你可以直接问 Claude Code、Codex 或其他 Agent：“我的 Aiberm 还剩多少余额？”Agent 会自己调用 Aiberm 的接口，用大白话回答你。
 
-这个 Skill 能查余额、分组、模型、价格、API 令牌、使用日志和充值记录，还能创建、修改、启用、禁用和删除你的 API 令牌，每次改动前都会先征求你的同意。
+这个 Skill 能查余额、模型、价格、API 令牌、使用日志和充值记录，还能创建、修改、启用、禁用和删除你的 API 令牌，每次改动前都会先征求你的同意。
 
 <Callout client:load type="info">
 Skill 就是一个包含 `SKILL.md` 文件的文件夹。当你的问题和 Skill 描述对得上时，Agent 会读这个文件，然后自己运行 `curl`。没有后台进程，不需要编译，也不用一直开着什么。
@@ -41,21 +41,24 @@ Aiberm 的每个账户接口都会同时校验这两个值，而且 ID 必须属
 
 ## 2. 安装 Skill
 
-把仓库里的 `skills/aiberm` 文件夹复制到 Agent 的 Skill 目录：
+**Claude Code**（2.1.275 或更新版本）：在 Claude Code 会话里运行：
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-mkdir -p ~/.claude/skills
-cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
+```text
+/plugin install aiberm --marketplace aiberm/aiberm-skill
 ```
 
-| Agent | Skill 目录 |
-| --- | --- |
-| Claude Code | `~/.claude/skills/aiberm`（所有项目），或某个项目里的 `.claude/skills/aiberm` |
-| Codex | `~/.codex/skills/aiberm` |
-| Cursor | `~/.cursor/skills/aiberm` |
+旧版本请先运行 `/plugin marketplace add aiberm/aiberm-skill`，再运行 `/plugin install aiberm@aiberm`。如果 Claude Code 提示，再运行一次 `/reload-plugins`。
 
-其他 Agent 请把 `aiberm` 文件夹放到它加载 Skill 的目录。以后要更新，在克隆的仓库里执行 `git pull`，再复制一次即可。
+**Codex**：在终端里运行下面两条命令，然后开一个新的 Codex 会话：
+
+```bash
+codex plugin marketplace add aiberm/aiberm-skill
+codex plugin add aiberm@aiberm
+```
+
+也可以在 Codex 里输入 `/plugins` 安装。
+
+**其他 Agent**：克隆 [仓库](https://github.com/aiberm/aiberm-skill)，把里面的 `skills/aiberm` 文件夹复制到 Agent 加载 Skill 的目录。
 
 ## 3. 设置两个环境变量
 
@@ -94,18 +97,17 @@ curl -sS "https://aiberm.com/api/user/self" \
 - “我的 Aiberm 还剩多少余额？”
 - “我昨天在 Aiberm 上花了多少钱？按模型分一下。”
 - “列出我的 Aiberm API 令牌，以及每个还剩多少额度。”
-- “`claude-sonnet-5-5` 在我的分组里每 100 万 token 多少钱？”
+- “`claude-sonnet-5-5` 在 Aiberm 上每 100 万 token 多少钱？”
 - “这周我在 Aiberm 上用得最多的是哪些模型？”
 - “看看我最近的 Aiberm 充值记录。”
 - “帮我在 Aiberm 创建一个叫 `my-app` 的 API Key，额度上限 5 美元。”
 - “把我的 Aiberm 令牌 `old-test` 禁用掉。”
 
-在 Claude Code 里，也可以输入 `/aiberm` 直接调用这个 Skill。
+在 Claude Code 里，也可以输入 `/aiberm:aiberm` 直接调用这个 Skill。
 
 | 你问的内容 | Skill 读取的接口 |
 | --- | --- |
 | 余额和累计消费 | `GET /api/user/self` |
-| 分组及其价格倍率 | `GET /api/user/self/groups` |
 | 可以调用的模型 | `GET /api/user/models` |
 | 模型价格 | `GET /api/pricing` |
 | API 令牌 | `GET /api/token/` |
@@ -115,12 +117,12 @@ curl -sS "https://aiberm.com/api/user/self" \
 | 充值记录 | `GET /api/user/topup/self` |
 | 创建、修改或删除 API 令牌 | `POST`、`PUT` 或 `DELETE /api/token/` |
 
-金额按 500000 额度 = 1 美元换算成美元。价格按你账户上各分组的倍率计算，而不是公开的默认值。
+金额按 500000 额度 = 1 美元换算成美元。价格就是你的账户实际支付的价格。
 
 ### 创建和修改 API 令牌
 
 - 每次创建、修改、启用、禁用或删除之前，Agent 都会先告诉你要提交的内容，等你确认后再执行。
-- 如果你没有特别要求，新令牌和控制台的默认设置一样：无限额度、永不过期。你也可以指定额度上限、过期时间、分组或允许使用的模型。
+- 如果你没有特别要求，新令牌和控制台的默认设置一样：无限额度、永不过期。你也可以指定额度上限、过期时间或允许使用的模型。
 - 创建完成后，Agent 会把完整的 Key 显示一次，复制到你的应用或配置里即可。
 - 删除令牌无法撤销，正在使用这个 Key 的应用会立即失效。
 
@@ -142,7 +144,7 @@ curl -sS "https://aiberm.com/api/user/self" \
 | `未提供 New-Api-User` | 没有设置 `AIBERM_USER_ID`。 |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` 不是令牌所属账户的 ID。请在同一个账户的个人设置里复制 ID。 |
 | `access token 无效` | 令牌填错了，或者已经重新生成过。生成一个新令牌并更新 `AIBERM_ACCESS_TOKEN`。 |
-| Agent 没有用这个 Skill | 确认文件位于 `~/.claude/skills/aiberm/SKILL.md`（或你所用 Agent 的目录），然后开一个新会话。在 Claude Code 里可以直接输入 `/aiberm`。 |
+| Agent 没有用这个 Skill | 开一个新会话。在 Claude Code 里，确认 `/plugin` 显示 `aiberm` 已启用，或直接输入 `/aiberm:aiberm`。在 Codex 里，确认 `codex plugin list` 显示 `aiberm@aiberm` 已安装。 |
 | `时间跨度不能超过 1 个月` | 按小时的用量每次最多查询 30 天，请缩短时间范围。 |
 
 Skill 源码和完整的接口列表在 [aiberm-skill 仓库](https://github.com/aiberm/aiberm-skill)。模型接口本身的报错请参阅 [错误处理](/docs/zh/error-handling/)。

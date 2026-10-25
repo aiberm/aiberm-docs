@@ -12,7 +12,7 @@ import Callout from '../../components/Callout.tsx';
 
 [aiberm-skill](https://github.com/aiberm/aiberm-skill) bringt einem Coding-Agenten bei, Ihr eigenes Aiberm-Konto auszulesen. Nach der Installation können Sie Claude Code, Codex oder einen anderen Agenten fragen: „Wie viel Guthaben habe ich bei Aiberm noch?“ Der Agent ruft die Aiberm-API auf und antwortet in verständlicher Sprache.
 
-Der Skill liest Ihr Guthaben, Ihre Gruppen, Modelle, Preise, API-Tokens, Nutzungsprotokolle und Aufladungen aus. Außerdem kann er Ihre API-Tokens erstellen, bearbeiten, aktivieren, deaktivieren und löschen und fragt vor jeder Änderung bei Ihnen nach.
+Der Skill liest Ihr Guthaben, Ihre Modelle, Preise, API-Tokens, Nutzungsprotokolle und Aufladungen aus. Außerdem kann er Ihre API-Tokens erstellen, bearbeiten, aktivieren, deaktivieren und löschen und fragt vor jeder Änderung bei Ihnen nach.
 
 <Callout client:load type="info">
 Ein Skill ist ein Ordner mit einer Datei `SKILL.md`. Passt Ihre Frage zur Beschreibung des Skills, liest der Agent die Datei und führt `curl` selbst aus. Nichts läuft im Hintergrund, und es gibt nichts zu bauen oder dauerhaft laufen zu lassen.
@@ -41,21 +41,24 @@ Das System-Zugriffstoken ist **kein** API-Schlüssel (`sk-...`). Es wirkt wie Ih
 
 ## 2. Skill installieren
 
-Kopieren Sie den Ordner `skills/aiberm` aus dem Repository in den Skill-Ordner Ihres Agenten:
+**Claude Code** (2.1.275 oder neuer): Führen Sie diesen Befehl in einer Claude-Code-Sitzung aus.
 
-```bash
-git clone https://github.com/aiberm/aiberm-skill.git
-mkdir -p ~/.claude/skills
-cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
+```text
+/plugin install aiberm --marketplace aiberm/aiberm-skill
 ```
 
-| Agent | Skill-Ordner |
-| --- | --- |
-| Claude Code | `~/.claude/skills/aiberm` für alle Projekte oder `.claude/skills/aiberm` innerhalb eines Projekts |
-| Codex | `~/.codex/skills/aiberm` |
-| Cursor | `~/.cursor/skills/aiberm` |
+Führen Sie in älteren Versionen zuerst `/plugin marketplace add aiberm/aiberm-skill` und dann `/plugin install aiberm@aiberm` aus. Wenn Claude Code Sie dazu auffordert, führen Sie `/reload-plugins` aus.
 
-Bei anderen Agenten legen Sie den Ordner `aiberm` dort ab, wo der Agent seine Skills lädt. Für ein späteres Update führen Sie im geklonten Repository `git pull` aus und kopieren den Ordner erneut.
+**Codex**: Führen Sie diese Befehle in einem Terminal aus und starten Sie dann eine neue Codex-Sitzung.
+
+```bash
+codex plugin marketplace add aiberm/aiberm-skill
+codex plugin add aiberm@aiberm
+```
+
+Sie können ihn auch in Codex über `/plugins` installieren.
+
+**Andere Agenten**: Klonen Sie [das Repository](https://github.com/aiberm/aiberm-skill) und kopieren Sie den darin enthaltenen Ordner `skills/aiberm` in den Ordner, aus dem Ihr Agent Skills lädt.
 
 ## 3. Die beiden Variablen setzen
 
@@ -94,18 +97,17 @@ Starten Sie eine neue Agent-Sitzung und fragen Sie in Ihren eigenen Worten:
 - „Wie viel Guthaben habe ich bei Aiberm noch?“
 - „Wie viel habe ich gestern bei Aiberm ausgegeben, aufgeschlüsselt nach Modell?“
 - „Zeig mir meine Aiberm-API-Tokens und wie viel Kontingent bei jedem noch übrig ist.“
-- „Was kostet `claude-sonnet-5-5` pro 1M Tokens in meiner Gruppe?“
+- „Was kostet `claude-sonnet-5-5` pro 1M Tokens bei Aiberm?“
 - „Welche Modelle habe ich diese Woche bei Aiberm am meisten genutzt?“
 - „Zeig mir meine letzten Aufladungen bei Aiberm.“
 - „Erstelle einen Aiberm-API-Schlüssel namens `my-app` mit einem Limit von 5 $.“
 - „Deaktiviere mein Aiberm-Token `old-test`.“
 
-In Claude Code können Sie den Skill auch direkt mit `/aiberm` aufrufen.
+In Claude Code können Sie den Skill auch direkt mit `/aiberm:aiberm` aufrufen.
 
 | Ihre Frage betrifft | Was der Skill abfragt |
 | --- | --- |
 | Guthaben und Gesamtausgaben | `GET /api/user/self` |
-| Gruppen und ihre Preisfaktoren | `GET /api/user/self/groups` |
 | Modelle, die Sie aufrufen können | `GET /api/user/models` |
 | Modellpreise | `GET /api/pricing` |
 | API-Tokens | `GET /api/token/` |
@@ -115,12 +117,12 @@ In Claude Code können Sie den Skill auch direkt mit `/aiberm` aufrufen.
 | Aufladungen | `GET /api/user/topup/self` |
 | Erstellen, Bearbeiten oder Löschen von API-Tokens | `POST`, `PUT` oder `DELETE /api/token/` |
 
-Beträge werden zum Kurs 500000 Kontingent = 1 $ in USD umgerechnet. Die Preise richten sich nach den Faktoren der Gruppen in Ihrem Konto, nicht nach den öffentlichen Standardwerten.
+Beträge werden zum Kurs 500000 Kontingent = 1 $ in USD umgerechnet. Die Preise entsprechen dem, was Ihr Konto tatsächlich bezahlt.
 
 ### API-Tokens erstellen und ändern
 
 - Vor jedem Erstellen, Bearbeiten, Aktivieren, Deaktivieren oder Löschen sagt Ihnen der Agent, was er senden wird, und wartet auf Ihr OK.
-- Wenn Sie nichts anderes verlangen, erhält ein neues Token wie in der Konsole unbegrenztes Kontingent und kein Ablaufdatum. Sie können ein Ausgabenlimit, ein Ablaufdatum, eine Gruppe oder eine Liste erlaubter Modelle anfordern.
+- Wenn Sie nichts anderes verlangen, erhält ein neues Token wie in der Konsole unbegrenztes Kontingent und kein Ablaufdatum. Sie können ein Ausgabenlimit, ein Ablaufdatum oder eine Liste erlaubter Modelle anfordern.
 - Nach dem Erstellen zeigt der Agent den vollständigen Schlüssel des Tokens einmal an. Kopieren Sie ihn in Ihre App oder Konfiguration.
 - Das Löschen eines Tokens lässt sich nicht rückgängig machen, und Apps, die seinen Schlüssel verwenden, funktionieren sofort nicht mehr.
 
@@ -142,7 +144,7 @@ Diese Regeln sind Anweisungen an den Agenten, keine technische Sperre. Das Token
 | `未提供 New-Api-User` | `AIBERM_USER_ID` ist nicht gesetzt. |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` ist nicht die ID des Kontos, dem das Token gehört. Kopieren Sie die ID im selben Konto unter Persönliche Einstellungen. |
 | `access token 无效` | Das Token ist falsch oder wurde neu generiert. Generieren Sie ein neues und aktualisieren Sie `AIBERM_ACCESS_TOKEN`. |
-| Der Agent verwendet den Skill nicht | Prüfen Sie, ob die Datei unter `~/.claude/skills/aiberm/SKILL.md` (oder im Ordner Ihres Agenten) liegt, und starten Sie eine neue Sitzung. Geben Sie in Claude Code `/aiberm` ein. |
+| Der Agent verwendet den Skill nicht | Starten Sie eine neue Sitzung. Prüfen Sie in Claude Code, ob `aiberm` unter `/plugin` als aktiviert angezeigt wird, oder geben Sie `/aiberm:aiberm` ein. Prüfen Sie in Codex, ob `aiberm@aiberm` in `codex plugin list` als installiert aufgeführt ist. |
 | `时间跨度不能超过 1 个月` | Die stündliche Nutzung umfasst pro Anfrage höchstens 30 Tage. Fragen Sie nach einem kürzeren Zeitraum. |
 
 Den Quellcode des Skills und die vollständige Liste der Anfragen finden Sie im [aiberm-skill-Repository](https://github.com/aiberm/aiberm-skill). Fehler der Modell-API selbst sind unter [Fehlerbehandlung](/docs/de/error-handling/) beschrieben.
