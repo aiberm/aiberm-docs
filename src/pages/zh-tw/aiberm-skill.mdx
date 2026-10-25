@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/DocsLayout.astro
 title: Aiberm Skill
-description: 安裝 Aiberm Skill，讓 Claude Code、Codex 等 Agent 直接查詢你的 Aiberm 餘額、用量和價格，並幫你管理 API 權杖。
+description: 安裝 Aiberm Skill，讓 Claude Code、Codex、Grok Build 等 Agent 直接查詢你的 Aiberm 餘額、用量和價格，並幫你管理 API 權杖。
 lang: zh-tw
 activeId: aiberm-skill
 ---
@@ -10,7 +10,7 @@ import Callout from '../../components/Callout.tsx';
 
 # Aiberm Skill
 
-[aiberm-skill](https://github.com/aiberm/aiberm-skill) 讓程式開發 Agent 學會讀取你自己的 Aiberm 帳戶。安裝之後，你可以直接問 Claude Code、Codex 或其他 Agent：「我的 Aiberm 還剩多少餘額？」Agent 會呼叫 Aiberm 的 API，用白話回答你。
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) 讓程式開發 Agent 學會讀取你自己的 Aiberm 帳戶。安裝之後，你可以直接問 Claude Code、Codex、Grok Build 或其他 Agent：「我的 Aiberm 還剩多少餘額？」Agent 會呼叫 Aiberm 的 API，用白話回答你。
 
 這個 Skill 可以查詢餘額、模型、價格、API 權杖、使用紀錄和儲值紀錄。它也能建立、編輯、啟用、停用和刪除你的 API 權杖，而且每次變更前都會先問過你。
 
@@ -21,8 +21,8 @@ Skill 就是一個包含 `SKILL.md` 檔案的資料夾。當你的問題符合 S
 ## 前置條件
 
 - 一個 Aiberm 帳戶（[註冊](https://aiberm.com/register)）
-- 一個支援 Skill 的 Agent，例如 [Claude Code](/docs/zh-tw/claude-code/) 或 [Codex](/docs/zh-tw/codex/)
-- `curl` 和相容 bash 的 shell。macOS 和 Linux 都已內建；在 Windows 上，Claude Code 會使用 Git Bash。
+- 一個支援 Skill 的 Agent，例如 [Claude Code](/docs/zh-tw/claude-code/)、[Codex](/docs/zh-tw/codex/) 或 [Grok Build](https://x.ai/build)
+- `git`、`curl` 和相容 bash 的 shell。macOS 和 Linux 通常都已內建；在 Windows 上，Claude Code 會使用 Git Bash。
 
 ## 1. 取得使用者 ID 和系統訪問權杖
 
@@ -41,24 +41,22 @@ Aiberm 的每個帳戶請求都會同時檢查這兩個值，而且 ID 必須屬
 
 ## 2. 安裝 Skill
 
-**Claude Code**（2.1.275 或更新版本）：在 Claude Code 工作階段中執行：
-
-```text
-/plugin install aiberm --marketplace aiberm/aiberm-skill
-```
-
-舊版本請先執行 `/plugin marketplace add aiberm/aiberm-skill`，再執行 `/plugin install aiberm@aiberm`。如果 Claude Code 提示你，請再執行 `/reload-plugins`。
-
-**Codex**：在終端機中執行下面兩個指令，然後開啟新的 Codex 工作階段：
+把 `skills/aiberm` 資料夾複製到 Agent 的 Skill 資料夾，然後開啟新的工作階段：
 
 ```bash
-codex plugin marketplace add aiberm/aiberm-skill
-codex plugin add aiberm@aiberm
+git clone https://github.com/aiberm/aiberm-skill.git
+
+# Claude Code
+mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
+
+# Codex
+mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
+
+# Grok Build
+mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
 ```
 
-也可以在 Codex 中透過 `/plugins` 安裝。
-
-**其他 Agent**：clone [儲存庫](https://github.com/aiberm/aiberm-skill)，把其中的 `skills/aiberm` 資料夾複製到 Agent 載入 Skill 的資料夾。
+只要執行你所用 Agent 對應的那幾行。其他 Agent 請把這個資料夾複製到該 Agent 載入 Skill 的位置。之後要更新時，在 `aiberm-skill` 資料夾裡執行 `git pull`，再重新複製一次資料夾即可。
 
 ## 3. 設定兩個環境變數
 
@@ -103,7 +101,7 @@ curl -sS "https://aiberm.com/api/user/self" \
 - 「幫我在 Aiberm 建立一個叫 `my-app` 的 API 金鑰，額度上限 5 美元。」
 - 「把我的 Aiberm 權杖 `old-test` 停用。」
 
-在 Claude Code 中，也可以輸入 `/aiberm:aiberm` 直接呼叫這個 Skill。
+也可以直接呼叫這個 Skill：在 Claude Code 和 Grok Build 中輸入 `/aiberm`，在 Codex 中輸入 `$aiberm`。
 
 | 你問的內容 | Skill 讀取的 API |
 | --- | --- |
@@ -144,7 +142,7 @@ curl -sS "https://aiberm.com/api/user/self" \
 | `未提供 New-Api-User` | 沒有設定 `AIBERM_USER_ID`。 |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` 不是權杖所屬帳戶的 ID。請從同一個帳戶的個人設定複製 ID。 |
 | `access token 无效` | 權杖填錯了，或已經重新產生過。請產生新的權杖，並更新 `AIBERM_ACCESS_TOKEN`。 |
-| Agent 沒有使用這個 Skill | 開一個新的工作階段。在 Claude Code 中，確認 `/plugin` 顯示 `aiberm` 已啟用，或直接輸入 `/aiberm:aiberm`。在 Codex 中，確認 `codex plugin list` 顯示 `aiberm@aiberm` 已安裝。 |
+| Agent 沒有使用這個 Skill | 確認檔案位於 `~/.claude/skills/aiberm/SKILL.md`、`~/.agents/skills/aiberm/SKILL.md` 或 `~/.grok/skills/aiberm/SKILL.md`，然後開一個新的工作階段。也可以直接呼叫：`/aiberm`（Claude Code、Grok Build）或 `$aiberm`（Codex）。 |
 | `时间跨度不能超过 1 个月` | 按小時的用量每次請求最多涵蓋 30 天。請縮短查詢的時間範圍。 |
 
 Skill 的原始碼和完整的請求清單在 [aiberm-skill 儲存庫](https://github.com/aiberm/aiberm-skill)。模型 API 本身的錯誤請見 [錯誤處理](/docs/zh-tw/error-handling/)。

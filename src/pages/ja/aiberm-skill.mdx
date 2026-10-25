@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/DocsLayout.astro
 title: Aiberm Skill
-description: Aiberm Skill をインストールして、Claude Code、Codex などのエージェントから Aiberm の残高、使用量、料金を確認し、API トークンを管理できるようにします。
+description: Aiberm Skill をインストールして、Claude Code、Codex、Grok Build などのエージェントから Aiberm の残高、使用量、料金を確認し、API トークンを管理できるようにします。
 lang: ja
 activeId: aiberm-skill
 ---
@@ -10,7 +10,7 @@ import Callout from '../../components/Callout.tsx';
 
 # Aiberm Skill
 
-[aiberm-skill](https://github.com/aiberm/aiberm-skill) は、コーディングエージェントがご自身の Aiberm アカウントを読み取れるようにする Skill です。インストールすれば、Claude Code、Codex などのエージェントに「Aiberm の残高はあといくら？」と聞けます。エージェントが Aiberm API を呼び出し、わかりやすい言葉で答えます。
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) は、コーディングエージェントがご自身の Aiberm アカウントを読み取れるようにする Skill です。インストールすれば、Claude Code、Codex、Grok Build などのエージェントに「Aiberm の残高はあといくら？」と聞けます。エージェントが Aiberm API を呼び出し、わかりやすい言葉で答えます。
 
 この Skill は、残高、モデル、料金、API トークン、使用ログ、チャージ履歴を読み取ります。API トークンの作成、編集、有効化、無効化、削除もでき、変更のたびに事前にあなたの確認を求めます。
 
@@ -21,8 +21,8 @@ Skill とは、`SKILL.md` ファイルを含むフォルダのことです。質
 ## 前提条件
 
 - Aiberm アカウント（[登録](https://aiberm.com/register)）
-- Skill に対応したエージェント（[Claude Code](/docs/ja/claude-code/) や [Codex](/docs/ja/codex/) など）
-- `curl` と bash 互換のシェル。macOS と Linux には最初から入っています。Windows では、Claude Code は Git Bash を使います。
+- Skill に対応したエージェント（[Claude Code](/docs/ja/claude-code/)、[Codex](/docs/ja/codex/)、[Grok Build](https://x.ai/build) など）
+- `git`、`curl`、bash 互換のシェル。macOS と Linux には通常 3 つとも入っています。Windows では、Claude Code は Git Bash を使います。
 
 ## 1. ユーザー ID とシステムアクセストークンを取得する
 
@@ -41,24 +41,22 @@ Aiberm はアカウントへのリクエストのたびに両方を確認しま�
 
 ## 2. Skill をインストールする
 
-**Claude Code**（2.1.275 以降）: Claude Code のセッション内で次を実行します。
-
-```text
-/plugin install aiberm --marketplace aiberm/aiberm-skill
-```
-
-それより古いバージョンでは、先に `/plugin marketplace add aiberm/aiberm-skill` を実行してから、`/plugin install aiberm@aiberm` を実行します。Claude Code に求められた場合は、`/reload-plugins` を実行してください。
-
-**Codex**: ターミナルで次のコマンドを実行し、新しい Codex セッションを開始します。
+`skills/aiberm` フォルダをエージェントの Skill フォルダにコピーし、新しいセッションを開始します。
 
 ```bash
-codex plugin marketplace add aiberm/aiberm-skill
-codex plugin add aiberm@aiberm
+git clone https://github.com/aiberm/aiberm-skill.git
+
+# Claude Code
+mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
+
+# Codex
+mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
+
+# Grok Build
+mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
 ```
 
-Codex 内の `/plugins` からインストールすることもできます。
-
-**その他のエージェント**: [リポジトリ](https://github.com/aiberm/aiberm-skill) をクローンし、その中の `skills/aiberm` フォルダを、エージェントが Skill を読み込むフォルダにコピーします。
+実行するのは、お使いのエージェントの行だけで構いません。その他のエージェントでは、そのエージェントが Skill を読み込む場所にフォルダをコピーしてください。あとで更新するときは、`aiberm-skill` で `git pull` を実行し、もう一度フォルダをコピーします。
 
 ## 3. 2 つの環境変数を設定する
 
@@ -103,7 +101,7 @@ curl -sS "https://aiberm.com/api/user/self" \
 - 「Aiberm で `my-app` って名前の API キーを、上限 $5 で作って。」
 - 「Aiberm のトークン `old-test` を無効にして。」
 
-Claude Code では、`/aiberm:aiberm` で Skill を直接呼び出すこともできます。
+Skill を直接呼び出すこともできます。Claude Code と Grok Build では `/aiberm`、Codex では `$aiberm` と入力します。
 
 | 質問の内容 | Skill が読み取る API |
 | --- | --- |
@@ -144,7 +142,7 @@ Claude Code では、`/aiberm:aiberm` で Skill を直接呼び出すことも�
 | `未提供 New-Api-User` | `AIBERM_USER_ID` が設定されていません。 |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` が、トークンを所有するアカウントの ID ではありません。同じアカウントのアカウント設定から ID をコピーしてください。 |
 | `access token 无效` | トークンが間違っているか、再生成されています。新しいトークンを生成し、`AIBERM_ACCESS_TOKEN` を更新してください。 |
-| エージェントが Skill を使わない | 新しいセッションを開始してください。Claude Code では、`/plugin` で `aiberm` が有効になっていることを確認するか、`/aiberm:aiberm` と入力します。Codex では、`codex plugin list` で `aiberm@aiberm` がインストール済みになっていることを確認してください。 |
+| エージェントが Skill を使わない | ファイルが `~/.claude/skills/aiberm/SKILL.md`、`~/.agents/skills/aiberm/SKILL.md`、`~/.grok/skills/aiberm/SKILL.md` のいずれかにあることを確認し、新しいセッションを開始してください。または、`/aiberm`（Claude Code、Grok Build）や `$aiberm`（Codex）で直接呼び出してください。 |
 | `时间跨度不能超过 1 个月` | 時間別の使用量は、1 回のリクエストで最大 30 日分です。期間を短くして聞いてください。 |
 
 Skill のソースとリクエストの完全な一覧は [aiberm-skill リポジトリ](https://github.com/aiberm/aiberm-skill) にあります。モデル API 自体のエラーについては、[エラー処理](/docs/ja/error-handling/) を参照してください。

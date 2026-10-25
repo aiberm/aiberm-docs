@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/DocsLayout.astro
 title: Aiberm Skill
-description: Installez Aiberm Skill pour que Claude Code, Codex et d’autres agents consultent votre solde, votre consommation et les prix sur Aiberm, et gèrent vos clés API.
+description: Installez Aiberm Skill pour que Claude Code, Codex, Grok Build et d’autres agents consultent votre solde, votre consommation et les prix sur Aiberm, et gèrent vos clés API.
 lang: fr
 activeId: aiberm-skill
 ---
@@ -10,7 +10,7 @@ import Callout from '../../components/Callout.tsx';
 
 # Aiberm Skill
 
-[aiberm-skill](https://github.com/aiberm/aiberm-skill) apprend à un agent de code à lire votre propre compte Aiberm. Une fois la skill installée, vous pouvez demander à Claude Code, à Codex ou à un autre agent : « Quel est mon solde restant sur Aiberm ? » L’agent appelle l’API Aiberm et vous répond en langage clair.
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) apprend à un agent de code à lire votre propre compte Aiberm. Une fois la skill installée, vous pouvez demander à Claude Code, à Codex, à Grok Build ou à un autre agent : « Quel est mon solde restant sur Aiberm ? » L’agent appelle l’API Aiberm et vous répond en langage clair.
 
 La skill lit votre solde, les modèles, les prix, vos clés API, vos journaux d’utilisation et l’historique de vos recharges. Elle peut aussi créer, modifier, activer, désactiver et supprimer vos clés API, et vous demande votre accord avant chaque modification.
 
@@ -21,8 +21,8 @@ Une skill est un dossier qui contient un fichier `SKILL.md`. L’agent lit ce fi
 ## Prérequis
 
 - Un compte Aiberm ([Inscription](https://aiberm.com/register))
-- Un agent compatible avec les skills, comme [Claude Code](/docs/fr/claude-code/) ou [Codex](/docs/fr/codex/)
-- `curl` et un shell compatible bash. macOS et Linux disposent des deux. Sous Windows, Claude Code utilise Git Bash.
+- Un agent compatible avec les Skills, comme [Claude Code](/docs/fr/claude-code/), [Codex](/docs/fr/codex/) ou [Grok Build](https://x.ai/build)
+- `git`, `curl` et un shell compatible bash. macOS et Linux disposent généralement des trois. Sous Windows, Claude Code utilise Git Bash.
 
 ## 1. Obtenir votre ID utilisateur et votre jeton d’accès au système
 
@@ -41,24 +41,22 @@ Le jeton d’accès au système n’est **pas** une clé API (`sk-...`). Il fonc
 
 ## 2. Installer la Skill
 
-**Claude Code** (2.1.275 ou version ultérieure) : exécutez cette commande dans une session Claude Code.
-
-```text
-/plugin install aiberm --marketplace aiberm/aiberm-skill
-```
-
-Sur les versions plus anciennes, exécutez d’abord `/plugin marketplace add aiberm/aiberm-skill`, puis `/plugin install aiberm@aiberm`. Si Claude Code vous le demande, exécutez `/reload-plugins`.
-
-**Codex** : exécutez ces commandes dans un terminal, puis démarrez une nouvelle session Codex.
+Copiez le dossier `skills/aiberm` dans le dossier des Skills de votre agent, puis démarrez une nouvelle session :
 
 ```bash
-codex plugin marketplace add aiberm/aiberm-skill
-codex plugin add aiberm@aiberm
+git clone https://github.com/aiberm/aiberm-skill.git
+
+# Claude Code
+mkdir -p ~/.claude/skills && cp -R aiberm-skill/skills/aiberm ~/.claude/skills/
+
+# Codex
+mkdir -p ~/.agents/skills && cp -R aiberm-skill/skills/aiberm ~/.agents/skills/
+
+# Grok Build
+mkdir -p ~/.grok/skills && cp -R aiberm-skill/skills/aiberm ~/.grok/skills/
 ```
 
-Vous pouvez aussi l’installer depuis `/plugins` dans Codex.
-
-**Autres agents** : clonez [le dépôt](https://github.com/aiberm/aiberm-skill) et copiez son dossier `skills/aiberm` dans le dossier où votre agent charge ses skills.
+Exécutez uniquement les lignes des agents que vous utilisez. Pour les autres agents, copiez le dossier là où l’agent charge ses Skills. Pour mettre à jour plus tard, exécutez `git pull` dans `aiberm-skill` et copiez à nouveau le dossier.
 
 ## 3. Définir les deux variables
 
@@ -103,7 +101,7 @@ Démarrez une nouvelle session de l’agent et posez votre question avec vos pro
 - « Crée une clé API Aiberm nommée `my-app` avec une limite de 5 $. »
 - « Désactive mon jeton Aiberm `old-test`. »
 
-Dans Claude Code, vous pouvez aussi appeler la Skill directement avec `/aiberm:aiberm`.
+Vous pouvez aussi appeler la Skill directement : `/aiberm` dans Claude Code et Grok Build, `$aiberm` dans Codex.
 
 | Votre question porte sur | Ce que lit la skill |
 | --- | --- |
@@ -144,7 +142,7 @@ Ces règles sont des instructions données à l’agent, pas un verrou technique
 | `未提供 New-Api-User` | `AIBERM_USER_ID` n’est pas défini. |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` n’est pas l’ID du compte qui possède le jeton. Copiez l’ID depuis la page Profil de ce même compte. |
 | `access token 无效` | Le jeton est incorrect ou a été régénéré. Générez-en un nouveau et mettez à jour `AIBERM_ACCESS_TOKEN`. |
-| L’agent n’utilise pas la Skill | Démarrez une nouvelle session. Dans Claude Code, vérifiez que `/plugin` affiche `aiberm` comme activé, ou tapez `/aiberm:aiberm`. Dans Codex, vérifiez que `codex plugin list` affiche `aiberm@aiberm` comme installé. |
+| L’agent n’utilise pas la Skill | Vérifiez que le fichier se trouve bien à `~/.claude/skills/aiberm/SKILL.md`, `~/.agents/skills/aiberm/SKILL.md` ou `~/.grok/skills/aiberm/SKILL.md`, puis démarrez une nouvelle session. Vous pouvez aussi l’appeler directement avec `/aiberm` (Claude Code, Grok Build) ou `$aiberm` (Codex). |
 | `时间跨度不能超过 1 个月` | L’utilisation par heure couvre au maximum 30 jours par requête. Demandez une période plus courte. |
 
 Le code source de la skill et la liste complète des requêtes se trouvent dans le [dépôt aiberm-skill](https://github.com/aiberm/aiberm-skill). Pour les erreurs renvoyées par l’API des modèles elle-même, consultez [Gestion des erreurs](/docs/fr/error-handling/).
