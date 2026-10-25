@@ -1,0 +1,148 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Aiberm 技能（Agent Skill）
+description: 安裝 Aiberm 技能，讓 Claude Code、Codex 等 Agent 直接查詢你的 Aiberm 餘額、用量和價格，並幫你管理 API 權杖。
+lang: zh-tw
+activeId: aiberm-skill
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Aiberm 技能（Agent Skill）
+
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) 讓程式開發 Agent 學會讀取你自己的 Aiberm 帳戶。安裝之後，你可以直接問 Claude Code、Codex 或其他 Agent：「我的 Aiberm 還剩多少餘額？」Agent 會呼叫 Aiberm 的 API，用白話回答你。
+
+這個技能可以查詢餘額、分組、模型、價格、API 權杖、使用紀錄和儲值紀錄。它也能建立、編輯、啟用、停用和刪除你的 API 權杖，而且每次變更前都會先問過你。
+
+<Callout client:load type="info">
+技能就是一個包含 `SKILL.md` 檔案的資料夾。當你的問題符合技能的描述時，Agent 會讀取這個檔案，然後自己執行 `curl`。不會有程式在背景執行，也沒有東西需要建置或保持執行。
+</Callout>
+
+## 前置條件
+
+- 一個 Aiberm 帳戶（[註冊](https://aiberm.com/register)）
+- 一個支援技能的 Agent，例如 [Claude Code](/docs/zh-tw/claude-code/) 或 [Codex](/docs/zh-tw/codex/)
+- `curl` 和相容 bash 的 shell。macOS 和 Linux 都已內建；在 Windows 上，Claude Code 會使用 Git Bash。
+
+## 1. 取得使用者 ID 和系統訪問權杖
+
+技能需要兩個值，都在 [個人設定](https://aiberm.com/console/personal) 頁面：
+
+| 值 | 位置 |
+| --- | --- |
+| 使用者 ID | 頁面頂端的頁首，顯示為 `ID: 123` |
+| 系統訪問權杖 | **安全設定** 分頁 → **系統訪問權杖** → **生成權杖** |
+
+Aiberm 的每個帳戶請求都會同時檢查這兩個值，而且 ID 必須屬於權杖所屬的帳戶。
+
+<Callout client:load type="warning">
+系統訪問權杖**不是** API 金鑰（`sk-...`）。它等同於你的控制台登入：持有它的人，能做你在控制台裡能做的任何事。請妥善保管。按下 **重新產生** 會替換掉它，仍在使用舊權杖的地方都會失效。
+</Callout>
+
+## 2. 安裝技能
+
+把儲存庫裡的 `skills/aiberm` 資料夾複製到 Agent 的技能資料夾：
+
+```bash
+git clone https://github.com/aiberm/aiberm-skill.git
+mkdir -p ~/.claude/skills
+cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
+```
+
+| Agent | 技能資料夾 |
+| --- | --- |
+| Claude Code | `~/.claude/skills/aiberm`（所有專案適用），或某個專案內的 `.claude/skills/aiberm` |
+| Codex | `~/.codex/skills/aiberm` |
+| Cursor | `~/.cursor/skills/aiberm` |
+
+其他 Agent 請把 `aiberm` 資料夾放到該 Agent 載入技能的位置。之後要更新時，在 clone 下來的儲存庫裡執行 `git pull`，再重新複製一次資料夾即可。
+
+## 3. 設定兩個環境變數
+
+Agent 會從自己的環境變數讀取這兩個值，所以要在啟動 Agent 之前設定好。
+
+**macOS / Linux**：把下面兩行加到 `~/.zshrc` 或 `~/.bashrc`，然後開啟新的終端機：
+
+```bash
+export AIBERM_ACCESS_TOKEN="你的系統訪問權杖"
+export AIBERM_USER_ID="123"
+```
+
+**Windows（PowerShell）**：執行下面的指令，然後開啟新的終端機：
+
+```powershell
+setx AIBERM_ACCESS_TOKEN "你的系統訪問權杖"
+setx AIBERM_USER_ID "123"
+```
+
+<Callout client:load type="tip">
+如果只用 Claude Code，也可以改把這兩個變數寫進 `~/.claude/settings.json` 的 `env` 區塊。
+</Callout>
+
+在交給 Agent 之前，可以先請求一次個人資料，確認這兩個值沒問題。`data.quota` 除以 500000，就是以美元計的剩餘餘額。
+
+```bash
+curl -sS "https://aiberm.com/api/user/self" \
+  -H "Authorization: Bearer $AIBERM_ACCESS_TOKEN" \
+  -H "New-Api-User: $AIBERM_USER_ID"
+```
+
+## 4. 向 Agent 提問
+
+開一個新的 Agent 工作階段，用你自己的話問就好：
+
+- 「我的 Aiberm 還剩多少餘額？」
+- 「我昨天在 Aiberm 花了多少錢？按模型分開列。」
+- 「列出我的 Aiberm API 權杖，還有每個各剩多少額度。」
+- 「`claude-sonnet-5-5` 在我的分組裡每 100 萬 token 多少錢？」
+- 「這週我在 Aiberm 上用最多的是哪些模型？」
+- 「幫我看一下最近的 Aiberm 儲值紀錄。」
+- 「幫我在 Aiberm 建立一個叫 `my-app` 的 API 金鑰，額度上限 5 美元。」
+- 「把我的 Aiberm 權杖 `old-test` 停用。」
+
+在 Claude Code 中，也可以輸入 `/aiberm` 直接呼叫這個技能。
+
+| 你問的內容 | 技能讀取的 API |
+| --- | --- |
+| 餘額和累計花費 | `GET /api/user/self` |
+| 分組及其價格倍率 | `GET /api/user/self/groups` |
+| 可以呼叫的模型 | `GET /api/user/models` |
+| 模型價格 | `GET /api/pricing` |
+| API 權杖 | `GET /api/token/` |
+| 使用紀錄 | `GET /api/log/self` |
+| 用量總計 | `GET /api/log/self/stat` |
+| 依小時和模型分的用量 | `GET /api/data/self` |
+| 儲值紀錄 | `GET /api/user/topup/self` |
+| 建立、編輯或刪除 API 權杖 | `POST`、`PUT` 或 `DELETE /api/token/` |
+
+金額以 500000 額度 = 1 美元換算成美元。價格依你帳戶上各分組的倍率計算，而不是公開的預設值。
+
+### 建立和變更 API 權杖
+
+- 每次建立、編輯、啟用、停用或刪除之前，Agent 都會先告訴你要送出的內容，等你同意後才執行。
+- 除非你另有要求，新權杖和控制台的預設一樣：額度無限、永不過期。你也可以指定額度上限、到期時間、分組或允許使用的模型清單。
+- 建立權杖後，Agent 會顯示一次完整的金鑰。請把它複製到你的應用程式或設定檔中。
+- 刪除權杖後無法復原，使用該金鑰的應用程式會立即失效。
+
+## 技能不會做的事
+
+- 除了 API 權杖之外，不會修改任何東西。它不會付款、兌換儲值碼，也不會修改你的帳戶。這些操作請到 [控制台](https://aiberm.com/console) 進行。
+- 不會重設你的系統訪問權杖。技能明確要求 Agent 永遠不要呼叫那個端點。
+- 不會顯示既有 API 權杖的完整金鑰。權杖清單裡有完整的金鑰，Agent 只會以遮罩後的形式顯示，例如 `sk-abcd****wxyz`。需要完整金鑰時，請到 [權杖管理](https://aiberm.com/console/token) 複製。唯一的例外是 Agent 剛為你建立的權杖。
+
+<Callout client:load type="warning">
+這些規則是給 Agent 的指令，不是技術上的限制。這個權杖擁有你控制台登入的全部權限。只在你信任的 Agent 和電腦上使用。如果外洩了，到個人設定裡按 **重新產生**。
+</Callout>
+
+## 疑難排解
+
+| 你看到的情況 | 處理方式 |
+| --- | --- |
+| Agent 說缺少環境變數 | 把兩個變數都設定好，開啟新的終端機，再開一個新的 Agent 工作階段。 |
+| `未提供 New-Api-User` | 沒有設定 `AIBERM_USER_ID`。 |
+| `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` 不是權杖所屬帳戶的 ID。請從同一個帳戶的個人設定複製 ID。 |
+| `access token 无效` | 權杖填錯了，或已經重新產生過。請產生新的權杖，並更新 `AIBERM_ACCESS_TOKEN`。 |
+| Agent 沒有使用這個技能 | 確認檔案位於 `~/.claude/skills/aiberm/SKILL.md`（或你所用 Agent 的資料夾），然後開一個新的工作階段。在 Claude Code 中，輸入 `/aiberm`。 |
+| `时间跨度不能超过 1 个月` | 按小時的用量每次請求最多涵蓋 30 天。請縮短查詢的時間範圍。 |
+
+技能的原始碼和完整的請求清單在 [aiberm-skill 儲存庫](https://github.com/aiberm/aiberm-skill)。模型 API 本身的錯誤請見 [錯誤處理](/docs/zh-tw/error-handling/)。

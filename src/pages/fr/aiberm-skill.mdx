@@ -1,0 +1,148 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Skill Aiberm pour les agents
+description: Installez la skill Aiberm pour que Claude Code, Codex et d’autres agents consultent votre solde, votre consommation et les prix sur Aiberm, et gèrent vos clés API.
+lang: fr
+activeId: aiberm-skill
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Skill Aiberm pour les agents
+
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) apprend à un agent de code à lire votre propre compte Aiberm. Une fois la skill installée, vous pouvez demander à Claude Code, à Codex ou à un autre agent : « Quel est mon solde restant sur Aiberm ? » L’agent appelle l’API Aiberm et vous répond en langage clair.
+
+La skill lit votre solde, vos groupes, les modèles, les prix, vos clés API, vos journaux d’utilisation et l’historique de vos recharges. Elle peut aussi créer, modifier, activer, désactiver et supprimer vos clés API, et vous demande votre accord avant chaque modification.
+
+<Callout client:load type="info">
+Une skill est un dossier qui contient un fichier `SKILL.md`. L’agent lit ce fichier quand votre question correspond à la description de la skill, puis exécute `curl` lui-même. Rien ne tourne en arrière-plan, et il n’y a rien à compiler ni à laisser tourner.
+</Callout>
+
+## Prérequis
+
+- Un compte Aiberm ([Inscription](https://aiberm.com/register))
+- Un agent compatible avec les skills, comme [Claude Code](/docs/fr/claude-code/) ou [Codex](/docs/fr/codex/)
+- `curl` et un shell compatible bash. macOS et Linux disposent des deux. Sous Windows, Claude Code utilise Git Bash.
+
+## 1. Obtenir votre ID utilisateur et votre jeton d’accès au système
+
+La skill a besoin de deux valeurs, que vous trouverez toutes deux sur la page [Profil](https://aiberm.com/console/personal) :
+
+| Valeur | Où la trouver |
+| --- | --- |
+| ID utilisateur | Dans l’en-tête en haut de la page, sous la forme `ID: 123` |
+| Jeton d’accès au système | Onglet **Sécurité** → **Jeton d'accès au système** → **Générer un jeton** |
+
+Aiberm vérifie les deux à chaque requête liée au compte, et l’ID doit appartenir au compte qui possède le jeton.
+
+<Callout client:load type="warning">
+Le jeton d’accès au système n’est **pas** une clé API (`sk-...`). Il fonctionne comme votre connexion à la console : quiconque le détient peut faire tout ce que vous pouvez faire dans la console. Gardez-le secret. Un clic sur **Régénérer** le remplace, et tout ce qui utilise encore l’ancien jeton cesse de fonctionner.
+</Callout>
+
+## 2. Installer la skill
+
+Copiez le dossier `skills/aiberm` du dépôt dans le dossier des skills de votre agent :
+
+```bash
+git clone https://github.com/aiberm/aiberm-skill.git
+mkdir -p ~/.claude/skills
+cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
+```
+
+| Agent | Dossier des skills |
+| --- | --- |
+| Claude Code | `~/.claude/skills/aiberm` pour tous les projets, ou `.claude/skills/aiberm` dans un seul projet |
+| Codex | `~/.codex/skills/aiberm` |
+| Cursor | `~/.cursor/skills/aiberm` |
+
+Pour les autres agents, placez le dossier `aiberm` là où l’agent charge ses skills. Pour mettre à jour plus tard, exécutez `git pull` dans le clone et copiez à nouveau le dossier.
+
+## 3. Définir les deux variables
+
+L’agent lit les valeurs dans son environnement : définissez-les donc avant de le lancer.
+
+**macOS / Linux** : ajoutez ces lignes à `~/.zshrc` ou `~/.bashrc`, puis ouvrez un nouveau terminal :
+
+```bash
+export AIBERM_ACCESS_TOKEN="your-system-access-token"
+export AIBERM_USER_ID="123"
+```
+
+**Windows (PowerShell)** : exécutez les commandes ci-dessous, puis ouvrez un nouveau terminal :
+
+```powershell
+setx AIBERM_ACCESS_TOKEN "your-system-access-token"
+setx AIBERM_USER_ID "123"
+```
+
+<Callout client:load type="tip">
+Pour Claude Code uniquement, vous pouvez plutôt placer les deux variables dans le bloc `env` de `~/.claude/settings.json`.
+</Callout>
+
+Pour vérifier les valeurs avant de faire appel à un agent, récupérez votre profil. `data.quota` divisé par 500000 correspond à votre solde restant en USD.
+
+```bash
+curl -sS "https://aiberm.com/api/user/self" \
+  -H "Authorization: Bearer $AIBERM_ACCESS_TOKEN" \
+  -H "New-Api-User: $AIBERM_USER_ID"
+```
+
+## 4. Interroger votre agent
+
+Démarrez une nouvelle session de l’agent et posez votre question avec vos propres mots :
+
+- « Quel est mon solde restant sur Aiberm ? »
+- « Combien j’ai dépensé hier sur Aiberm, par modèle ? »
+- « Liste mes clés API Aiberm et le quota restant de chacune. »
+- « Combien coûte `claude-sonnet-5-5` pour 1M de tokens dans mon groupe ? »
+- « Quels modèles j’ai le plus utilisés sur Aiberm cette semaine ? »
+- « Montre-moi mes dernières recharges Aiberm. »
+- « Crée une clé API Aiberm nommée `my-app` avec une limite de 5 $. »
+- « Désactive mon jeton Aiberm `old-test`. »
+
+Dans Claude Code, vous pouvez aussi appeler la skill directement avec `/aiberm`.
+
+| Votre question porte sur | Ce que lit la skill |
+| --- | --- |
+| Le solde et le total dépensé | `GET /api/user/self` |
+| Les groupes et leurs ratios de prix | `GET /api/user/self/groups` |
+| Les modèles que vous pouvez appeler | `GET /api/user/models` |
+| Les prix des modèles | `GET /api/pricing` |
+| Les clés API | `GET /api/token/` |
+| Les journaux d’utilisation | `GET /api/log/self` |
+| Les totaux d’utilisation | `GET /api/log/self/stat` |
+| L’utilisation par heure et par modèle | `GET /api/data/self` |
+| L’historique des recharges | `GET /api/user/topup/self` |
+| La création, la modification ou la suppression de clés API | `POST`, `PUT` ou `DELETE /api/token/` |
+
+Les montants sont convertis en USD à raison de 500000 unités de quota pour 1 $. Les prix appliquent les ratios des groupes de votre compte, et non les valeurs publiques par défaut.
+
+### Créer et modifier des clés API
+
+- Avant chaque création, modification, activation, désactivation ou suppression, l’agent vous indique ce qu’il va envoyer et attend votre accord.
+- Sauf demande contraire, une nouvelle clé reçoit un quota illimité et aucune date d’expiration, comme dans la console. Vous pouvez demander une limite de dépense, une date d’expiration, un groupe ou une liste de modèles autorisés.
+- Après la création d’une clé, l’agent affiche la clé complète une seule fois. Copiez-la dans votre application ou votre configuration.
+- La suppression d’une clé est irréversible, et les applications qui l’utilisent cessent aussitôt de fonctionner.
+
+## Ce que la skill ne fait pas
+
+- Hormis les clés API, elle ne modifie rien. Elle n’effectue aucun paiement, n’échange aucun code de recharge et ne touche pas à votre compte. Pour tout cela, utilisez la [console](https://aiberm.com/console).
+- Elle ne réinitialise pas votre jeton d’accès au système. La skill demande à l’agent de ne jamais appeler cette route.
+- Elle ne révèle pas vos clés API existantes en entier. La liste des clés contient les clés complètes, mais l’agent les affiche masquées, comme `sk-abcd****wxyz`. Copiez une clé complète depuis la page [Jetons](https://aiberm.com/console/token). Seule exception : une clé que l’agent vient de créer pour vous.
+
+<Callout client:load type="warning">
+Ces règles sont des instructions données à l’agent, pas un verrou technique. Le jeton permet tout ce que permet votre connexion à la console. Utilisez-le uniquement avec des agents et des machines de confiance. En cas de fuite, cliquez sur **Régénérer** sur la page Profil.
+</Callout>
+
+## Dépannage
+
+| Ce que vous voyez | Que faire |
+| --- | --- |
+| L’agent indique que les variables sont manquantes | Définissez les deux, ouvrez un nouveau terminal et démarrez une nouvelle session de l’agent. |
+| `未提供 New-Api-User` | `AIBERM_USER_ID` n’est pas défini. |
+| `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` n’est pas l’ID du compte qui possède le jeton. Copiez l’ID depuis la page Profil de ce même compte. |
+| `access token 无效` | Le jeton est incorrect ou a été régénéré. Générez-en un nouveau et mettez à jour `AIBERM_ACCESS_TOKEN`. |
+| L’agent n’utilise pas la skill | Vérifiez que le fichier se trouve bien à `~/.claude/skills/aiberm/SKILL.md` (ou dans le dossier de votre agent) et démarrez une nouvelle session. Dans Claude Code, tapez `/aiberm`. |
+| `时间跨度不能超过 1 个月` | L’utilisation par heure couvre au maximum 30 jours par requête. Demandez une période plus courte. |
+
+Le code source de la skill et la liste complète des requêtes se trouvent dans le [dépôt aiberm-skill](https://github.com/aiberm/aiberm-skill). Pour les erreurs renvoyées par l’API des modèles elle-même, consultez [Gestion des erreurs](/docs/fr/error-handling/).
