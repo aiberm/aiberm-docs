@@ -1,32 +1,32 @@
 ---
 layout: ../../layouts/DocsLayout.astro
-title: Aiberm スキル（Agent Skill）
-description: Aiberm スキルをインストールして、Claude Code、Codex などのエージェントから Aiberm の残高、使用量、料金を確認し、API トークンを管理できるようにします。
+title: Aiberm Skill
+description: Aiberm Skill をインストールして、Claude Code、Codex などのエージェントから Aiberm の残高、使用量、料金を確認し、API トークンを管理できるようにします。
 lang: ja
 activeId: aiberm-skill
 ---
 
 import Callout from '../../components/Callout.tsx';
 
-# Aiberm スキル（Agent Skill）
+# Aiberm Skill
 
-[aiberm-skill](https://github.com/aiberm/aiberm-skill) は、コーディングエージェントがご自身の Aiberm アカウントを読み取れるようにするスキルです。インストールすれば、Claude Code、Codex などのエージェントに「Aiberm の残高はあといくら？」と聞けます。エージェントが Aiberm API を呼び出し、わかりやすい言葉で答えます。
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) は、コーディングエージェントがご自身の Aiberm アカウントを読み取れるようにする Skill です。インストールすれば、Claude Code、Codex などのエージェントに「Aiberm の残高はあといくら？」と聞けます。エージェントが Aiberm API を呼び出し、わかりやすい言葉で答えます。
 
-このスキルは、残高、グループ、モデル、料金、API トークン、使用ログ、チャージ履歴を読み取ります。API トークンの作成、編集、有効化、無効化、削除もでき、変更のたびに事前にあなたの確認を求めます。
+この Skill は、残高、グループ、モデル、料金、API トークン、使用ログ、チャージ履歴を読み取ります。API トークンの作成、編集、有効化、無効化、削除もでき、変更のたびに事前にあなたの確認を求めます。
 
 <Callout client:load type="info">
-スキルとは、`SKILL.md` ファイルを含むフォルダのことです。質問がスキルの説明に合うと、エージェントがこのファイルを読み、自分で `curl` を実行します。バックグラウンドで動くものはなく、ビルドや常駐が必要なものもありません。
+Skill とは、`SKILL.md` ファイルを含むフォルダのことです。質問が Skill の説明に合うと、エージェントがこのファイルを読み、自分で `curl` を実行します。バックグラウンドで動くものはなく、ビルドや常駐が必要なものもありません。
 </Callout>
 
 ## 前提条件
 
 - Aiberm アカウント（[登録](https://aiberm.com/register)）
-- スキルに対応したエージェント（[Claude Code](/docs/ja/claude-code/) や [Codex](/docs/ja/codex/) など）
+- Skill に対応したエージェント（[Claude Code](/docs/ja/claude-code/) や [Codex](/docs/ja/codex/) など）
 - `curl` と bash 互換のシェル。macOS と Linux には最初から入っています。Windows では、Claude Code は Git Bash を使います。
 
 ## 1. ユーザー ID とシステムアクセストークンを取得する
 
-スキルには 2 つの値が必要です。どちらも [アカウント設定](https://aiberm.com/console/personal) で確認できます。
+Skill には 2 つの値が必要です。どちらも [アカウント設定](https://aiberm.com/console/personal) で確認できます。
 
 | 値 | 確認場所 |
 | --- | --- |
@@ -39,9 +39,9 @@ Aiberm はアカウントへのリクエストのたびに両方を確認しま�
 システムアクセストークンは API キー（`sk-...`）では**ありません**。コンソールへのログインと同じように働き、これを持っている人は、あなたがコンソールでできることを何でもできます。他人に知られないようにしてください。**再生成** を押すとトークンが置き換わり、古いトークンを使っているものはすべて動かなくなります。
 </Callout>
 
-## 2. スキルをインストールする
+## 2. Skill をインストールする
 
-リポジトリの `skills/aiberm` フォルダを、エージェントのスキルフォルダにコピーします。
+リポジトリの `skills/aiberm` フォルダを、エージェントの Skill フォルダにコピーします。
 
 ```bash
 git clone https://github.com/aiberm/aiberm-skill.git
@@ -49,13 +49,13 @@ mkdir -p ~/.claude/skills
 cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
 ```
 
-| エージェント | スキルフォルダ |
+| エージェント | Skill フォルダ |
 | --- | --- |
 | Claude Code | すべてのプロジェクトで使う場合は `~/.claude/skills/aiberm`、1 つのプロジェクトだけで使う場合はそのプロジェクト内の `.claude/skills/aiberm` |
 | Codex | `~/.codex/skills/aiberm` |
 | Cursor | `~/.cursor/skills/aiberm` |
 
-その他のエージェントでは、そのエージェントがスキルを読み込む場所に `aiberm` フォルダを置いてください。あとで更新するときは、クローンしたリポジトリで `git pull` を実行し、もう一度フォルダをコピーします。
+その他のエージェントでは、そのエージェントが Skill を読み込む場所に `aiberm` フォルダを置いてください。あとで更新するときは、クローンしたリポジトリで `git pull` を実行し、もう一度フォルダをコピーします。
 
 ## 3. 2 つの環境変数を設定する
 
@@ -100,9 +100,9 @@ curl -sS "https://aiberm.com/api/user/self" \
 - 「Aiberm で `my-app` って名前の API キーを、上限 $5 で作って。」
 - 「Aiberm のトークン `old-test` を無効にして。」
 
-Claude Code では、`/aiberm` でスキルを直接呼び出すこともできます。
+Claude Code では、`/aiberm` で Skill を直接呼び出すこともできます。
 
-| 質問の内容 | スキルが読み取る API |
+| 質問の内容 | Skill が読み取る API |
 | --- | --- |
 | 残高と累計利用額 | `GET /api/user/self` |
 | グループとその価格倍率 | `GET /api/user/self/groups` |
@@ -124,10 +124,10 @@ Claude Code では、`/aiberm` でスキルを直接呼び出すこともでき�
 - トークンを作成すると、エージェントが完全なキーを一度だけ表示します。アプリや設定ファイルにコピーしてください。
 - トークンの削除は元に戻せません。そのキーを使っているアプリはすぐに動かなくなります。
 
-## スキルがしないこと
+## Skill がしないこと
 
 - API トークン以外は何も変更しません。支払い、チャージコードの引き換え、アカウントの編集は行いません。これらは [コンソール](https://aiberm.com/console) で行ってください。
-- システムアクセストークンをリセットしません。スキルは、そのエンドポイントを決して呼び出さないようエージェントに指示しています。
+- システムアクセストークンをリセットしません。Skill は、そのエンドポイントを決して呼び出さないようエージェントに指示しています。
 - 既存の API トークンの完全なキーは表示しません。トークン一覧には完全なキーが含まれますが、エージェントは `sk-abcd****wxyz` のようにマスクして表示します。完全なキーは [トークン管理](https://aiberm.com/console/token) からコピーしてください。唯一の例外は、エージェントがたった今作成したトークンです。
 
 <Callout client:load type="warning">
@@ -142,7 +142,7 @@ Claude Code では、`/aiberm` でスキルを直接呼び出すこともでき�
 | `未提供 New-Api-User` | `AIBERM_USER_ID` が設定されていません。 |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` が、トークンを所有するアカウントの ID ではありません。同じアカウントのアカウント設定から ID をコピーしてください。 |
 | `access token 无效` | トークンが間違っているか、再生成されています。新しいトークンを生成し、`AIBERM_ACCESS_TOKEN` を更新してください。 |
-| エージェントがスキルを使わない | ファイルが `~/.claude/skills/aiberm/SKILL.md`（またはお使いのエージェントのフォルダ）にあることを確認し、新しいセッションを開始してください。Claude Code では `/aiberm` と入力します。 |
+| エージェントが Skill を使わない | ファイルが `~/.claude/skills/aiberm/SKILL.md`（またはお使いのエージェントのフォルダ）にあることを確認し、新しいセッションを開始してください。Claude Code では `/aiberm` と入力します。 |
 | `时间跨度不能超过 1 个月` | 時間別の使用量は、1 回のリクエストで最大 30 日分です。期間を短くして聞いてください。 |
 
-スキルのソースとリクエストの完全な一覧は [aiberm-skill リポジトリ](https://github.com/aiberm/aiberm-skill) にあります。モデル API 自体のエラーについては、[エラー処理](/docs/ja/error-handling/) を参照してください。
+Skill のソースとリクエストの完全な一覧は [aiberm-skill リポジトリ](https://github.com/aiberm/aiberm-skill) にあります。モデル API 自体のエラーについては、[エラー処理](/docs/ja/error-handling/) を参照してください。

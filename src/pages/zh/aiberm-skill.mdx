@@ -1,32 +1,32 @@
 ---
 layout: ../../layouts/DocsLayout.astro
-title: Aiberm 技能（Agent Skill）
-description: 安装 Aiberm 技能，让 Claude Code、Codex 等 Agent 直接查询你的 Aiberm 余额、用量和价格，并帮你管理 API 令牌。
+title: Aiberm Skill
+description: 安装 Aiberm Skill，让 Claude Code、Codex 等 Agent 直接查询你的 Aiberm 余额、用量和价格，并帮你管理 API 令牌。
 lang: zh
 activeId: aiberm-skill
 ---
 
 import Callout from '../../components/Callout.tsx';
 
-# Aiberm 技能（Agent Skill）
+# Aiberm Skill
 
 [aiberm-skill](https://github.com/aiberm/aiberm-skill) 教会编程 Agent 读取你自己的 Aiberm 账户。装好之后，你可以直接问 Claude Code、Codex 或其他 Agent：“我的 Aiberm 还剩多少余额？”Agent 会自己调用 Aiberm 的接口，用大白话回答你。
 
-这个技能能查余额、分组、模型、价格、API 令牌、使用日志和充值记录，还能创建、修改、启用、禁用和删除你的 API 令牌，每次改动前都会先征求你的同意。
+这个 Skill 能查余额、分组、模型、价格、API 令牌、使用日志和充值记录，还能创建、修改、启用、禁用和删除你的 API 令牌，每次改动前都会先征求你的同意。
 
 <Callout client:load type="info">
-技能就是一个包含 `SKILL.md` 文件的文件夹。当你的问题和技能描述对得上时，Agent 会读这个文件，然后自己运行 `curl`。没有后台进程，不需要编译，也不用一直开着什么。
+Skill 就是一个包含 `SKILL.md` 文件的文件夹。当你的问题和 Skill 描述对得上时，Agent 会读这个文件，然后自己运行 `curl`。没有后台进程，不需要编译，也不用一直开着什么。
 </Callout>
 
 ## 前置条件
 
 - 一个 Aiberm 账户（[注册](https://aiberm.com/register)）
-- 一个支持技能的 Agent，例如 [Claude Code](/docs/zh/claude-code/) 或 [Codex](/docs/zh/codex/)
+- 一个支持 Skill 的 Agent，例如 [Claude Code](/docs/zh/claude-code/) 或 [Codex](/docs/zh/codex/)
 - `curl` 和兼容 bash 的 shell。macOS 和 Linux 自带；Windows 上的 Claude Code 使用 Git Bash。
 
 ## 1. 获取用户 ID 和系统访问令牌
 
-技能需要两个值，都在 [个人设置](https://aiberm.com/console/personal) 页面：
+Skill 需要两个值，都在 [个人设置](https://aiberm.com/console/personal) 页面：
 
 | 值 | 位置 |
 | --- | --- |
@@ -39,9 +39,9 @@ Aiberm 的每个账户接口都会同时校验这两个值，而且 ID 必须属
 系统访问令牌**不是** API Key（`sk-...`）。它相当于你的控制台登录：拿到它的人能做你在控制台里能做的一切事情，请妥善保管。点 **重新生成** 会替换掉旧令牌，还在用旧令牌的地方会立即失效。
 </Callout>
 
-## 2. 安装技能
+## 2. 安装 Skill
 
-把仓库里的 `skills/aiberm` 文件夹复制到 Agent 的技能目录：
+把仓库里的 `skills/aiberm` 文件夹复制到 Agent 的 Skill 目录：
 
 ```bash
 git clone https://github.com/aiberm/aiberm-skill.git
@@ -49,13 +49,13 @@ mkdir -p ~/.claude/skills
 cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
 ```
 
-| Agent | 技能目录 |
+| Agent | Skill 目录 |
 | --- | --- |
 | Claude Code | `~/.claude/skills/aiberm`（所有项目），或某个项目里的 `.claude/skills/aiberm` |
 | Codex | `~/.codex/skills/aiberm` |
 | Cursor | `~/.cursor/skills/aiberm` |
 
-其他 Agent 请把 `aiberm` 文件夹放到它加载技能的目录。以后要更新，在克隆的仓库里执行 `git pull`，再复制一次即可。
+其他 Agent 请把 `aiberm` 文件夹放到它加载 Skill 的目录。以后要更新，在克隆的仓库里执行 `git pull`，再复制一次即可。
 
 ## 3. 设置两个环境变量
 
@@ -100,9 +100,9 @@ curl -sS "https://aiberm.com/api/user/self" \
 - “帮我在 Aiberm 创建一个叫 `my-app` 的 API Key，额度上限 5 美元。”
 - “把我的 Aiberm 令牌 `old-test` 禁用掉。”
 
-在 Claude Code 里，也可以输入 `/aiberm` 直接调用这个技能。
+在 Claude Code 里，也可以输入 `/aiberm` 直接调用这个 Skill。
 
-| 你问的内容 | 技能读取的接口 |
+| 你问的内容 | Skill 读取的接口 |
 | --- | --- |
 | 余额和累计消费 | `GET /api/user/self` |
 | 分组及其价格倍率 | `GET /api/user/self/groups` |
@@ -124,10 +124,10 @@ curl -sS "https://aiberm.com/api/user/self" \
 - 创建完成后，Agent 会把完整的 Key 显示一次，复制到你的应用或配置里即可。
 - 删除令牌无法撤销，正在使用这个 Key 的应用会立即失效。
 
-## 技能不会做的事
+## Skill 不会做的事
 
 - 除了 API 令牌，不修改任何东西：不付款，不兑换充值码，不改账户资料。这些请到 [控制台](https://aiberm.com/console) 操作。
-- 不重置你的系统访问令牌。技能明确要求 Agent 永远不要调用那个接口。
+- 不重置你的系统访问令牌。Skill 明确要求 Agent 永远不要调用那个接口。
 - 不泄露已有令牌的完整 API Key。令牌列表里包含完整的 Key，Agent 只会显示打码后的形式，例如 `sk-abcd****wxyz`。需要完整 Key 时，请到 [令牌管理](https://aiberm.com/console/token) 复制。唯一的例外是 Agent 刚刚为你创建的令牌。
 
 <Callout client:load type="warning">
@@ -142,7 +142,7 @@ curl -sS "https://aiberm.com/api/user/self" \
 | `未提供 New-Api-User` | 没有设置 `AIBERM_USER_ID`。 |
 | `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` 不是令牌所属账户的 ID。请在同一个账户的个人设置里复制 ID。 |
 | `access token 无效` | 令牌填错了，或者已经重新生成过。生成一个新令牌并更新 `AIBERM_ACCESS_TOKEN`。 |
-| Agent 没有用这个技能 | 确认文件位于 `~/.claude/skills/aiberm/SKILL.md`（或你所用 Agent 的目录），然后开一个新会话。在 Claude Code 里可以直接输入 `/aiberm`。 |
+| Agent 没有用这个 Skill | 确认文件位于 `~/.claude/skills/aiberm/SKILL.md`（或你所用 Agent 的目录），然后开一个新会话。在 Claude Code 里可以直接输入 `/aiberm`。 |
 | `时间跨度不能超过 1 个月` | 按小时的用量每次最多查询 30 天，请缩短时间范围。 |
 
-技能源码和完整的接口列表在 [aiberm-skill 仓库](https://github.com/aiberm/aiberm-skill)。模型接口本身的报错请参阅 [错误处理](/docs/zh/error-handling/)。
+Skill 源码和完整的接口列表在 [aiberm-skill 仓库](https://github.com/aiberm/aiberm-skill)。模型接口本身的报错请参阅 [错误处理](/docs/zh/error-handling/)。
