@@ -1,0 +1,148 @@
+---
+layout: ../../layouts/DocsLayout.astro
+title: Skill de Aiberm para agentes
+description: Instala la skill de Aiberm para que Claude Code, Codex y otros agentes consulten tu saldo, uso y precios de Aiberm, y gestionen tus tokens de API.
+lang: es
+activeId: aiberm-skill
+---
+
+import Callout from '../../components/Callout.tsx';
+
+# Skill de Aiberm para agentes
+
+[aiberm-skill](https://github.com/aiberm/aiberm-skill) le enseña a un agente de programación a leer tu propia cuenta de Aiberm. Una vez instalada, puedes preguntarle a Claude Code, Codex u otro agente: "¿Cuánto saldo me queda en Aiberm?". El agente llama a la API de Aiberm y te responde con palabras sencillas.
+
+La skill lee tu saldo, grupos, modelos, precios, tokens de API, registros de uso y recargas. También puede crear, editar, habilitar, deshabilitar y eliminar tus tokens de API, y te pide confirmación antes de cada cambio.
+
+<Callout client:load type="info">
+Una skill es una carpeta que contiene un archivo `SKILL.md`. El agente lee el archivo cuando tu pregunta coincide con la descripción de la skill y luego ejecuta `curl` por su cuenta. No se ejecuta nada en segundo plano, y no hay nada que compilar ni mantener en ejecución.
+</Callout>
+
+## Requisitos previos
+
+- Una cuenta de Aiberm ([regístrate](https://aiberm.com/register))
+- Un agente compatible con skills, como [Claude Code](/docs/es/claude-code/) o [Codex](/docs/es/codex/)
+- `curl` y un shell compatible con bash. macOS y Linux ya traen ambos. En Windows, Claude Code usa Git Bash.
+
+## 1. Obtén tu ID de usuario y tu token de acceso del sistema
+
+La skill necesita dos valores, ambos en [Configuración personal](https://aiberm.com/console/personal):
+
+| Valor | Dónde encontrarlo |
+| --- | --- |
+| ID de usuario | En el encabezado de la parte superior de la página, como `ID: 123` |
+| Token de acceso del sistema | Pestaña **Configuración de seguridad** → **Token de acceso del sistema** → **Generar token** |
+
+Aiberm comprueba ambos en cada solicitud a la cuenta, y el ID debe pertenecer a la cuenta dueña del token.
+
+<Callout client:load type="warning">
+El token de acceso del sistema **no** es una clave de API (`sk-...`). Funciona como tu inicio de sesión en la consola: cualquiera que lo tenga puede hacer en la consola lo mismo que tú. Mantenlo en privado. Al pulsar **Regenerar** se reemplaza, y todo lo que siga usando el token anterior deja de funcionar.
+</Callout>
+
+## 2. Instala la skill
+
+Copia la carpeta `skills/aiberm` del repositorio en la carpeta de skills de tu agente:
+
+```bash
+git clone https://github.com/aiberm/aiberm-skill.git
+mkdir -p ~/.claude/skills
+cp -R aiberm-skill/skills/aiberm ~/.claude/skills/aiberm
+```
+
+| Agente | Carpeta de skills |
+| --- | --- |
+| Claude Code | `~/.claude/skills/aiberm` para todos los proyectos, o `.claude/skills/aiberm` dentro de un proyecto |
+| Codex | `~/.codex/skills/aiberm` |
+| Cursor | `~/.cursor/skills/aiberm` |
+
+Para otros agentes, coloca la carpeta `aiberm` donde el agente cargue sus skills. Para actualizarla más adelante, ejecuta `git pull` en el repositorio clonado y vuelve a copiar la carpeta.
+
+## 3. Define las dos variables
+
+El agente lee los valores de su entorno, así que defínelos antes de iniciarlo.
+
+**macOS / Linux**: agrega estas líneas a `~/.zshrc` o `~/.bashrc` y luego abre una terminal nueva:
+
+```bash
+export AIBERM_ACCESS_TOKEN="tu-token-de-acceso-del-sistema"
+export AIBERM_USER_ID="123"
+```
+
+**Windows (PowerShell)**: ejecuta estos comandos y luego abre una terminal nueva:
+
+```powershell
+setx AIBERM_ACCESS_TOKEN "tu-token-de-acceso-del-sistema"
+setx AIBERM_USER_ID "123"
+```
+
+<Callout client:load type="tip">
+Solo en Claude Code, puedes poner ambas variables en el bloque `env` de `~/.claude/settings.json` en lugar de definirlas así.
+</Callout>
+
+Para comprobar los valores antes de usar un agente, consulta tu perfil. `data.quota` dividido entre 500000 es tu saldo restante en USD.
+
+```bash
+curl -sS "https://aiberm.com/api/user/self" \
+  -H "Authorization: Bearer $AIBERM_ACCESS_TOKEN" \
+  -H "New-Api-User: $AIBERM_USER_ID"
+```
+
+## 4. Pregúntale a tu agente
+
+Inicia una sesión nueva del agente y pregunta con tus propias palabras:
+
+- "¿Cuánto saldo me queda en Aiberm?"
+- "¿Cuánto gasté ayer en Aiberm, desglosado por modelo?"
+- "Lista mis tokens de API de Aiberm y la cuota que le queda a cada uno."
+- "¿Cuánto cuesta `claude-sonnet-5-5` por 1M de tokens en mi grupo?"
+- "¿Qué modelos usé más en Aiberm esta semana?"
+- "Muéstrame mis últimas recargas en Aiberm."
+- "Crea una clave de API de Aiberm llamada `my-app` con un límite de $5."
+- "Desactiva mi token de Aiberm `old-test`."
+
+En Claude Code también puedes invocar la skill directamente con `/aiberm`.
+
+| Si preguntas por | La skill consulta |
+| --- | --- |
+| Saldo y gasto total | `GET /api/user/self` |
+| Grupos y sus multiplicadores de precio | `GET /api/user/self/groups` |
+| Modelos que puedes llamar | `GET /api/user/models` |
+| Precios de los modelos | `GET /api/pricing` |
+| Tokens de API | `GET /api/token/` |
+| Registros de uso | `GET /api/log/self` |
+| Totales de uso | `GET /api/log/self/stat` |
+| Uso por hora y por modelo | `GET /api/data/self` |
+| Historial de recargas | `GET /api/user/topup/self` |
+| Crear, editar o eliminar tokens de API | `POST`, `PUT` o `DELETE /api/token/` |
+
+Los importes se convierten a USD a razón de 500000 de cuota = $1. Los precios usan los multiplicadores de los grupos de tu cuenta, no los valores públicos predeterminados.
+
+### Crear y modificar tokens de API
+
+- Antes de crear, editar, habilitar, deshabilitar o eliminar un token, el agente te muestra lo que va a enviar y espera a que lo confirmes.
+- Salvo que pidas otra cosa, un token nuevo tiene cuota ilimitada y no vence, igual que en la consola. Puedes pedir un límite de gasto, una fecha de vencimiento, un grupo o una lista de modelos permitidos.
+- Después de crear un token, el agente muestra su clave completa una sola vez. Cópiala en tu app o en tu configuración.
+- Eliminar un token no se puede deshacer, y las apps que usan su clave dejan de funcionar de inmediato.
+
+## Lo que la skill no hace
+
+- Aparte de los tokens de API, no modifica nada. No hace pagos, no canjea códigos de recarga ni edita tu cuenta. Para eso, usa la [consola](https://aiberm.com/console).
+- No restablece tu token de acceso del sistema. La skill le indica al agente que nunca llame a esa ruta.
+- No revela las claves completas de tus tokens de API existentes. La lista de tokens contiene las claves completas, y el agente las muestra enmascaradas, como `sk-abcd****wxyz`. Copia una clave completa desde [Gestión de tokens](https://aiberm.com/console/token). La única excepción es un token que el agente acaba de crear para ti.
+
+<Callout client:load type="warning">
+Estas reglas son instrucciones para el agente, no un bloqueo técnico. El token permite todo lo que permite tu inicio de sesión en la consola. Úsalo solo con agentes y equipos de confianza. Si se filtra, pulsa **Regenerar** en Configuración personal.
+</Callout>
+
+## Solución de problemas
+
+| Lo que ves | Qué hacer |
+| --- | --- |
+| El agente dice que faltan las variables | Define ambas, abre una terminal nueva e inicia una sesión nueva del agente. |
+| `未提供 New-Api-User` | `AIBERM_USER_ID` no está definida. |
+| `New-Api-User 与登录用户不匹配` | `AIBERM_USER_ID` no es el ID de la cuenta dueña del token. Copia el ID desde Configuración personal de esa misma cuenta. |
+| `access token 无效` | El token es incorrecto o se regeneró. Genera uno nuevo y actualiza `AIBERM_ACCESS_TOKEN`. |
+| El agente no usa la skill | Comprueba que el archivo esté en `~/.claude/skills/aiberm/SKILL.md` (o en la carpeta de tu agente) e inicia una sesión nueva. En Claude Code, escribe `/aiberm`. |
+| `时间跨度不能超过 1 个月` | El uso por hora abarca como máximo 30 días por solicitud. Pide un rango más corto. |
+
+El código fuente de la skill y la lista completa de solicitudes están en el [repositorio aiberm-skill](https://github.com/aiberm/aiberm-skill). Para errores de la propia API de modelos, consulta [Manejo de errores](/docs/es/error-handling/).
